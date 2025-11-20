@@ -4,6 +4,7 @@ import 'BookingPage.dart';
 class OPTPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    double fontsize=32;
     return Scaffold(
       appBar: AppBar(
         title: Text("หน้าลงทะเบียน"),
@@ -25,7 +26,7 @@ class OPTPage extends StatelessWidget {
                   child: Text(
                     'เบอร์โทรศัพท์ หรือ Email',
                     textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 32),
+                    style: TextStyle(fontSize: fontsize),
                   ),
                 ),
                 Container(
@@ -44,7 +45,7 @@ class OPTPage extends StatelessWidget {
                   child: Text(
                     'OTP',
                     textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 32),
+                    style: TextStyle(fontSize: fontsize),
                   ),
                 ),
                 Container(
@@ -61,7 +62,7 @@ class OPTPage extends StatelessWidget {
                   alignment: AlignmentDirectional.bottomEnd,
                   child: TextButton(onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingPage()));
-                  }, child: Text("ยืนยัน",style: TextStyle(fontSize: 32),))
+                  }, child: Text("ยืนยัน",style: TextStyle(fontSize: fontsize),))
                 ),
 
               ],

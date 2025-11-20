@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/ChoseTimePage.dart';
 
 class BookingPage extends StatelessWidget{
   const BookingPage({super.key});
 
   @override
   Widget build(BuildContext context){
+    double fontsize=32;
     return Scaffold(
       appBar: AppBar(
         title: Text('หน้าจองตู้ล็อคเกอร์'),
@@ -24,7 +26,7 @@ class BookingPage extends StatelessWidget{
               SizedBox(
                 height: 100,
               ),
-              Text('เลือกตู้ล็อคเกอร์',style: TextStyle(fontSize: 32)),
+              Text('เลือกตู้ล็อคเกอร์',style: TextStyle(fontSize: fontsize)),
               SizedBox(
                 height: 50,
               ),
@@ -37,19 +39,19 @@ class BookingPage extends StatelessWidget{
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A1',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A1',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     ),
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A2',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A2',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     ),
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A3',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A3',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     )
                   ],
@@ -63,19 +65,19 @@ class BookingPage extends StatelessWidget{
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A4',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A4',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     ),
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A5',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A5',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     ),
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A6',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A6',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     )
                   ],
@@ -89,19 +91,19 @@ class BookingPage extends StatelessWidget{
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A7',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A7',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     ),
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A8',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A8',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     ),
                     Container(
                       padding: EdgeInsets.all(20.0),
                       margin: EdgeInsets.all(10.0),
-                      child: Text('A9',style: TextStyle(color: Colors.white,fontSize: 32),),
+                      child: Text('A9',style: TextStyle(color: Colors.white,fontSize: fontsize),),
                       color: Colors.green,
                     )
                   ],
@@ -114,8 +116,8 @@ class BookingPage extends StatelessWidget{
               Container(
                 child: 
                 TextButton(onPressed: (){
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }, child: Text('จอง',style: TextStyle(fontSize: 32),)),
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ChoseTimePage()));
+                }, child: Text('จอง',style: TextStyle(fontSize: fontsize),)),
               )
             ],
 

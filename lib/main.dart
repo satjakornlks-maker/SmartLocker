@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/RegisterPage.dart';
+import 'package:untitled/ResetPasswordPage.dart';
 import 'OTPPage.dart';
 import 'UnlockPage.dart';
+
+
 void main() {
   runApp(const MyApp());
 }
@@ -11,9 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Test Flutter',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -27,10 +29,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   @override
   Widget build(BuildContext context) {
+    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -40,31 +41,68 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: .start,
           children: [
-            SizedBox(
-              height: 100,
-            ),
+            SizedBox(height: 100),
             Container(
               padding: EdgeInsets.all(20.0),
-              child: TextButton(onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => OPTPage()));
-              }, child: Text('ลงทะเบียน',style: TextStyle(fontSize: 32),)),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => OPTPage()),
+                  );
+                },
+                child: Text('ลงทะเบียน', style: TextStyle(fontSize: fontsize)),
+              ),
             ),
-            SizedBox(
-
-            ),
+            SizedBox(),
             Container(
               padding: EdgeInsets.all(20.0),
-              child: TextButton(onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockPage()));
-              }, child: Text('ปลดล็อค',style: TextStyle(fontSize: 32),)),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UnlockPage()),
+                  );
+                },
+                child: Text('ปลดล็อค', style: TextStyle(fontSize: fontsize)),
+              ),
             ),
-
-
-
+            SizedBox(),
+            Container(
+              padding: EdgeInsets.all(20.0),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterPage()),
+                  );
+                },
+                child: Text(
+                  'สมัครสมาชิก(จองใช้ประจำ)',
+                  style: TextStyle(fontSize: fontsize),
+                ),
+              ),
+            ),
+            SizedBox(),
+            Container(
+              padding: EdgeInsets.all(20.0),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+                  );
+                },
+                child: Text(
+                  'เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ',
+                  style: TextStyle(fontSize: fontsize),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           ],
         ),
       ),
-
     );
   }
 }
