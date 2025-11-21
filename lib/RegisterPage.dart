@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/NoticePage.dart';
+import 'componants/BuildFromField.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -8,10 +9,13 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPage extends State<RegisterPage> {
   @override
+  double fontsize = 32;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _telController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _reasonController = TextEditingController();
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         title: Text('หน้าสมัครสมาชิก'),
@@ -24,74 +28,60 @@ class _RegisterPage extends State<RegisterPage> {
           child: Column(
             children: [
               SizedBox(height: 50),
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text('ชื่อ-สกุล', style: TextStyle(fontSize: fontsize)),
+
+              BuildFormField(
+                label: "ชื่อ-สกุล",
+                controller: _nameController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกชื่อ';
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 20),
-              Container(
-                child: TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(),
-                  ),
-                  validator: (value){
-                    if(value == null || value.isEmpty){
-                      return 'กรุณากรอกชื่อ';
-                    }
-                  },
-                ),
+
+              BuildFormField(
+                label: 'เบอร์โทร',
+                controller: _telController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกเบอร์โทร';
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 20),
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text('เบอร์โทร', style: TextStyle(fontSize: fontsize)),
+
+              BuildFormField(
+                label: 'Email',
+                controller: _emailController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกอีเมล';
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 20),
-              Container(
-                child: TextField(
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(),
-                  ),
-                ),
+
+              BuildFormField(
+                label: 'เหตุผล',
+                controller: _reasonController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกเหตุผล';
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 20),
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text('Email', style: TextStyle(fontSize: fontsize)),
-              ),
-              SizedBox(height: 20),
-              Container(
-                child: TextField(
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text('เหตุผล', style: TextStyle(fontSize: fontsize)),
-              ),
-              SizedBox(height: 20),
-              Container(
-                child: TextField(
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
+
               Container(
                 child: TextButton(
                   onPressed: () {
-                    if(_formKey.currentState!.validate()){
+                    if (_formKey.currentState!.validate()) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => NoticePage()),
                       );
                     }
-
                   },
                   child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
                 ),

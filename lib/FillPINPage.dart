@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/ForgotPasswordPage.dart';
+import 'componants/BuildFromField.dart';
 
 class FillPinPage extends StatefulWidget{
   @override
@@ -28,32 +29,20 @@ class _FillPinPage extends State<FillPinPage>{
               SizedBox(
                 height: 50,
               ),
-              Container(
-                alignment: AlignmentDirectional.topStart,
-                child: Text('PIN(OTP)',style: TextStyle(fontSize: fontsize),),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                child: TextFormField(
+
+              BuildFormField(label: 'PIN(OTP)',
                   controller: _PINContorller,
-                  decoration: InputDecoration(enabledBorder: OutlineInputBorder()),
                   validator: (value){
-                    if(value == null||value.isEmpty){
-                      return 'กรุณากรอก PIN';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
+                  if(value == null || value.isEmpty){
+                    return 'กรุณากรอก PIN';
+                  }
+                  return null;
+                  }),
+
+
               Container(
                 child: TextButton(onPressed: (){
                   if (_formKey.currentState!.validate()){
-                    dispose();
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   }
                 }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
@@ -63,7 +52,6 @@ class _FillPinPage extends State<FillPinPage>{
               ),
               Container(
                 child: TextButton(onPressed: (){
-                  dispose();
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
                 }, child: Text('ลืมรหัสผ่าน',style: TextStyle(fontSize: fontsize),)),
               )

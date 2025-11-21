@@ -4,7 +4,6 @@ import 'package:untitled/ResetPasswordPage.dart';
 import 'OTPPage.dart';
 import 'UnlockPage.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flow Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title:  'Flow Prototype'),
+      home: const MyHomePage(title: 'Flow Prototype'),
     );
   }
 }
@@ -49,10 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => OPTPage()),
+                      MaterialPageRoute(builder: (context) => OTPPage()),
                     );
                   },
-                  child: Text('ลงทะเบียน', style: TextStyle(fontSize: fontsize)),
+                  child: Text(
+                    'ลงทะเบียน',
+                    style: TextStyle(fontSize: fontsize),
+                  ),
                 ),
               ),
               SizedBox(),
@@ -91,7 +93,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+                      MaterialPageRoute(
+                        builder: (context) => ResetPasswordPage(),
+                      ),
                     );
                   },
                   child: Text(
@@ -107,6 +111,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-
 }

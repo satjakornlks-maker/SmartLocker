@@ -1,60 +1,77 @@
 import 'package:flutter/material.dart';
-class ForgotPasswordPage extends StatelessWidget {
-  @override 
+import 'componants/BuildFromField.dart';
+
+class ForgotPasswordPage extends StatefulWidget {
+  @override
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPage();
+}
+
+class _ForgotPasswordPage extends State<ForgotPasswordPage> {
+  @override
+  final _formKey = GlobalKey<FormState>();
+  final _TelOrEmailController = TextEditingController();
+  final _OTPController = TextEditingController();
   Widget build(BuildContext context){
+
     double fontsize = 32;
     return Scaffold(
       appBar: AppBar(title: Text('หน้าลืมรหัสผ่าน'),
       backgroundColor: Colors.blue,),
       body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            margin: EdgeInsets.all(60),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 50,
-                ),
-                Container(
-                  alignment: AlignmentDirectional.topStart,
-                  child: 
-                  Text('เบอร์โทร หรือ อีเมล ที่ใช้ในการลงทะเบียน',textAlign: TextAlign.center,style: TextStyle(fontSize: fontsize),),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  child: TextField(decoration: InputDecoration(enabledBorder: OutlineInputBorder()),),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  child: TextButton(onPressed: (){}, child: Text('รับ OTP',style: TextStyle(fontSize: fontsize),))
-                ),
-                SizedBox(height: 20,),
-                Container(
-                  alignment: AlignmentDirectional.topStart,
-                  child: Text('OTP',style: TextStyle(fontSize: fontsize),),
-                ),
-                SizedBox(height: 20,),
-                Container(
-                  child: TextField(decoration: InputDecoration(enabledBorder: OutlineInputBorder()),),
-                ),
-                SizedBox(height: 20,),
-                Container(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  
-                  child: TextButton(onPressed: (){
-                    Navigator.of(context).popUntil((route)=>route.isFirst);
-                  }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
-                )
-              ],
+        child: Form(
+          key: _formKey,
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.all(60),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 50,
+                  ),
+
+                  BuildFormField(
+                      label: 'เบอร์โทรหรืออีเมลที่ลงทะเบียน',
+                      controller: _TelOrEmailController,
+                      validator: (value){
+                        if(value == null || value.isEmpty){
+                          return 'กรุณากรอกเบอร์หรืออีเมลที่ลงทะเบียน';
+                        }
+                        return null;
+                      }),
+
+                  BuildFormField(
+                      label: 'OPT',
+                      controller: _OTPController,
+                      validator: (value){
+                        if(value == null || value.isEmpty){
+                          return 'กรุณากรอก OTP';
+                        }
+                        return null;
+                      }),
+
+
+                  Container(
+                    alignment: AlignmentDirectional.bottomEnd,
+                    child: TextButton(onPressed: (){
+                      if(_formKey.currentState!.validate()){
+                        Navigator.of(context).popUntil((route)=>route.isFirst);
+
+
+                      }
+                    }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
+                  )
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+  @override
+  void dispose(){
+    _TelOrEmailController.dispose();
+    _OTPController.dispose();
+    super.dispose();
   }
 }

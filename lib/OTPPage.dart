@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/componants/BuildFromField.dart';
 import 'BookingPage.dart';
 
-class OPTPage extends StatelessWidget {
+class OTPPage extends StatefulWidget{
+  State<OTPPage> createState()=> _OTPPage();
+}
+
+
+class _OTPPage extends State<OTPPage> {
   @override
+  final _OTPController = TextEditingController();
+  final _TelOrEMailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   Widget build(BuildContext context) {
     double fontsize=32;
     return Scaffold(
@@ -11,69 +20,66 @@ class OPTPage extends StatelessWidget {
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            // color: Colors.red,
-            padding: EdgeInsetsGeometry.all(50.0),
-        
-            child:Container(
-              child: Column(
-                mainAxisAlignment: .start,
-                crossAxisAlignment: .center,
-                children: [
-                  Container(
-                    // color: Colors.blue,
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      'เบอร์โทรศัพท์ หรือ Email',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: fontsize),
+        child: Form(
+          key: _formKey,
+          child: Center(
+            child: Container(
+              // color: Colors.red,
+              padding: EdgeInsetsGeometry.all(50.0),
+
+              child:Container(
+                child: Column(
+                  mainAxisAlignment: .start,
+                  crossAxisAlignment: .center,
+                  children: [
+
+                    BuildFormField(
+                        label: 'เบอร์โทรศัพท์หรืออีเมล',
+                        controller: _TelOrEMailController,
+                        validator: (value){
+                          if(value == null || value.isEmpty){
+                            return 'กรุณากรอก เบอร์โทรศัพท์หรืออีเมล';
+                          }
+                          return null;
+                        }),
+
+                    BuildFormField(
+                        label: 'OTP',
+                        controller: _OTPController,
+                        validator: (value){
+                          if(value == null || value.isEmpty){
+                            return 'กรุณากรอก OTP';
+                          }
+                          return null;
+                        }),
+
+
+                    Container(
+                      // color: Colors.orange,
+                      alignment: AlignmentDirectional.bottomEnd,
+                      child: TextButton(onPressed: (){
+                        if(_formKey.currentState!.validate()){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingPage()));
+                        }
+                      }, child: Text("ยืนยัน",style: TextStyle(fontSize: fontsize),))
                     ),
-                  ),
-                  Container(
-                    // color: Colors.orange,
-                    child: TextField(
-                      decoration: InputDecoration(enabledBorder: OutlineInputBorder()),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-        
-                  Container(
-                    // color: Colors.blue,
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      'OTP',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: fontsize),
-                    ),
-                  ),
-                  Container(
-                    // color: Colors.orange,
-                    child: TextField(
-                    decoration: InputDecoration(enabledBorder: OutlineInputBorder()),
-                    ),
-                  ),
-                  SizedBox(
-                  height: 20,
-                  ),
-                  Container(
-                    // color: Colors.orange,
-                    alignment: AlignmentDirectional.bottomEnd,
-                    child: TextButton(onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingPage()));
-                    }, child: Text("ยืนยัน",style: TextStyle(fontSize: fontsize),))
-                  ),
-        
-                ],
-              ),
-            )
-        
-        
+
+                  ],
+                ),
+              )
+
+
+            ),
           ),
         ),
       ),
     );
+
+  }
+  @override
+  void dispose(){
+    _OTPController.dispose();
+    _TelOrEMailController.dispose();
+    super.dispose();
   }
 }
