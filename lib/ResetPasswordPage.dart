@@ -65,7 +65,9 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                   Container(
                     child: TextButton(
                       onPressed: () {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        if(_formkey.currentState!.validate()){
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        }
                       },
                       child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
                     ),
@@ -74,6 +76,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                   Container(
                     child: TextButton(
                       onPressed: () {
+
                         Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
                       },
                       child: Text(
