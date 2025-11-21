@@ -4,6 +4,8 @@ import 'componants/BuildFromField.dart';
 
 class FillPinPage extends StatefulWidget{
   @override
+  final String? lockerId;
+  const FillPinPage({Key?key, this.lockerId}):super(key:key);
   State<FillPinPage> createState() => _FillPinPage();
 }
 
@@ -27,8 +29,17 @@ class _FillPinPage extends State<FillPinPage>{
             child:
             Column(
               children: [
+
+
                 SizedBox(
                   height: 50,
+                ),
+
+                Container(
+                  child: Text('ตู้ที่เลือก ${widget.lockerId!}',style: TextStyle(fontSize: fontsize,color: Colors.green),),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
         
                 BuildFormField(label: 'PIN(OTP)',

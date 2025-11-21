@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:untitled/BookingPage.dart';
 import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
-import 'OTPPage.dart';
 import 'UnlockPage.dart';
 
 void main() {
@@ -47,10 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.all(20.0),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => BookingPage()),
-                    );
+
+                    _handleBooking();
+
                   },
                   child: Text(
                     'ลงทะเบียน',
@@ -111,5 +109,16 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+
+
+  }
+  Future<void>_handleBooking()async{
+    await Future.delayed(Duration.zero);
+    if(!mounted)return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BookingPage()),
+    );
+
   }
 }

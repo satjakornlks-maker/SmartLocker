@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/ChoseTimePage.dart';
 import 'package:untitled/componants/BuildFromField.dart';
-import 'BookingPage.dart';
 
 class OTPPage extends StatefulWidget{
+  final String? lockerId;
+  const OTPPage({Key?key, this.lockerId}):super(key:key);
   State<OTPPage> createState()=> _OTPPage();
 }
 
@@ -33,7 +34,13 @@ class _OTPPage extends State<OTPPage> {
                   mainAxisAlignment: .start,
                   crossAxisAlignment: .center,
                   children: [
-
+                    
+                    Container(
+                      child: Text('ตู้ที่เลือก ${widget.lockerId!}',style: TextStyle(fontSize: fontsize,color: Colors.green),),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
                     BuildFormField(
                         label: 'เบอร์โทรศัพท์หรืออีเมล',
                         controller: _TelOrEMailController,
