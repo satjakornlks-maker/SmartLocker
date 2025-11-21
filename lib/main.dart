@@ -14,9 +14,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Test Flutter',
+      title: 'Flow Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title:  'Flow Prototype'),
     );
   }
 }
@@ -37,72 +37,76 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .start,
-          children: [
-            SizedBox(height: 100),
-            Container(
-              padding: EdgeInsets.all(20.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => OPTPage()),
-                  );
-                },
-                child: Text('ลงทะเบียน', style: TextStyle(fontSize: fontsize)),
-              ),
-            ),
-            SizedBox(),
-            Container(
-              padding: EdgeInsets.all(20.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UnlockPage()),
-                  );
-                },
-                child: Text('ปลดล็อค', style: TextStyle(fontSize: fontsize)),
-              ),
-            ),
-            SizedBox(),
-            Container(
-              padding: EdgeInsets.all(20.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
-                  );
-                },
-                child: Text(
-                  'สมัครสมาชิก(จองใช้ประจำ)',
-                  style: TextStyle(fontSize: fontsize),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: .start,
+            children: [
+              SizedBox(height: 100),
+              Container(
+                padding: EdgeInsets.all(20.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => OPTPage()),
+                    );
+                  },
+                  child: Text('ลงทะเบียน', style: TextStyle(fontSize: fontsize)),
                 ),
               ),
-            ),
-            SizedBox(),
-            Container(
-              padding: EdgeInsets.all(20.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ResetPasswordPage()),
-                  );
-                },
-                child: Text(
-                  'เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ',
-                  style: TextStyle(fontSize: fontsize),
-                  textAlign: TextAlign.center,
+              SizedBox(),
+              Container(
+                padding: EdgeInsets.all(20.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UnlockPage()),
+                    );
+                  },
+                  child: Text('ปลดล็อค', style: TextStyle(fontSize: fontsize)),
                 ),
               ),
-            ),
-          ],
+              SizedBox(),
+              Container(
+                padding: EdgeInsets.all(20.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterPage()),
+                    );
+                  },
+                  child: Text(
+                    'สมัครสมาชิก(จองใช้ประจำ)',
+                    style: TextStyle(fontSize: fontsize),
+                  ),
+                ),
+              ),
+              SizedBox(),
+              Container(
+                padding: EdgeInsets.all(20.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+                    );
+                  },
+                  child: Text(
+                    'เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ',
+                    style: TextStyle(fontSize: fontsize),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
 }

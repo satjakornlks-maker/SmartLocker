@@ -53,6 +53,7 @@ class _FillPinPage extends State<FillPinPage>{
               Container(
                 child: TextButton(onPressed: (){
                   if (_formKey.currentState!.validate()){
+                    dispose();
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   }
                 }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
@@ -62,6 +63,7 @@ class _FillPinPage extends State<FillPinPage>{
               ),
               Container(
                 child: TextButton(onPressed: (){
+                  dispose();
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
                 }, child: Text('ลืมรหัสผ่าน',style: TextStyle(fontSize: fontsize),)),
               )

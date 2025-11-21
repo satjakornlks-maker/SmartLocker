@@ -19,7 +19,7 @@ class _RegisterPage extends State<RegisterPage> {
       ),
       body: Form(
         key: _formKey,
-        child: Container(
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(40),
           child: Column(
             children: [
