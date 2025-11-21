@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/ChoseTimePage.dart';
 import 'package:untitled/componants/BuildFromField.dart';
 import 'BookingPage.dart';
 
@@ -59,7 +60,7 @@ class _OTPPage extends State<OTPPage> {
                       alignment: AlignmentDirectional.bottomEnd,
                       child: TextButton(onPressed: (){
                         if(_formKey.currentState!.validate()){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingPage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>ChoseTimePage()));
                         }
                       }, child: Text("ยืนยัน",style: TextStyle(fontSize: fontsize),))
                     ),

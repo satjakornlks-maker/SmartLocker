@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/BookingPage.dart';
 import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
 import 'OTPPage.dart';
@@ -48,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => OTPPage()),
+                      MaterialPageRoute(builder: (context) => BookingPage()),
                     );
                   },
                   child: Text(

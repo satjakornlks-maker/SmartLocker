@@ -19,43 +19,45 @@ class _FillPinPage extends State<FillPinPage>{
         title: Text('หน้าใส่ PIN'),
         backgroundColor: Colors.blue,
       ),
-      body: Form(
-        key: _formKey,
-        child: Container(
-          margin: EdgeInsets.all(40),
-          child:
-          Column(
-            children: [
-              SizedBox(
-                height: 50,
-              ),
-
-              BuildFormField(label: 'PIN(OTP)',
-                  controller: _PINContorller,
-                  validator: (value){
-                  if(value == null || value.isEmpty){
-                    return 'กรุณากรอก PIN';
-                  }
-                  return null;
-                  }),
-
-
-              Container(
-                child: TextButton(onPressed: (){
-                  if (_formKey.currentState!.validate()){
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  }
-                }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                child: TextButton(onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
-                }, child: Text('ลืมรหัสผ่าน',style: TextStyle(fontSize: fontsize),)),
-              )
-            ],
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Container(
+            margin: EdgeInsets.all(40),
+            child:
+            Column(
+              children: [
+                SizedBox(
+                  height: 50,
+                ),
+        
+                BuildFormField(label: 'PIN(OTP)',
+                    controller: _PINContorller,
+                    validator: (value){
+                    if(value == null || value.isEmpty){
+                      return 'กรุณากรอก PIN';
+                    }
+                    return null;
+                    }),
+        
+        
+                Container(
+                  child: TextButton(onPressed: (){
+                    if (_formKey.currentState!.validate()){
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    }
+                  }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  child: TextButton(onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
+                  }, child: Text('ลืมรหัสผ่าน',style: TextStyle(fontSize: fontsize),)),
+                )
+              ],
+            ),
           ),
         ),
       ),
