@@ -130,18 +130,4 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
     }
   }
 
-  void _handleBooking() {
-    if (selectedLocker != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OTPPage(lockerId: selectedLocker!),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์')));
-    }
-  }
 }

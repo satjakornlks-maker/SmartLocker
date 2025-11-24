@@ -30,8 +30,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
+
+  double fontsize = 32;
+
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -42,90 +44,52 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: .start,
             children: [
-              SizedBox(height: 100),
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child: TextButton(
-                  onPressed: () {
-                    _handleBooking();
-                  },
-                  child: Text(
-                    'ลงทะเบียน',
-                    style: TextStyle(fontSize: fontsize),
-                  ),
-                ),
-              ),
+              SizedBox(height: 50),
+              _buildMenuButton('ลงทะเบียน', _handleBooking),
               SizedBox(),
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => UnlockPage()),
-                    );
-                  },
-                  child: Text('ปลดล็อค', style: TextStyle(fontSize: fontsize)),
-                ),
-              ),
+              _buildMenuButton('ปลดล็อค', (){
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UnlockPage()),
+              );}),
               SizedBox(),
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RegisterPage()),
-                    );
-                  },
-                  child: Text(
-                    'สมัครสมาชิก(จองใช้ประจำ)',
-                    style: TextStyle(fontSize: fontsize),
-                  ),
-                ),
-              ),
+              _buildMenuButton('สมัครสมาชิก(จองใช้ประจำ)', (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPage()),
+                );
+              }),
               SizedBox(),
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ResetPasswordPage(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ',
-                    style: TextStyle(fontSize: fontsize),
-                    textAlign: TextAlign.center,
+              _buildMenuButton('เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ', (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ResetPasswordPage(),
                   ),
-                ),
-              ),
+                );
+              }),
               SizedBox(),
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EmergencyUnlockPage(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'หน้าปลดล็อคฉุกเฉิน',
-                    style: TextStyle(fontSize: fontsize),
-                    textAlign: TextAlign.center,
+              _buildMenuButton('หน้าปลดล็อคฉุกเฉิน', (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EmergencyUnlockPage(),
                   ),
-                ),
-              ),
+                );
+              })
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMenuButton(String text, VoidCallback onPressed){
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: TextButton(onPressed: onPressed,
+          child: Text(text,style: TextStyle(fontSize: fontsize),
+          textAlign: TextAlign.center,)),
     );
   }
 
