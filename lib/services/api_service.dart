@@ -12,14 +12,60 @@ class ApiService {
     )
   );
 
-  Future<Map<String,dynamic>> bookLocker(String lockerId) async {
+  Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason) async {
+    try{
+      final responss = await _dio.post(
+          '/post',
+          data: {
+            'name': name,
+            'tel':tel,
+            'email':email,
+            'reason':reason,
+            'timestamp' : DateTime.now().toIso8601String(),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> sendOTP(String tel ) async {
+    try{
+      final responss = await _dio.post(
+          '/post',
+          data: {
+            'tel': tel,
+            'timestamp' : DateTime.now().toIso8601String(),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> bookLocker(String lockerId ,String pin,String type) async {
     try{
       final responss = await _dio.post(
         '/post',
         data: {
+          'pin' : pin,
           'lockerId': lockerId,
           'timestamp' : DateTime.now().toIso8601String(),
-          'status': 'booked',
+          'type' : type
         }
       );
       return{

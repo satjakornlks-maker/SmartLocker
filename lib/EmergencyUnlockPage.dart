@@ -134,13 +134,8 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
   }
 
   void _onLockerTap(String lockerId, bool isAvailable) {
-    if (isAvailable) {
       setState(() => selectedLocker = lockerId);
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('ตู้ $lockerId ไม่ว่าง')));
-    }
+
   }
 
   Future<void> _handleOrder(String order) async{
