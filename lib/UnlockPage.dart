@@ -40,6 +40,7 @@ class _UnlockPage extends State<UnlockPage> {
 
                 Container(
                   child: GridView.builder(
+                    physics: NeverScrollableScrollPhysics(),
                       padding: EdgeInsets.all(100),
 
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -58,7 +59,6 @@ class _UnlockPage extends State<UnlockPage> {
                             onTap: _onLockerTap);
                       }),
                 ),
-                SizedBox(height: 30,),
 
                 if(selectedLocker != null)
                   Container(

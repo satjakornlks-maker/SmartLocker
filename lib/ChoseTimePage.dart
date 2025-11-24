@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class ChoseTimePage extends StatefulWidget {
-  const ChoseTimePage({super.key});
+  final String? lockerId;
+  final String? TelOrEmail;
+  final String? OTP;
+  const ChoseTimePage({Key? key, this.lockerId, this.TelOrEmail, this.OTP}) : super(key:key);
   @override
   State<ChoseTimePage> createState() => _ChoseTimePage();
 }
@@ -71,7 +74,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
                   height: 200,
                   padding: EdgeInsets.all(10),
                   child: CupertinoPicker(
-                    itemExtent: 40,
+                    itemExtent: 61,
                     scrollController: FixedExtentScrollController(
                       initialItem: minute,
                     ),
@@ -79,7 +82,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
                       setState(() => minute = index);
                     },
                     children: List.generate(
-                      25,
+                      61,
                       (index) => Center(child: Text('$index นาที')),
                     ),
                   ),

@@ -26,8 +26,9 @@ class _BuildLockerBox extends State<BuildLockerBox>{
     return GestureDetector(
       onTap: ()=> widget.onTap(widget.lockerId, isAvailable),
       child: Container(
+
         decoration: BoxDecoration(
-          color: isSelected? Colors.lightGreenAccent : (isAvailable?Colors.green:Colors.red),
+          color: isSelected? Colors.blue : (isAvailable?Colors.green:Colors.red),
           borderRadius: BorderRadius.circular(10),
           //border: isSelected ? Border.all(color: Colors.lime,width: 4):null,
         ),

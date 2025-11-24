@@ -29,72 +29,77 @@ class _BookingPage extends State<BookingPage> {
         title: Text('หน้าจองตู้ล็อคเกอร์'),
         backgroundColor: Colors.blue,
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            child: Column(
-              mainAxisAlignment: .start,
-              crossAxisAlignment: .center,
-              children: [
-                SizedBox(height: 100),
-                Text('เลือกตู้ล็อคเกอร์', style: TextStyle(fontSize: fontsize)),
-                SizedBox(height: 50),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Center(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: .start,
+                  crossAxisAlignment: .center,
+                  children: [
+                    SizedBox(height: 100),
+                    Text('เลือกตู้ล็อคเกอร์', style: TextStyle(fontSize: fontsize)),
+                    SizedBox(height: 50),
 
-                BuildLegend(),
-                SizedBox(height: 30),
+                    BuildLegend(),
+                    SizedBox(height: 30),
 
-                Container(
-                  child: GridView.builder(
-                    padding: EdgeInsets.all(100),
+                    Container(
 
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1,
+                      child: GridView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.all(100),
+
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 1,
+                        ),
+                        shrinkWrap: true,
+                        itemCount: lockerStatus.length,
+                        itemBuilder: (context, index) {
+                          String lockerId = 'A${index + 1}';
+                          return BuildLockerBox(
+                            lockerId: lockerId,
+                            selectedLocker: selectedLocker,
+                            lockerStatus: lockerStatus,
+                            onTap: _onLockerTap,
+                          );
+                        },
+                      ),
                     ),
-                    shrinkWrap: true,
-                    itemCount: lockerStatus.length,
-                    itemBuilder: (context, index) {
-                      String lockerId = 'A${index + 1}';
-                      return BuildLockerBox(
-                        lockerId: lockerId,
-                        selectedLocker: selectedLocker,
-                        lockerStatus: lockerStatus,
-                        onTap: _onLockerTap,
-                      );
-                    },
-                  ),
+
+                    if (selectedLocker != null)
+                      Container(
+                        padding: EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'เลือกตู้: $selectedLocker',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    SizedBox(height: 50),
+
+                    Container(
+                      child: TextButton(
+                        onPressed: () {
+                          _handleBooking();
+                        },
+                        child: Text('จอง', style: TextStyle(fontSize: fontsize)),
+                      ),
+                    ),
+                    SizedBox(height: 40),
+                  ],
                 ),
-                SizedBox(height: 30),
-
-                if (selectedLocker != null)
-                  Container(
-                    padding: EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'เลือกตู้: $selectedLocker',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                SizedBox(height: 50),
-
-                Container(
-                  child: TextButton(
-                    onPressed: () {
-                      _handleBooking();
-                    },
-                    child: Text('จอง', style: TextStyle(fontSize: fontsize)),
-                  ),
-                ),
-                SizedBox(height: 40),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

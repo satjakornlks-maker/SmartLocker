@@ -74,7 +74,7 @@ class _OTPPage extends State<OTPPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ChoseTimePage(),
+                                builder: (context) => ChoseTimePage(lockerId: widget.lockerId,TelOrEmail: _TelOrEMailController.text,OTP: _OTPController.text,),
                               ),
                             );
                           }
