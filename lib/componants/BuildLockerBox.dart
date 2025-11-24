@@ -27,8 +27,9 @@ class _BuildLockerBox extends State<BuildLockerBox>{
       onTap: ()=> widget.onTap(widget.lockerId, isAvailable),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected? Colors.blue : (isAvailable?Colors.green:Colors.red),
-          border: isSelected ? Border.all(color: Colors.yellow,width: 4):null,
+          color: isSelected? Colors.lightGreenAccent : (isAvailable?Colors.green:Colors.red),
+          borderRadius: BorderRadius.circular(10),
+          //border: isSelected ? Border.all(color: Colors.lime,width: 4):null,
         ),
         child: Center(
           child: Text(widget.lockerId,style: TextStyle(color: Colors.white,fontSize: 24,fontWeight: FontWeight.bold),),

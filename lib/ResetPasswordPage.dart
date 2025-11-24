@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:untitled/ForgotPasswordPage.dart';
 import 'componants/BuildFromField.dart';
 
-class ResetPasswordPage extends StatefulWidget{
+class ResetPasswordPage extends StatefulWidget {
   @override
-  State<ResetPasswordPage> createState()=>_ResetPasswordPage();
+  State<ResetPasswordPage> createState() => _ResetPasswordPage();
 }
-
 
 class _ResetPasswordPage extends State<ResetPasswordPage> {
   @override
@@ -32,52 +31,64 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                 children: [
                   SizedBox(height: 50),
 
-                  BuildFormField(label: 'PIN เดิม',
-                      controller: _OldPINController,
-                      validator: (value){
-                    if(value == null || value.isEmpty){
-                      return 'กรุณากรอก PIN เดิม';
-                    }
-                    return null;
-                  }),
-
-
-                  BuildFormField(label: 'PIN ใหม่',
-                      controller: _NewPINController,
-                      validator: (value){
-                        if(value == null || value.isEmpty){
-                          return "กรุณากรอก PIN ใหม่";
-                        }
-                        return null;
-                      }),
+                  BuildFormField(
+                    label: 'PIN เดิม',
+                    controller: _OldPINController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'กรุณากรอก PIN เดิม';
+                      }
+                      return null;
+                    },
+                  ),
 
                   BuildFormField(
-                      label: 'ยืนยัน PIN ใหม่',
-                      controller: _EnsurePINController,
-                      validator: (value){
-                        if(value == null|| value.isEmpty){
-                          return 'กรุณายืนยัน PIN ใหม่';
-                        }
-                        return null;
-                      }),
+                    label: 'PIN ใหม่',
+                    controller: _NewPINController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "กรุณากรอก PIN ใหม่";
+                      }
+                      return null;
+                    },
+                  ),
 
+                  BuildFormField(
+                    label: 'ยืนยัน PIN ใหม่',
+                    controller: _EnsurePINController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'กรุณายืนยัน PIN ใหม่';
+                      }
+                      return null;
+                    },
+                  ),
 
                   Container(
                     child: TextButton(
                       onPressed: () {
-                        if(_formkey.currentState!.validate()){
-                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        if (_formkey.currentState!.validate()) {
+                          Navigator.of(
+                            context,
+                          ).popUntil((route) => route.isFirst);
                         }
                       },
-                      child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
+                      child: Text(
+                        'ยืนยัน',
+                        style: TextStyle(fontSize: fontsize),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
                   Container(
                     child: TextButton(
                       onPressed: () {
-
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ForgotPasswordPage(),
+                          ),
+                        );
                       },
                       child: Text(
                         'ลืมรหัสผ่าน',

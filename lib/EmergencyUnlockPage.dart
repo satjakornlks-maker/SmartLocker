@@ -3,12 +3,12 @@ import 'package:untitled/OTPPage.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 
-class BookingPage extends StatefulWidget {
+class EmergencyUnlockPage extends StatefulWidget {
   @override
-  State<BookingPage> createState() => _BookingPage();
+  State<EmergencyUnlockPage> createState() => _EmergencyUnlockPage();
 }
 
-class _BookingPage extends State<BookingPage> {
+class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
   String? selectedLocker;
   final Map<String, bool> lockerStatus = {
     'A1': true,
@@ -82,13 +82,34 @@ class _BookingPage extends State<BookingPage> {
                   ),
                 SizedBox(height: 50),
 
-                Container(
-                  child: TextButton(
-                    onPressed: () {
-                      _handleBooking();
-                    },
-                    child: Text('จอง', style: TextStyle(fontSize: fontsize)),
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: TextButton(
+                        onPressed: () {
+
+                        },
+                        child: Text(
+                          'เปิด',
+                          style: TextStyle(fontSize: fontsize),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      child: TextButton(
+                        onPressed: () {
+
+                        },
+                        child: Text(
+                          'ปิด',
+                          style: TextStyle(fontSize: fontsize),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 40),
               ],

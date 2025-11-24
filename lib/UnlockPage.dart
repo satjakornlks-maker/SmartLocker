@@ -49,7 +49,7 @@ class _UnlockPage extends State<UnlockPage> {
                         childAspectRatio: 1,
                       ),
                       shrinkWrap: true,
-                      itemCount: 9,
+                      itemCount: lockerStatus.length,
                       itemBuilder: (context, index) {
                         String lockerId = 'A${index + 1}';
                         return BuildLockerBox(lockerId: lockerId,
@@ -94,10 +94,23 @@ class _UnlockPage extends State<UnlockPage> {
 
   void _onLockerTap(String lockerId, bool isAvailable) {
     if (isAvailable) {
-      setState(() => selectedLocker = lockerId);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        onVisible: (){
+        setState(() => selectedLocker = lockerId);
+      },
+        content: Text('เลือกตู้ $lockerId '),
+      //   action: SnackBarAction(label: 'ยกเลิก', onPressed: (){
+      //   setState(()=>selectedLocker = null);
+      // }),
+        duration: Duration(seconds: 3),
+      )
+      );
     } else {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ตู้ $lockerId ไม่ว่าง'))
+          SnackBar(content: Text('ตู้ $lockerId ไม่ว่าง'),
+          duration: Duration(seconds: 3),)
       );
     }
   }
@@ -110,8 +123,12 @@ class _UnlockPage extends State<UnlockPage> {
             builder: (context) => FillPinPage(lockerId: selectedLocker!)),
       );
     } else {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์')));
+          SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์'),
+          duration: Duration(seconds: 3),),
+
+      );
     }
   }
 }

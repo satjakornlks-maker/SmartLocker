@@ -2,81 +2,88 @@ import 'package:flutter/material.dart';
 import 'package:untitled/ForgotPasswordPage.dart';
 import 'componants/BuildFromField.dart';
 
-class FillPinPage extends StatefulWidget{
+class FillPinPage extends StatefulWidget {
   @override
   final String? lockerId;
-  const FillPinPage({Key?key, this.lockerId}):super(key:key);
+  const FillPinPage({Key? key, this.lockerId}) : super(key: key);
   State<FillPinPage> createState() => _FillPinPage();
 }
 
-class _FillPinPage extends State<FillPinPage>{
+class _FillPinPage extends State<FillPinPage> {
   @override
   final _formKey = GlobalKey<FormState>();
   final _PINContorller = TextEditingController();
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     double fontsize = 32;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('หน้าใส่ PIN'),
-        backgroundColor: Colors.blue,
-      ),
+      appBar: AppBar(title: Text('หน้าใส่ PIN'), backgroundColor: Colors.blue),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Container(
             margin: EdgeInsets.all(40),
-            child:
-            Column(
+            child: Column(
               children: [
-
-
-                SizedBox(
-                  height: 50,
-                ),
+                SizedBox(height: 50),
 
                 Container(
-                  child: Text('ตู้ที่เลือก ${widget.lockerId!}',style: TextStyle(fontSize: fontsize,color: Colors.green),),
+                  child: Text(
+                    'ตู้ที่เลือก ${widget.lockerId!}',
+                    style: TextStyle(fontSize: fontsize, color: Colors.green),
+                  ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-        
-                BuildFormField(label: 'PIN(OTP)',
-                    controller: _PINContorller,
-                    validator: (value){
-                    if(value == null || value.isEmpty){
+                SizedBox(height: 20),
+
+                BuildFormField(
+                  label: 'PIN(OTP)',
+                  controller: _PINContorller,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
                       return 'กรุณากรอก PIN';
                     }
                     return null;
-                    }),
-        
-        
-                Container(
-                  child: TextButton(onPressed: (){
-                    if (_formKey.currentState!.validate()){
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                    }
-                  }, child: Text('ยืนยัน',style: TextStyle(fontSize: fontsize),)),
+                  },
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+
                 Container(
-                  child: TextButton(onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
-                  }, child: Text('ลืมรหัสผ่าน',style: TextStyle(fontSize: fontsize),)),
-                )
+                  child: TextButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
+                      }
+                    },
+                    child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForgotPasswordPage(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'ลืมรหัสผ่าน',
+                      style: TextStyle(fontSize: fontsize),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
     );
-
   }
+
   @override
-  void dispose(){
+  void dispose() {
     _PINContorller.dispose();
     super.dispose();
   }
