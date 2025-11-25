@@ -4,19 +4,20 @@ class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: 'https://httpbin.org',
-      connectTimeout: Duration(seconds: 5),
-      receiveTimeout: Duration(seconds: 3),
+      connectTimeout: Duration(seconds: 20),
+      receiveTimeout: Duration(seconds: 20),
       headers: {
         'Content-Type' : 'application/json'
       }
     )
   );
 
-  Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason) async {
+  Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason,String lockerId) async {
     try{
       final responss = await _dio.post(
           '/post',
           data: {
+            'lockerId':lockerId,
             'name': name,
             'tel':tel,
             'email':email,

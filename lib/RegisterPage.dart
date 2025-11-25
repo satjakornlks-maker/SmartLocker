@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/NoticePage.dart';
+import 'package:untitled/MemberLockerSelectPage.dart';
 import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
 
@@ -84,7 +84,14 @@ class _RegisterPage extends State<RegisterPage> {
                     child: TextButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          _handleRegister();
+                          Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (context)=>MemberLockerSelectPage(
+                                    reason: _reasonController.text,
+                                    email: _emailController.text,
+                                    tel: _telController.text,
+                                    name: _nameController.text,
+                                  )));
                         }
                       },
                       child: Text(
@@ -107,48 +114,5 @@ class _RegisterPage extends State<RegisterPage> {
     );
   }
 
-  Future<void> _handleRegister() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isloading = true);
-      try {
-        final result = await _apiService.regisAccount(
-          _nameController.text,
-          _telController.text,
-          _emailController.text,
-          _reasonController.text,
-        );
-        setState(() => _isloading = false);
-        if (result['success']) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('สมัครสมาชิกเสร็จสิ้น')));
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NoticePage()),
-          );
-        } else {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('เกิดข้อผิดพลาด : ${result['error']}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        setState(() => _isloading = false);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
-      }
-    } else {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('โปรดป้อนข้อมูลให้ถูกต้อง')));
-      return;
-    }
-  }
+
 }
