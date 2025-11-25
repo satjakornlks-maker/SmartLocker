@@ -5,6 +5,8 @@ import 'componants/BuildLockerBox.dart';
 import 'services/api_service.dart';
 
 class EmergencyUnlockPage extends StatefulWidget {
+  const EmergencyUnlockPage({super.key});
+
   @override
   State<EmergencyUnlockPage> createState() => _EmergencyUnlockPage();
 }

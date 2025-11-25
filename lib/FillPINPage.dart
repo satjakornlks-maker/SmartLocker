@@ -13,7 +13,7 @@ class FillPinPage extends StatefulWidget {
 
 class _FillPinPage extends State<FillPinPage> {
   bool _isLoading = false;
-  ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
   final _PINContorller = TextEditingController();
   @override

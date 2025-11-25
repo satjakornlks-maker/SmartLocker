@@ -5,6 +5,8 @@ import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 
 class BookingPage extends StatefulWidget {
+  const BookingPage({super.key});
+
   @override
   State<BookingPage> createState() => _BookingPage();
 }

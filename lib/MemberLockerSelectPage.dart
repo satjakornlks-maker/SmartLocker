@@ -24,7 +24,7 @@ class MemberLockerSelectPage extends StatefulWidget {
 }
 
 class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
-  ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService();
   bool _isLoading = false;
   String? selectedLocker;
   final Map<String, bool> lockerStatus = {

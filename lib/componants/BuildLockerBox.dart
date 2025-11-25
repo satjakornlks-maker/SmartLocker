@@ -6,12 +6,12 @@ class BuildLockerBox extends StatefulWidget{
   final String? selectedLocker;
   final Function(String, bool) onTap;
   const BuildLockerBox({
-    Key? key,
+    super.key,
     required this.lockerId,
     required this.selectedLocker,
     required this.lockerStatus,
     required this.onTap
-  }) : super(key: key);
+  });
   @override
   State<BuildLockerBox> createState()=>_BuildLockerBox();
 }

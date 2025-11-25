@@ -12,10 +12,10 @@ class ChoseTimePage extends StatefulWidget {
 }
 
 class _ChoseTimePage extends State<ChoseTimePage> {
-  @override
   double fontsize = 32;
   int hour = 0;
   int minute = 0;
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

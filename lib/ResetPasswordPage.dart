@@ -5,6 +5,8 @@ import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
 
 class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
+
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPage();
 }

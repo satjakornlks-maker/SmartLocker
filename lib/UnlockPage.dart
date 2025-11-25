@@ -5,6 +5,8 @@ import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 
 class UnlockPage extends StatefulWidget {
+  const UnlockPage({super.key});
+
   @override
   State<UnlockPage> createState() => _UnlockPage();
 }
