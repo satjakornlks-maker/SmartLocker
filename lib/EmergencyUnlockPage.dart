@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 import 'services/api_service.dart';
@@ -41,7 +42,10 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
                   crossAxisAlignment: .center,
                   children: [
                     SizedBox(height: 100),
-                    Text('เลือกตู้ล็อคเกอร์', style: TextStyle(fontSize: fontsize)),
+                    Text(
+                      'เลือกตู้ล็อคเกอร์',
+                      style: TextStyle(fontSize: fontsize),
+                    ),
                     SizedBox(height: 50),
 
                     BuildLegend(),
@@ -90,28 +94,20 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          child: TextButton(
-                            onPressed: () {
-                                _isLoading ? null : _handleOrder("open");
-                            },
-                            child: Text(
-                              'เปิด',
-                              style: TextStyle(fontSize: fontsize),
-                            ),
-                          ),
+                        BuildConfirmButton(
+                          onPressed: () {
+                            _isLoading ? null : _handleOrder("open");
+                          },
+                          fontsize: fontsize,
+                          lable: 'เปิด',
                         ),
                         SizedBox(height: 10),
-                        Container(
-                          child: TextButton(
-                            onPressed: () {
-                              _isLoading ? null : _handleOrder('close');
-                            },
-                            child: Text(
-                              'ปิด',
-                              style: TextStyle(fontSize: fontsize),
-                            ),
-                          ),
+                        BuildConfirmButton(
+                          onPressed: () {
+                            _isLoading ? null : _handleOrder('close');
+                          },
+                          fontsize: fontsize,
+                          lable: 'ปิด',
                         ),
                       ],
                     ),
@@ -121,51 +117,59 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
               ),
             ),
           ),
-          if(_isLoading)
+          if (_isLoading)
             Container(
               color: Colors.black54,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
+              child: Center(child: CircularProgressIndicator()),
+            ),
         ],
       ),
     );
   }
 
   void _onLockerTap(String lockerId, bool isAvailable) {
-      setState(() => selectedLocker = lockerId);
-
+    setState(() => selectedLocker = lockerId);
   }
 
-  Future<void> _handleOrder(String order) async{
-
-    if(selectedLocker == null){
+  Future<void> _handleOrder(String order) async {
+    if (selectedLocker == null) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์')));
-    return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์')));
+      return;
     }
     setState(() => _isLoading = true);
 
-    try{
-      final result = await _apiService.handleEmergency(selectedLocker!,order);
-
+    try {
+      final result = await _apiService.handleEmergency(selectedLocker!, order);
+      if (!mounted) return;
       setState(() => _isLoading = false);
 
-      if(result['success']){
+      if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ประตูล็อคเกอร์เปิด')));
-
-      }else{
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('ประตูล็อคเกอร์เปิด')));
+      } else {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด : ${result['error']}'),
-        backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('เกิดข้อผิดพลาด : ${result['error']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-    }catch(e){
+    } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด : $e'),
-      backgroundColor: Colors.red,));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('เกิดข้อผิดพลาด : $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

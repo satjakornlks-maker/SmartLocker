@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'FillPINPage.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 
-class UnlockPage extends StatefulWidget{
+class UnlockPage extends StatefulWidget {
   @override
-  State<UnlockPage> createState()=>_UnlockPage();
+  State<UnlockPage> createState() => _UnlockPage();
 }
 
 class _UnlockPage extends State<UnlockPage> {
   String? selectedLocker;
   final Map<String, bool> lockerStatus = {
-    'A1': true, 'A2': true, 'A3': false,
-    'A4': true, 'A5': true, 'A6': true,
-    'A7': true, 'A8': true, 'A9': false,
+    'A1': true,
+    'A2': true,
+    'A3': false,
+    'A4': true,
+    'A5': true,
+    'A6': true,
+    'A7': true,
+    'A8': true,
+    'A9': false,
   };
 
   @override
@@ -36,54 +43,54 @@ class _UnlockPage extends State<UnlockPage> {
                 SizedBox(height: 50),
 
                 BuildLegend(),
-                SizedBox(height: 30,),
+                SizedBox(height: 30),
 
                 Container(
                   child: GridView.builder(
                     physics: NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.all(100),
+                    padding: EdgeInsets.all(100),
 
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 1,
-                      ),
-                      shrinkWrap: true,
-                      itemCount: lockerStatus.length,
-                      itemBuilder: (context, index) {
-                        String lockerId = 'A${index + 1}';
-                        return BuildLockerBox(lockerId: lockerId,
-                            selectedLocker: selectedLocker,
-                            lockerStatus: lockerStatus,
-                            onTap: _onLockerTap);
-                      }),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1,
+                    ),
+                    shrinkWrap: true,
+                    itemCount: lockerStatus.length,
+                    itemBuilder: (context, index) {
+                      String lockerId = 'A${index + 1}';
+                      return BuildLockerBox(
+                        lockerId: lockerId,
+                        selectedLocker: selectedLocker,
+                        lockerStatus: lockerStatus,
+                        onTap: _onLockerTap,
+                      );
+                    },
+                  ),
                 ),
 
-                if(selectedLocker != null)
+                if (selectedLocker != null)
                   Container(
                     padding: EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text('เลือกตู้: $selectedLocker',
-                      style: TextStyle(fontSize: 20),),
+                    child: Text(
+                      'เลือกตู้: $selectedLocker',
+                      style: TextStyle(fontSize: 20),
+                    ),
                   ),
-                SizedBox(
-                  height: 50,
-                ),
+                SizedBox(height: 50),
 
-
-                Container(
-                  child: TextButton(
-                    onPressed: () {
-                      _handleUnlock();
-                    },
-                    child: Text('จอง', style: TextStyle(fontSize: fontsize)),
-                  ),
+                BuildConfirmButton(
+                  alignment: AlignmentGeometry.center,
+                  onPressed: _handleUnlock,
+                  fontsize: fontsize,
+                  lable: 'ปลดล็อค',
                 ),
-                SizedBox(height: 40,)
+                SizedBox(height: 40),
               ],
             ),
           ),
@@ -95,22 +102,25 @@ class _UnlockPage extends State<UnlockPage> {
   void _onLockerTap(String lockerId, bool isAvailable) {
     if (isAvailable) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        onVisible: (){
-        setState(() => selectedLocker = lockerId);
-      },
-        content: Text('เลือกตู้ $lockerId '),
-      //   action: SnackBarAction(label: 'ยกเลิก', onPressed: (){
-      //   setState(()=>selectedLocker = null);
-      // }),
-        duration: Duration(seconds: 3),
-      )
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          onVisible: () {
+            setState(() => selectedLocker = lockerId);
+          },
+          content: Text('เลือกตู้ $lockerId '),
+          //   action: SnackBarAction(label: 'ยกเลิก', onPressed: (){
+          //   setState(()=>selectedLocker = null);
+          // }),
+          duration: Duration(seconds: 3),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ตู้ $lockerId ไม่ว่าง'),
-          duration: Duration(seconds: 3),)
+        SnackBar(
+          content: Text('ตู้ $lockerId ไม่ว่าง'),
+          duration: Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -120,14 +130,16 @@ class _UnlockPage extends State<UnlockPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => FillPinPage(lockerId: selectedLocker!)),
+          builder: (context) => FillPinPage(lockerId: selectedLocker!),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์'),
-          duration: Duration(seconds: 3),),
-
+        SnackBar(
+          content: Text('โปรดเลือกตู้ล็อคเกอร์'),
+          duration: Duration(seconds: 3),
+        ),
       );
     }
   }

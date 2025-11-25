@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/ForgotPasswordPage.dart';
+import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildFromField.dart';
+import 'services/api_service.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   @override
@@ -8,12 +10,13 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPage extends State<ResetPasswordPage> {
-  @override
+  final ApiService _apiService = ApiService();
+  bool _isLoading = false;
   final _OldPINController = TextEditingController();
   final _NewPINController = TextEditingController();
   final _EnsurePINController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
-
+  @override
   Widget build(BuildContext context) {
     double fontsize = 32;
     return Scaffold(
@@ -21,87 +24,121 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
         title: Text('หน้าเปลี่ยนรหัสผ่าน'),
         backgroundColor: Colors.blue,
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            margin: EdgeInsets.all(60),
-            child: Form(
-              key: _formkey,
-              child: Column(
-                children: [
-                  SizedBox(height: 50),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Center(
+              child: Container(
+                margin: EdgeInsets.all(60),
+                child: Form(
+                  key: _formkey,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 50),
 
-                  BuildFormField(
-                    label: 'PIN เดิม',
-                    controller: _OldPINController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'กรุณากรอก PIN เดิม';
-                      }
-                      return null;
-                    },
-                  ),
+                      BuildFormField(
+                        label: 'PIN เดิม',
+                        controller: _OldPINController,
+                        validator: (value) => validatePIN(value, false),
+                      ),
 
-                  BuildFormField(
-                    label: 'PIN ใหม่',
-                    controller: _NewPINController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "กรุณากรอก PIN ใหม่";
-                      }
-                      return null;
-                    },
-                  ),
+                      BuildFormField(
+                        label: 'PIN ใหม่',
+                        controller: _NewPINController,
+                        validator: (value) => validatePIN(value, false),
+                      ),
 
-                  BuildFormField(
-                    label: 'ยืนยัน PIN ใหม่',
-                    controller: _EnsurePINController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'กรุณายืนยัน PIN ใหม่';
-                      }
-                      return null;
-                    },
-                  ),
+                      BuildFormField(
+                        label: 'ยืนยัน PIN ใหม่',
+                        controller: _EnsurePINController,
+                        validator: (value) => validatePIN(value, true),
+                      ),
 
-                  Container(
-                    child: TextButton(
-                      onPressed: () {
-                        if (_formkey.currentState!.validate()) {
-                          Navigator.of(
+                      BuildConfirmButton(
+                        alignment: AlignmentGeometry.center,
+                        onPressed: () {
+                          _handleResetPassword();
+                        },
+                        fontsize: fontsize,
+                        lable: 'ยืนยัน',
+                      ),
+                      SizedBox(height: 20),
+
+                      BuildConfirmButton(
+                        alignment: AlignmentGeometry.center,
+                        onPressed: () {
+                          Navigator.push(
                             context,
-                          ).popUntil((route) => route.isFirst);
-                        }
-                      },
-                      child: Text(
-                        'ยืนยัน',
-                        style: TextStyle(fontSize: fontsize),
+                            MaterialPageRoute(
+                              builder: (context) => ForgotPasswordPage(),
+                            ),
+                          );
+                        },
+                        fontsize: fontsize,
+                        lable: 'ลืมรหัสผ่าน',
                       ),
-                    ),
+                    ],
                   ),
-                  SizedBox(height: 20),
-                  Container(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ForgotPasswordPage(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'ลืมรหัสผ่าน',
-                        style: TextStyle(fontSize: fontsize),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+          if (_isLoading)
+            Container(
+              color: Colors.black54,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+        ],
       ),
     );
+  }
+
+  String? validatePIN(String? value, bool ensure) {
+    if (value == null || value.isEmpty) {
+      return 'กรุณากรอก PIN';
+    }
+    if (value.length != 6) {
+      return 'กรุณากรอกจำนวน PIN ให้ถูกต้อง';
+    }
+    if (ensure && _NewPINController.text != _EnsurePINController.text) {
+      return 'PIN ยืนยันไม่ตรงกัน';
+    }
+    return null;
+  }
+
+  Future<void> _handleResetPassword() async {
+    if (_formkey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      try {
+        final result = await _apiService.handleResetPassword(
+          _OldPINController.text,
+          _NewPINController.text,
+        );
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        if (result['success']) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('เปลี่ยนรหัสผ่านเสร็จสิ้น')));
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('เกิดข้อผิดพลาด : ${result['error']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      }
+    }
   }
 }

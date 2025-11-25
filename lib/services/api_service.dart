@@ -37,12 +37,19 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> sendOTP(String tel ) async {
+  Future<Map<String,dynamic>> sendOTP(String data,bool isEmail ) async {
+    late String type;
+    if(isEmail){
+     type = 'email';
+    }else{
+      type = 'tel';
+    }
+
     try{
       final responss = await _dio.post(
           '/post',
           data: {
-            'tel': tel,
+            type: data,
             'timestamp' : DateTime.now().toIso8601String(),
           }
       );
@@ -103,7 +110,121 @@ class ApiService {
     }
   }
 
+  Future<Map<String,dynamic>> getLockerStatus(String lockerId)async{
+    try{
+      final response = await _dio.get('');
+      return{
+        'success':true,
+        'data':response.data
+      };
+    }on DioException catch (e){
+      return{
+        'success': false,
+        'error': _handleError(e)
+      };
+    }
+  }
 
+  Future<Map<String,dynamic>> handleResetPassword(String oldPIN,String newPIN) async{
+    try{
+      final response = await _dio.post(
+          '/post',
+          data: {
+            'oldPIN': oldPIN,
+            'newPIN': newPIN,
+            'timestamp' : DateTime.now().toIso8601String(),
+          }
+      );
+      return{
+        'success':true,
+        'data':response.data,
+      };
+    }on DioException catch(e){
+      return{
+        'success':false,
+        'error': _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> handleForgotPassword(String data, bool isEmail) async{
+    late String type;
+    if(isEmail){
+      type = 'validateEmail';
+    }else{
+      type = 'validateTel';
+    }
+
+    try{
+      final responss = await _dio.post(
+          '/post',
+          data: {
+            type: data,
+            'timestamp' : DateTime.now().toIso8601String(),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> handleSubmitOTP(String data,String OTP,bool isEmail)async{
+    late String type;
+    if(isEmail){
+      type = 'validateEmail';
+    }else{
+      type = 'validateTel';
+    }
+
+    try{
+      final responss = await _dio.post(
+          '/post',
+          data: {
+            type: data,
+            'otp':OTP,
+            'timestamp' : DateTime.now().toIso8601String(),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> handleFillPIN(String PIN)async{
+    try{
+      final responss = await _dio.post(
+          '/post',
+          data: {
+
+            'pin':PIN,
+            'timestamp' : DateTime.now().toIso8601String(),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
 
   String _handleError(DioException e){
     switch (e.type){

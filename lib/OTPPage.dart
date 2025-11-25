@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/ChoseTimePage.dart';
+import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'package:untitled/componants/BuildFromField.dart';
+import 'package:untitled/validators/validator.dart';
 import 'services/api_service.dart';
 
 class OTPPage extends StatefulWidget {
   final String? lockerId;
-  const OTPPage({Key? key, this.lockerId}) : super(key: key);
+  const OTPPage({super.key, this.lockerId});
+  @override
   State<OTPPage> createState() => _OTPPage();
 }
 
 class _OTPPage extends State<OTPPage> {
-  ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService();
   bool _isloading = false;
   final _OTPController = TextEditingController();
   final _TelOrEMailController = TextEditingController();
@@ -51,71 +54,41 @@ class _OTPPage extends State<OTPPage> {
                         BuildFormField(
                           label: 'เบอร์โทรศัพท์หรืออีเมล',
                           controller: _TelOrEMailController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'กรุณากรอก เบอร์โทรศัพท์หรืออีเมล';
-                            }
-                            return null;
-                          },
+                          validator: (value)=>Validators.validateEmailOrPhone(value),
                         ),
-                        Container(
-                          // color: Colors.orange,
-                          alignment: AlignmentDirectional.bottomEnd,
-                          child: TextButton(
-                            onPressed: () {
-                              if (_TelOrEMailController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'กรุณากรอกเบอร์โทรศัพท์หรืออีเมล',
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
+
+                        BuildConfirmButton(
+                          onPressed: () {
+                            String? validatorError = Validators.validateEmailOrPhone(
+                              _TelOrEMailController.text,
+                            );
+                            if (validatorError != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(validatorError)),
+                              );
+                              return;
+                            } else {
                               _handleSendOTP();
-                            },
-                            child: Text(
-                              "ส่ง OTP",
-                              style: TextStyle(fontSize: fontsize),
-                            ),
-                          ),
+                            }
+                          },
+                          fontsize: fontsize,
+                          lable: 'ส่ง OTP',
                         ),
 
                         BuildFormField(
                           label: 'OTP',
                           controller: _OTPController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'กรุณากรอก OTP';
-                            }
-                            return null;
-                          },
+                          validator: Validators.validateOTP,
                         ),
 
-                        Container(
-                          // color: Colors.orange,
-                          alignment: AlignmentDirectional.bottomEnd,
-                          child: TextButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChoseTimePage(
-                                      lockerId: widget.lockerId,
-                                      TelOrEmail: _TelOrEMailController.text,
-                                      OTP: _OTPController.text,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Text(
-                              "ยืนยัน",
-                              style: TextStyle(fontSize: fontsize),
-                            ),
-                          ),
+                        BuildConfirmButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _handleSubmitOTP();
+                            }
+                          },
+                          fontsize: fontsize,
+                          lable: 'ยืนยัน',
                         ),
                       ],
                     ),
@@ -136,8 +109,13 @@ class _OTPPage extends State<OTPPage> {
 
   Future<void> _handleSendOTP() async {
     setState(() => _isloading = true);
+    String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
     try {
-      final result = await _apiService.sendOTP(_TelOrEMailController.text);
+      final result = await _apiService.sendOTP(
+        cleanValue,
+        cleanValue.contains('@'),
+      );
+      if (!mounted) return;
       setState(() => _isloading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -151,6 +129,7 @@ class _OTPPage extends State<OTPPage> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isloading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(
@@ -158,6 +137,50 @@ class _OTPPage extends State<OTPPage> {
       ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
     }
   }
+
+  Future<void> _handleSubmitOTP() async {
+    setState(() => _isloading = true);
+    String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
+    try {
+      final result = await _apiService.handleSubmitOTP(
+        cleanValue,
+        _OTPController.text,
+        cleanValue.contains('@'),
+      );
+      if (!mounted) return;
+      setState(() => _isloading = false);
+      if (result['success']) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('ยืนยัน OTP สำเร็จ')));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChoseTimePage(
+              lockerId: widget.lockerId,
+              TelOrEmail: _TelOrEMailController.text,
+              OTP: _OTPController.text,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('เกิดข้อผิดพลาด : ${result['error']}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isloading = false);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+    }
+  }
+
+
 
   @override
   void dispose() {

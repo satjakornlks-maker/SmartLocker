@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:untitled/componants/BuildConfirmButton.dart';
 
 class ChoseTimePage extends StatefulWidget {
   final String? lockerId;
@@ -89,26 +90,21 @@ class _ChoseTimePage extends State<ChoseTimePage> {
                 ),
 
                 SizedBox(height: 20),
-                Container(
-                  child: TextButton(
-                    onPressed: () {
-                      if (hour == null || hour == 0 && minute == 0) {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('โปรดเลือกเวลาที่จะใช้ Locker'),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      } else {
-                        Navigator.of(
-                          context,
-                        ).popUntil((route) => route.isFirst);
-                      }
-                    },
-                    child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
-                  ),
-                ),
+                BuildConfirmButton(onPressed: (){
+                  if (hour == null || hour == 0 && minute == 0) {
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('โปรดเลือกเวลาที่จะใช้ Locker'),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  } else {
+                    Navigator.of(
+                      context,
+                    ).popUntil((route) => route.isFirst);
+                  }
+                }, fontsize: fontsize, lable: 'ยืนยัน',alignment: AlignmentGeometry.center,)
               ],
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/OTPPage.dart';
+import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 
@@ -39,14 +40,16 @@ class _BookingPage extends State<BookingPage> {
                   crossAxisAlignment: .center,
                   children: [
                     SizedBox(height: 100),
-                    Text('เลือกตู้ล็อคเกอร์', style: TextStyle(fontSize: fontsize)),
+                    Text(
+                      'เลือกตู้ล็อคเกอร์',
+                      style: TextStyle(fontSize: fontsize),
+                    ),
                     SizedBox(height: 50),
 
                     BuildLegend(),
                     SizedBox(height: 30),
 
                     Container(
-
                       child: GridView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.all(100),
@@ -85,13 +88,13 @@ class _BookingPage extends State<BookingPage> {
                       ),
                     SizedBox(height: 50),
 
-                    Container(
-                      child: TextButton(
-                        onPressed: () {
-                          _handleBooking();
-                        },
-                        child: Text('จอง', style: TextStyle(fontSize: fontsize)),
-                      ),
+                    BuildConfirmButton(
+                      onPressed: () {
+                        _handleBooking();
+                      },
+                      fontsize: fontsize,
+                      lable: 'จอง',
+                      alignment: AlignmentGeometry.center,
                     ),
                     SizedBox(height: 40),
                   ],
