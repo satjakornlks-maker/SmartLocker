@@ -15,8 +15,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flow Demo',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title: 'Flow Prototype'),
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+      useMaterial3: true),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(title: 'Flow Prototype'),
+        '/booking': (context) => const BookingPage(),
+        '/unlock': (context) => const UnlockPage(),
+        '/register': (context) => const RegisterPage(),
+        '/reset-password': (context) => const ResetPasswordPage(),
+        '/emergency-unlock': (context) => const EmergencyUnlockPage(),
+      },
     );
   }
 }
@@ -48,34 +57,19 @@ class _MyHomePageState extends State<MyHomePage> {
               _buildMenuButton('ลงทะเบียน', _handleBooking),
               SizedBox(),
               _buildMenuButton('ปลดล็อค', (){
-                Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UnlockPage()),
+                Navigator.pushNamed(context, '/unlock'
               );}),
               SizedBox(),
               _buildMenuButton('สมัครสมาชิก(จองใช้ประจำ)', (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterPage()),
-                );
+                Navigator.pushNamed(context, '/register');
               }),
               SizedBox(),
               _buildMenuButton('เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ', (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ResetPasswordPage(),
-                  ),
-                );
+                Navigator.pushNamed(context, '/reset-password');
               }),
               SizedBox(),
               _buildMenuButton('หน้าปลดล็อคฉุกเฉิน', (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EmergencyUnlockPage(),
-                  ),
-                );
+                Navigator.pushNamed(context, '/emergency-unlock');
               })
             ],
           ),

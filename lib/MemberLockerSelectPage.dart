@@ -24,126 +24,182 @@ class MemberLockerSelectPage extends StatefulWidget {
 }
 
 class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
+  List<Map<String, dynamic>> lockerStatus = [];
+
+  bool _showGrid = false;
+
+  @override
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      //call API to get locker
+      _loadLocker();
+      Future.delayed(const Duration(microseconds: 50),(){
+
+        if(mounted) setState(() => _showGrid = true);
+      });
+    });
+  }
+
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+
+  Future<void> _loadLocker() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _apiService.getLocker();
+
+      if (!mounted) return;
+
+      if (result['success']) {
+        setState(() {
+          if (result['data'] is List) {
+            lockerStatus = List<Map<String, dynamic>>.from(result['data']);
+          } else {
+            lockerStatus = [result['data'] as Map<String, dynamic>];
+          }
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('เกิดข้อผิดพลาด: ${result['error']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      print('Error loading lockers: $e');
+    }
+  }
+  double fontsize = 32;
   String? selectedLocker;
-  final Map<String, bool> lockerStatus = {
-    'A1': true,
-    'A2': true,
-    'A3': false,
-    'A4': true,
-    'A5': true,
-    'A6': true,
-    'A7': true,
-    'A8': true,
-    'A9': false,
-  };
+
 
   @override
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         title: Text('หน้าปลดล็อคตู้ล็อคเกอร์'),
         backgroundColor: Colors.blue,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Center(
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: .start,
-                  crossAxisAlignment: .center,
-                  children: [
-                    SizedBox(height: 100),
-                    Text(
-                      'เลือกตู้ล็อคเกอร์',
-                      style: TextStyle(fontSize: fontsize),
-                    ),
-                    SizedBox(height: 50),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _showGrid
+          ? body()
+          : const SizedBox.shrink(),
+    );
+  }
 
-                    BuildLegend(),
-                    SizedBox(height: 30),
-
-                    Container(
-                      child: GridView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.all(100),
-
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 1,
-                        ),
-                        shrinkWrap: true,
-                        itemCount: lockerStatus.length,
-                        itemBuilder: (context, index) {
-                          String lockerId = 'A${index + 1}';
-                          return BuildLockerBox(
-                            lockerId: lockerId,
-                            selectedLocker: selectedLocker,
-                            lockerStatus: lockerStatus,
-                            onTap: _onLockerTap,
-                          );
-                        },
-                      ),
-                    ),
-
-                    if (selectedLocker != null)
-                      Container(
-                        padding: EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'เลือกตู้: $selectedLocker',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    SizedBox(height: 50),
-
-                    BuildConfirmButton(
-                      alignment: AlignmentGeometry.center,
-                      onPressed: () {
-                        _handleUnlockMember();
-                      },
-                      fontsize: fontsize,
-                      lable: 'จอง',
-                    ),
-                    SizedBox(height: 40),
-                  ],
+  Widget body(){
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: .start,
+              crossAxisAlignment: .center,
+              children: [
+                SizedBox(height: 100),
+                Text(
+                  'เลือกตู้ล็อคเกอร์',
+                  style: TextStyle(fontSize: fontsize),
                 ),
-              ),
+                SizedBox(height: 50),
+                BuildLegend(),
+                SizedBox(height: 30),
+                lockerZone(),
+                ?selectedBox(),
+                SizedBox(height: 50),
+                confirmButton(),
+                SizedBox(height: 40),
+              ],
             ),
           ),
-          if (_isLoading)
-            Container(
-              color: Colors.black54,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
-      ),
+        ),
+        if (_isLoading)
+          Container(
+            color: Colors.black54,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
+    );
+  }
+
+  Widget confirmButton(){
+    return BuildConfirmButton(
+      alignment: AlignmentGeometry.center,
+      onPressed: () {
+        _handleUnlockMember();
+      },
+      fontsize: fontsize,
+      lable: 'จอง',
+    );
+  }
+
+  Widget? selectedBox() {
+    if (selectedLocker == null || selectedLocker!.isEmpty) return null;
+
+    try {
+      final locker = lockerStatus.firstWhere(
+            (l) => l['id'] == int.parse(selectedLocker!),
+        orElse: () => {},
+      );
+
+      if (locker.isEmpty) return null;
+
+      String displayName = locker['name'] ?? '';
+      // print(displayName);
+      return Container(
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          'เลือกตู้: $displayName',
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
+      );
+    } catch (e) {
+      print('Error parsing selectedLocker: $e');
+      return null;
+    }
+  }
+  Widget lockerZone(){
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate max width to force 3 columns
+        final double maxWidth = (constraints.maxWidth - 100 * 2 - 10 * 2) / 3;
+        return GridView.extent(
+          maxCrossAxisExtent: maxWidth, // ✅ Dynamic based on screen width
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          padding: const EdgeInsets.all(100),
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          cacheExtent: 0,
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
+          children: lockerStatus.map((entry) {
+            return BuildLockerBox(
+              selectedLocker: selectedLocker,
+              lockerStatus: entry,
+              onTap: _onLockerTap,
+            );
+          }).toList(),
+        );
+      },
     );
   }
 
   void _onLockerTap(String lockerId, bool isAvailable) {
     if (isAvailable) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          onVisible: () {
-            setState(() => selectedLocker = lockerId);
-          },
-          content: Text('เลือกตู้ $lockerId '),
-          //   action: SnackBarAction(label: 'ยกเลิก', onPressed: (){
-          //   setState(()=>selectedLocker = null);
-          // }),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      setState(() => selectedLocker = lockerId);
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -178,10 +234,11 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
             MaterialPageRoute(builder: (context) => NoticePage()),
           );
         } else {
+          print(result);
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('เกิดข้อผิดพลาด : ${result['error']}'),
+              content: Text('เกิดข้อผิดพลาด ข้อมูลที่ส่งไปไม่ตรงกับ backend : ${result['error']}'),
               backgroundColor: Colors.red,
             ),
           );

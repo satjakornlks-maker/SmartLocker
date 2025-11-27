@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 
+
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://httpbin.org',
+      baseUrl: 'https://localhost:44324',
       connectTimeout: Duration(seconds: 20),
       receiveTimeout: Duration(seconds: 20),
       headers: {
@@ -12,23 +13,30 @@ class ApiService {
     )
   );
 
+
   Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason,String lockerId) async {
+    int lockerId = 2;
+    print(DateTime.now().toIso8601String());
     try{
       final responss = await _dio.post(
-          '/post',
+          '/locker/register',
           data: {
-            'lockerId':lockerId,
-            'name': name,
-            'tel':tel,
-            'email':email,
-            'reason':reason,
-            'timestamp' : DateTime.now().toIso8601String(),
+            'LockerUnitID':lockerId,
+            //'name': name,
+            'PhoneNumber':tel,
+            'Email':email,
+            //'reason':reason,
+            'FromDatetime' : DateTime.now().toString(),
+            'ToDatetime': DateTime.now().toString(),
+            'BookedTypeId': 3
           }
       );
+      print('Response data: ${responss.data}');
       return{
         'success':true,
         'data':responss.data,
       };
+
     }on DioException catch (e){
       return{
         'success' : false,
@@ -40,17 +48,16 @@ class ApiService {
   Future<Map<String,dynamic>> sendOTP(String data,bool isEmail ) async {
     late String type;
     if(isEmail){
-     type = 'email';
+     type = 'Email';
     }else{
-      type = 'tel';
+      type = 'PhoneNumber';
     }
 
     try{
       final responss = await _dio.post(
-          '/post',
+          '/send_otp',
           data: {
             type: data,
-            'timestamp' : DateTime.now().toIso8601String(),
           }
       );
       return{
@@ -65,15 +72,16 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> bookLocker(String lockerId ,String pin,String type) async {
+  Future<Map<String,dynamic>> bookLocker(String lockerId ,String pin,) async {
     try{
       final responss = await _dio.post(
         '/post',
         data: {
           'pin' : pin,
-          'lockerId': lockerId,
-          'timestamp' : DateTime.now().toIso8601String(),
-          'type' : type
+          'lockerId': int.parse(lockerId),
+          'FromDatetime' : DateTime.now().toString(),
+          'ToDatetime': DateTime.now().toString(),
+          'BookedTypeId': 1
         }
       );
       return{
@@ -88,14 +96,12 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleEmergency(String lockerId, String order) async {
+  Future<Map<String,dynamic>> handleEmergency(String lockerId) async {
     try{
       final response = await _dio.post(
-          '/post',
+          '/locker/emergency_unlock',
           data: {
-            'lockerId': lockerId,
-            'timestamp' : DateTime.now().toIso8601String(),
-            'status': order,
+            'LockerUnitID': int.parse(lockerId),
           }
       );
       return{
@@ -110,9 +116,9 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> getLockerStatus(String lockerId)async{
+  Future<Map<String,dynamic>> getLocker()async{
     try{
-      final response = await _dio.get('');
+      final response = await _dio.get('/init/get_locker');
       return{
         'success':true,
         'data':response.data
@@ -226,22 +232,58 @@ class ApiService {
     }
   }
 
-  String _handleError(DioException e){
-    switch (e.type){
+  String _handleError(DioException e) {
+    print('═══ ERROR DEBUG ═══');
+    print('Type: ${e.type}');
+    print('Message: ${e.message}');
+    print('Status Code: ${e.response?.statusCode}');
+    print('Response Data: ${e.response?.data}');
+    print('Error: ${e.error}');
+    print('═══════════════════');
+
+    switch (e.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection timeout';
+        return 'Connection timeout - เซิร์ฟเวอร์ไม่ตอบสนอง';
+
       case DioExceptionType.sendTimeout:
-        return 'Send timeout';
+        return 'Send timeout - ส่งข้อมูลช้าเกินไป';
+
       case DioExceptionType.receiveTimeout:
-        return 'Receive timeout';
+        return 'Receive timeout - รับข้อมูลช้าเกินไป';
+
       case DioExceptionType.badResponse:
-        return 'Server error: ${e.response?.statusCode}';
+        final statusCode = e.response?.statusCode;
+        final data = e.response?.data;
+
+        // Try to extract backend error message
+        String errorMsg = 'Server error';
+        if (data != null) {
+          if (data is Map) {
+            errorMsg = data['message'] ?? data['error'] ?? data['Message'] ?? data.toString();
+          } else if (data is String) {
+            errorMsg = data;
+          }
+        }
+        return '[$statusCode] $errorMsg';
+
       case DioExceptionType.cancel:
         return 'Request cancelled';
+
+      case DioExceptionType.connectionError:
+        return 'Cannot connect: ${e.message}\nCheck: 1) Server running 2) Correct IP 3) Network connection';
+
+      case DioExceptionType.badCertificate:
+        return 'SSL Certificate error - ใช้ HTTP หรือติดตั้ง certificate';
+
+      case DioExceptionType.unknown:
+        return 'Unknown error: ${e.message ?? e.error.toString()}';
+
       default:
-        return 'Network error';
+        return 'Error: ${e.message ?? e.error?.toString() ?? "Unknown"}';
     }
   }
+
+
 }
 
 

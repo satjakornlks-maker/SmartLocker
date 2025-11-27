@@ -6,8 +6,8 @@ import 'package:untitled/validators/validator.dart';
 import 'services/api_service.dart';
 
 class OTPPage extends StatefulWidget {
-  final String? lockerId;
-  const OTPPage({super.key, this.lockerId});
+  final String lockerId;
+  const OTPPage({super.key, required this.lockerId});
   @override
   State<OTPPage> createState() => _OTPPage();
 }
