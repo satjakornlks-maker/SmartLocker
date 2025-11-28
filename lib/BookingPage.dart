@@ -27,7 +27,6 @@ class _BookingPage extends State<BookingPage> {
       //call API to get locker
       _loadLocker();
       Future.delayed(const Duration(microseconds: 50),(){
-
         if(mounted) setState(() => _showGrid = true);
       });
     });
@@ -35,12 +34,9 @@ class _BookingPage extends State<BookingPage> {
 
   Future<void> _loadLocker() async {
     setState(() => _isLoading = true);
-
     try {
       final result = await _apiService.getLocker();
-
       if (!mounted) return;
-
       if (result['success']) {
         print(result);
         setState(() {
@@ -98,17 +94,13 @@ class _BookingPage extends State<BookingPage> {
                   style: TextStyle(fontSize: fontsize),
                 ),
                 const SizedBox(height: 50),
-
                 BuildLegend(),
                 const SizedBox(height: 30),
-
                 RepaintBoundary(
                   child: lockerBoxZone(),
                 ),
-
                 ?selectedBox(),
                 const SizedBox(height: 50),
-
                 confirmButton(),
                 const SizedBox(height: 40),
               ],

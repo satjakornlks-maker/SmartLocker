@@ -14,7 +14,7 @@ class UnlockPage extends StatefulWidget {
 
 class _UnlockPage extends State<UnlockPage> {
   String? selectedLocker;
-  ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService();
   bool _isLoading = false;
   List<Map<String, dynamic>> lockerStatus = [];
 
@@ -95,7 +95,7 @@ class _UnlockPage extends State<UnlockPage> {
             SizedBox(height: 50),
             BuildLegend(),
             SizedBox(height: 30),
-            LockerZone(),
+            lockerZone(),
             ?selectedBox(),
             SizedBox(height: 50),
             confirmButton(),
@@ -106,7 +106,7 @@ class _UnlockPage extends State<UnlockPage> {
     );
   }
 
-  Widget LockerZone() {
+  Widget lockerZone() {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Calculate max width to force 3 columns

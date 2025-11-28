@@ -98,7 +98,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       return Container(
         alignment: .center,
         child: Text(
-          refcode!, style: TextStyle(fontSize: fontsize, color: Colors.blue),),
+          'refer code : $refcode!', style: TextStyle(fontSize: fontsize, color: Colors.blue),),
       );
     }
     return null;

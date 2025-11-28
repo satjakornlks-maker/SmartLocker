@@ -119,7 +119,7 @@ class _OTPPage extends State<OTPPage> {
       return Container(
         alignment: .center,
         child: Text(
-          refCode!, style: TextStyle(fontSize: fontsize, color: Colors.blue),),
+          "refer code: $refCode!", style: TextStyle(fontSize: fontsize, color: Colors.blue),),
       );
     }
     return null;
