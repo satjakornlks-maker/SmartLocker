@@ -121,16 +121,19 @@ class _ChoseTimePage extends State<ChoseTimePage> {
   }
 
   Future<void> _handleSubmitTime() async {
+    DateTime now = DateTime.now();
+    DateTime futureTime = now.add(Duration(hours: hour, minutes: minute));
     setState(() => _isLoading = true);
+    String cleanValue = widget.TelOrEmail.replaceAll(' ', '');
     try {
-      final result = await _apiService.bookLocker(widget.lockerId, widget.OTP);
+      final result = await _apiService.bookLocker(cleanValue.contains('@'),cleanValue,widget.lockerId, widget.OTP, futureTime);
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('เปิดใช้ตู้สำเร็จ')));
+        ).showSnackBar(SnackBar(content: Text("เปิดใช้ตู้สำเร็จ")));
         Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();

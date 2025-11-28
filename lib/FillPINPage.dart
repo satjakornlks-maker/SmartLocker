@@ -5,8 +5,8 @@ import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
 
 class FillPinPage extends StatefulWidget {
-  final String? lockerId;
-  const FillPinPage({super.key, this.lockerId});
+  final String lockerId;
+  const FillPinPage({super.key,  required this.lockerId});
   @override
   State<FillPinPage> createState() => _FillPinPage();
 }
@@ -16,78 +16,93 @@ class _FillPinPage extends State<FillPinPage> {
   final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
   final _PINContorller = TextEditingController();
+  double fontsize = 32;
   @override
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(title: Text('หน้าใส่ PIN'), backgroundColor: Colors.blue),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Container(
-                margin: EdgeInsets.all(40),
-                child: Column(
-                  children: [
-                    SizedBox(height: 50),
-
-                    Container(
-                      child: Text(
-                        'ตู้ที่เลือก ${widget.lockerId!}',
-                        style: TextStyle(
-                          fontSize: fontsize,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-
-                    BuildFormField(
-                      label: 'PIN(OTP)',
-                      controller: _PINContorller,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'กรุณากรอก PIN';
-                        }
-                        return null;
-                      },
-                    ),
-                    BuildConfirmButton(
-                      alignment: AlignmentGeometry.center,
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _handlePINSubmit();
-                        }
-                      },
-                      fontsize: fontsize,
-                      lable: 'ยืนยัน',
-                    ),
-                    SizedBox(height: 20),
-                    BuildConfirmButton(
-                      alignment: AlignmentGeometry.center,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ForgotPasswordPage(),
-                          ),
-                        );
-                      },
-                      fontsize: fontsize,
-                      lable: 'ลืมรหัสผ่าน',
-                    ),
-                  ],
-                ),
+      body: body()
+    );
+  }
+  Widget body(){
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Container(
+              margin: EdgeInsets.all(40),
+              child: Column(
+                children: [
+                  SizedBox(height: 50),
+                  selectLockerDisplay(),
+                  SizedBox(height: 20),
+                  fillPinZone(),
+                  confirmButton(),
+                  SizedBox(height: 20),
+                  forgotPasswordButton(),
+                ],
               ),
             ),
           ),
-          if (_isLoading)
-            Container(
-              color: Colors.black54,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
+        ),
+        if (_isLoading)
+          Container(
+            color: Colors.black54,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
+    );
+  }
+
+  Widget confirmButton(){
+    return BuildConfirmButton(
+      alignment: AlignmentGeometry.center,
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          _handlePINSubmit();
+        }
+      },
+      fontsize: fontsize,
+      lable: 'ยืนยัน',
+    );
+  }
+
+  Widget forgotPasswordButton(){
+    return BuildConfirmButton(
+      alignment: AlignmentGeometry.center,
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ForgotPasswordPage(),
+          ),
+        );
+      },
+      fontsize: fontsize,
+      lable: 'ลืมรหัสผ่าน',
+    );
+  }
+
+  Widget fillPinZone(){
+    return BuildFormField(
+      label: 'PIN(OTP)',
+      controller: _PINContorller,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'กรุณากรอก PIN';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget selectLockerDisplay(){
+    return Text(
+      'ตู้ที่เลือก ${widget.lockerId}',
+      style: TextStyle(
+        fontSize: fontsize,
+        color: Colors.green,
       ),
     );
   }
@@ -95,7 +110,7 @@ class _FillPinPage extends State<FillPinPage> {
   Future<void> _handlePINSubmit() async {
     setState(() => _isLoading = true);
     try {
-      final result = await _apiService.handleFillPIN(_PINContorller.text);
+      final result = await _apiService.handleFillPIN(_PINContorller.text,widget.lockerId);
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {

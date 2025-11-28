@@ -170,6 +170,7 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
       return null;
     }
   }
+
   Widget lockerZone(){
     return LayoutBuilder(
       builder: (context, constraints) {

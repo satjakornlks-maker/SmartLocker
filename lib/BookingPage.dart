@@ -15,7 +15,7 @@ class BookingPage extends StatefulWidget {
 class _BookingPage extends State<BookingPage> {
   bool _isLoading = true;
   String? selectedLocker;
-  ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> lockerStatus = [];
 
   bool _showGrid = false;

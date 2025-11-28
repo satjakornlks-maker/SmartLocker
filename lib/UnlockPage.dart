@@ -21,17 +21,17 @@ class _UnlockPage extends State<UnlockPage> {
   bool _showGrid = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       //call API to get locker
       _loadLocker();
-      Future.delayed(const Duration(microseconds: 50),(){
-
-        if(mounted) setState(() => _showGrid = true);
+      Future.delayed(const Duration(microseconds: 50), () {
+        if (mounted) setState(() => _showGrid = true);
       });
     });
   }
+
   Future<void> _loadLocker() async {
     setState(() => _isLoading = true);
 
@@ -83,7 +83,7 @@ class _UnlockPage extends State<UnlockPage> {
     );
   }
 
-  Widget body(){
+  Widget body() {
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -106,7 +106,7 @@ class _UnlockPage extends State<UnlockPage> {
     );
   }
 
-  Widget LockerZone(){
+  Widget LockerZone() {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Calculate max width to force 3 columns
@@ -123,7 +123,6 @@ class _UnlockPage extends State<UnlockPage> {
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
           children: lockerStatus.map((entry) {
-
             return BuildLockerBox(
               selectedLocker: selectedLocker,
               lockerStatus: entry,
@@ -135,7 +134,7 @@ class _UnlockPage extends State<UnlockPage> {
     );
   }
 
-  Widget confirmButton(){
+  Widget confirmButton() {
     return BuildConfirmButton(
       alignment: AlignmentGeometry.center,
       onPressed: _handleUnlock,
@@ -149,7 +148,7 @@ class _UnlockPage extends State<UnlockPage> {
 
     try {
       final locker = lockerStatus.firstWhere(
-            (l) => l['id'] == int.parse(selectedLocker!),
+        (l) => l['id'] == int.parse(selectedLocker!),
         orElse: () => {},
       );
 

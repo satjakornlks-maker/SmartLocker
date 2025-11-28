@@ -17,86 +17,117 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
   final _OTPController = TextEditingController();
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+  double fontsize = 32;
+  String? refcode;
   @override
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         title: Text('หน้าลืมรหัสผ่าน'),
         backgroundColor: Colors.blue,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Center(
-                child: Container(
-                  margin: EdgeInsets.all(60),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 50),
+      body: body(),
+    );
+  }
 
-                      BuildFormField(
-                        label: 'เบอร์โทรหรืออีเมลที่ลงทะเบียน',
-                        controller: _TelOrEmailController,
-                        validator: Validators.validateEmailOrPhone
-                      ),
-
-                      BuildConfirmButton(onPressed: (){
-                        String? validatorError = Validators.validateEmailOrPhone(
-                          _TelOrEmailController.text,
-                      );
-                      if (validatorError != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(validatorError)),
-                        );
-                        return;
-                      } else {
-                        _handleSendOTP();
-                      }},
-                          fontsize: fontsize,
-                          lable: 'ส่ง OTP'),
-
-                      BuildFormField(
-                        label: 'OPT',
-                        controller: _OTPController,
-                        validator: Validators.validateOTP
-                      ),
-
-                      BuildConfirmButton(
-                          lable:'ยืนยัน',
-                          onPressed: (){
-                        if (_formKey.currentState!.validate()) {
-                          _handleSubmitOTP();
-                        }
-                      }, fontsize: fontsize),
-
-                    ],
-                  ),
+  Widget body(){
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Center(
+              child: Container(
+                margin: EdgeInsets.all(60),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 50),
+                    telOrEmailField(),
+                    sendOTPButton(),
+                    OTPfield(),
+                    confirmButton(),
+                    const SizedBox(height: 20,),
+                    ?refCodeZone(),
+                    const SizedBox(height: 20,)
+                  ],
                 ),
               ),
             ),
           ),
-          if(_isLoading)
-            Container(
-              color: Colors.black54,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
-        ],
-      ),
+        ),
+        if(_isLoading)
+          Container(
+            color: Colors.black54,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+      ],
     );
   }
 
-  Future<void> _handleSendOTP() async {
+  Widget confirmButton(){
+    return BuildConfirmButton(
+        lable:'ยืนยัน',
+        onPressed: (){
+          if (_formKey.currentState!.validate()) {
+            _handleSubmitOTP();
+          }
+        }, fontsize: fontsize);
+  }
+
+  Widget sendOTPButton(){
+    return BuildConfirmButton(onPressed: (){
+      String? validatorError = Validators.validateEmailOrPhone(
+        _TelOrEmailController.text,
+      );
+      if (validatorError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(validatorError)),
+        );
+        return;
+      } else {
+        _handleSendOTPForgotPassword();
+      }},
+        fontsize: fontsize,
+        lable: 'ส่ง OTP');
+  }
+
+  Widget? refCodeZone(){
+    if(refcode != null) {
+      return Container(
+        alignment: .center,
+        child: Text(
+          refcode!, style: TextStyle(fontSize: fontsize, color: Colors.blue),),
+      );
+    }
+    return null;
+  }
+
+  Widget OTPfield(){
+    return BuildFormField(
+        label: 'OPT',
+        controller: _OTPController,
+        validator: Validators.validateOTP
+    );
+  }
+
+  Widget telOrEmailField(){
+    return BuildFormField(
+        label: 'เบอร์โทรหรืออีเมลที่ลงทะเบียน',
+        controller: _TelOrEmailController,
+        validator: Validators.validateEmailOrPhone
+    );
+  }
+
+  Future<void> _handleSendOTPForgotPassword() async {
     setState(() => _isLoading = true);
     String cleanValue = _TelOrEmailController.text.replaceAll(' ', '');
     try {
-      final result = await _apiService.sendOTP(
+      final result = await _apiService.handleForgotPassword(
         cleanValue,
         cleanValue.contains('@'),
+
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -105,6 +136,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('ส่ง OTP สำเร็จ')));
+        refcode = result['data']['refercode'];
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(

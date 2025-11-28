@@ -18,80 +18,99 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
   final _NewPINController = TextEditingController();
   final _EnsurePINController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+  double fontsize = 32;
   @override
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         title: Text('หน้าเปลี่ยนรหัสผ่าน'),
         backgroundColor: Colors.blue,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Center(
-              child: Container(
-                margin: EdgeInsets.all(60),
-                child: Form(
-                  key: _formkey,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 50),
+      body: body()
+    );
+  }
 
-                      BuildFormField(
-                        label: 'PIN เดิม',
-                        controller: _OldPINController,
-                        validator: (value) => validatePIN(value, false),
-                      ),
-
-                      BuildFormField(
-                        label: 'PIN ใหม่',
-                        controller: _NewPINController,
-                        validator: (value) => validatePIN(value, false),
-                      ),
-
-                      BuildFormField(
-                        label: 'ยืนยัน PIN ใหม่',
-                        controller: _EnsurePINController,
-                        validator: (value) => validatePIN(value, true),
-                      ),
-
-                      BuildConfirmButton(
-                        alignment: AlignmentGeometry.center,
-                        onPressed: () {
-                          _handleResetPassword();
-                        },
-                        fontsize: fontsize,
-                        lable: 'ยืนยัน',
-                      ),
-                      SizedBox(height: 20),
-
-                      BuildConfirmButton(
-                        alignment: AlignmentGeometry.center,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ForgotPasswordPage(),
-                            ),
-                          );
-                        },
-                        fontsize: fontsize,
-                        lable: 'ลืมรหัสผ่าน',
-                      ),
-                    ],
-                  ),
+  Widget body(){
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.all(60),
+              child: Form(
+                key: _formkey,
+                child: Column(
+                  children: [
+                    SizedBox(height: 50),
+                    oldOTPField(),
+                    newOTPField(),
+                    ensureOTPField(),
+                    confirmButton(),
+                    SizedBox(height: 20),
+                    forgotPasswordButton(),
+                  ],
                 ),
               ),
             ),
           ),
-          if (_isLoading)
-            Container(
-              color: Colors.black54,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
-      ),
+        ),
+        if (_isLoading)
+          Container(
+            color: Colors.black54,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
+    );
+  }
+
+  Widget confirmButton(){
+    return BuildConfirmButton(
+      alignment: AlignmentGeometry.center,
+      onPressed: () {
+        _handleResetPassword();
+      },
+      fontsize: fontsize,
+      lable: 'ยืนยัน',
+    );
+  }
+
+  Widget forgotPasswordButton(){
+    return BuildConfirmButton(
+      alignment: AlignmentGeometry.center,
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ForgotPasswordPage(),
+          ),
+        );
+      },
+      fontsize: fontsize,
+      lable: 'ลืมรหัสผ่าน',
+    );
+  }
+
+  Widget oldOTPField(){
+    return BuildFormField(
+      label: 'PIN เดิม',
+      controller: _OldPINController,
+      validator: (value) => validatePIN(value, false),
+    );
+  }
+
+  Widget newOTPField(){
+    return BuildFormField(
+      label: 'PIN ใหม่',
+      controller: _NewPINController,
+      validator: (value) => validatePIN(value, false),
+    );
+  }
+
+  Widget ensureOTPField(){
+    return BuildFormField(
+      label: 'ยืนยัน PIN ใหม่',
+      controller: _EnsurePINController,
+      validator: (value) => validatePIN(value, true),
     );
   }
 

@@ -18,93 +18,111 @@ class _OTPPage extends State<OTPPage> {
   final _OTPController = TextEditingController();
   final _TelOrEMailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  double fontsize = 32;
+  String? refCode ;
   @override
   Widget build(BuildContext context) {
-    double fontsize = 32;
     return Scaffold(
       appBar: AppBar(
         title: Text("หน้าลงทะเบียน"),
         backgroundColor: Colors.blue,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Center(
-                child: Container(
-                  // color: Colors.red,
-                  padding: EdgeInsetsGeometry.all(50.0),
+      body: body()
+    );
+  }
 
-                  child: Container(
-                    child: Column(
-                      mainAxisAlignment: .start,
-                      crossAxisAlignment: .center,
-                      children: [
-                        Container(
-                          child: Text(
-                            'ตู้ที่เลือก ${widget.lockerId!}',
-                            style: TextStyle(
-                              fontSize: fontsize,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        BuildFormField(
-                          label: 'เบอร์โทรศัพท์หรืออีเมล',
-                          controller: _TelOrEMailController,
-                          validator: (value)=>Validators.validateEmailOrPhone(value),
-                        ),
-
-                        BuildConfirmButton(
-                          onPressed: () {
-                            String? validatorError = Validators.validateEmailOrPhone(
-                              _TelOrEMailController.text,
-                            );
-                            if (validatorError != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(validatorError)),
-                              );
-                              return;
-                            } else {
-                              _handleSendOTP();
-                            }
-                          },
-                          fontsize: fontsize,
-                          lable: 'ส่ง OTP',
-                        ),
-
-                        BuildFormField(
-                          label: 'OTP',
-                          controller: _OTPController,
-                          validator: Validators.validateOTP,
-                        ),
-
-                        BuildConfirmButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _handleSubmitOTP();
-                            }
-                          },
-                          fontsize: fontsize,
-                          lable: 'ยืนยัน',
-                        ),
-                      ],
+  Widget body(){
+    return  Stack(
+      children: [
+        SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Center(
+              child: Container(
+                padding: EdgeInsetsGeometry.all(50.0),
+                child: Column(
+                  mainAxisAlignment: .start,
+                  crossAxisAlignment: .center,
+                  children: [
+                    Text(
+                      'ตู้ที่เลือก ${widget.lockerId}',
+                      style: TextStyle(
+                        fontSize: fontsize,
+                        color: Colors.green,
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 20),
+                    BuildFormField(
+                      label: 'เบอร์โทรศัพท์หรืออีเมล',
+                      controller: _TelOrEMailController,
+                      validator: (value)=>Validators.validateEmailOrPhone(value),
+                    ),
+                    sendOTPButton(),
+                    BuildFormField(
+                      label: 'OTP',
+                      controller: _OTPController,
+                      validator: Validators.validateOTP,
+                    ),
+                    confirmButton(),
+                    const SizedBox(height: 20,),
+                    ?refcodeZone(),
+                    const SizedBox(height: 20,)
+                  ],
                 ),
               ),
             ),
           ),
-          if (_isloading)
-            Container(
-              color: Colors.black54,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
-      ),
+        ),
+        if (_isloading)
+          Container(
+            color: Colors.black54,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
     );
+  }
+
+  Widget confirmButton(){
+    return BuildConfirmButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          _handleSubmitOTP();
+        }
+      },
+      fontsize: fontsize,
+      lable: 'ยืนยัน',
+    );
+  }
+
+  Widget sendOTPButton(){
+    return BuildConfirmButton(
+      onPressed: () {
+        String? validatorError = Validators.validateEmailOrPhone(
+          _TelOrEMailController.text,
+        );
+        if (validatorError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(validatorError)),
+          );
+          return;
+        } else {
+          _handleSendOTP();
+        }
+      },
+      fontsize: fontsize,
+      lable: 'ส่ง OTP',
+    );
+  }
+
+  Widget? refcodeZone(){
+    if(refCode != null) {
+      return Container(
+        alignment: .center,
+        child: Text(
+          refCode!, style: TextStyle(fontSize: fontsize, color: Colors.blue),),
+      );
+    }
+    return null;
   }
 
   Future<void> _handleSendOTP() async {
@@ -114,6 +132,7 @@ class _OTPPage extends State<OTPPage> {
       final result = await _apiService.sendOTP(
         cleanValue,
         cleanValue.contains('@'),
+        widget.lockerId
       );
       if (!mounted) return;
       setState(() => _isloading = false);
@@ -122,6 +141,7 @@ class _OTPPage extends State<OTPPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('ส่ง OTP สำเร็จ')));
+        refCode = result['data']['refercode'] ?? '';
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -179,8 +199,6 @@ class _OTPPage extends State<OTPPage> {
       ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
     }
   }
-
-
 
   @override
   void dispose() {

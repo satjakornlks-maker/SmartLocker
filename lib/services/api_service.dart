@@ -15,20 +15,25 @@ class ApiService {
 
 
   Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason,String lockerId) async {
-    int lockerId = 2;
     print(DateTime.now().toIso8601String());
+    List<String> stringList = name.split(RegExp(r' '));
+
     try{
       final responss = await _dio.post(
-          '/locker/register',
+          '/locker/periodic_request',
           data: {
-            'LockerUnitID':lockerId,
-            //'name': name,
+            'LockerUnitID':int.parse(lockerId),
+            // 'Name': stringList,
             'PhoneNumber':tel,
             'Email':email,
-            //'reason':reason,
+            'Reason':reason,
             'FromDatetime' : DateTime.now().toString(),
             'ToDatetime': DateTime.now().toString(),
-            'BookedTypeId': 3
+            'BookedTypeId': 3,
+            'Name':stringList[0],
+            if(stringList.length > 1)
+            'Lastname':stringList[1]
+
           }
       );
       print('Response data: ${responss.data}');
@@ -45,7 +50,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> sendOTP(String data,bool isEmail ) async {
+  Future<Map<String,dynamic>> sendOTP(String data,bool isEmail,String lockerId) async {
     late String type;
     if(isEmail){
      type = 'Email';
@@ -55,9 +60,11 @@ class ApiService {
 
     try{
       final responss = await _dio.post(
-          '/send_otp',
+          '/locker/send_otp',
           data: {
+            'LockerUnitID':int.parse(lockerId),
             type: data,
+            "BookedTypeId": 1,
           }
       );
       return{
@@ -72,16 +79,26 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> bookLocker(String lockerId ,String pin,) async {
+  Future<Map<String,dynamic>> bookLocker(bool isEmail,String telOrEmail,String lockerId ,String pin,DateTime toDateTime) async {
+    late String type;
+    if(isEmail){
+      type = 'Email';
+    }else{
+      type = 'PhoneNumber';
+    }
+
     try{
       final responss = await _dio.post(
-        '/post',
+        '/locker/register',
         data: {
-          'pin' : pin,
-          'lockerId': int.parse(lockerId),
+          'LockerUnitID':lockerId,
+          //'name': name,
+          type:telOrEmail,
+          //'reason':reason,
           'FromDatetime' : DateTime.now().toString(),
-          'ToDatetime': DateTime.now().toString(),
-          'BookedTypeId': 1
+          'ToDatetime': toDateTime.toString(),
+          'BookedTypeId': 1,
+
         }
       );
       return{
@@ -156,17 +173,16 @@ class ApiService {
   Future<Map<String,dynamic>> handleForgotPassword(String data, bool isEmail) async{
     late String type;
     if(isEmail){
-      type = 'validateEmail';
+      type = 'Email';
     }else{
-      type = 'validateTel';
+      type = 'PhoneNumber';
     }
 
     try{
       final responss = await _dio.post(
-          '/post',
+          '/locker/forgot_password',
           data: {
             type: data,
-            'timestamp' : DateTime.now().toIso8601String(),
           }
       );
       return{
@@ -184,18 +200,17 @@ class ApiService {
   Future<Map<String,dynamic>> handleSubmitOTP(String data,String OTP,bool isEmail)async{
     late String type;
     if(isEmail){
-      type = 'validateEmail';
+      type = 'email';
     }else{
-      type = 'validateTel';
+      type = 'phone_number';
     }
 
     try{
       final responss = await _dio.post(
-          '/post',
+          '/locker/verify',
           data: {
             type: data,
-            'otp':OTP,
-            'timestamp' : DateTime.now().toIso8601String(),
+            'pin':OTP,
           }
       );
       return{
@@ -210,12 +225,12 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleFillPIN(String PIN)async{
+  Future<Map<String,dynamic>> handleFillPIN(String PIN,String lockerId)async{
     try{
       final responss = await _dio.post(
-          '/post',
+          '/locker/unlock_locker',
           data: {
-
+            'LockerUnitID': int.parse(lockerId),
             'pin':PIN,
             'timestamp' : DateTime.now().toIso8601String(),
           }
@@ -231,6 +246,8 @@ class ApiService {
       };
     }
   }
+
+
 
   String _handleError(DioException e) {
     print('═══ ERROR DEBUG ═══');
@@ -278,9 +295,7 @@ class ApiService {
       case DioExceptionType.unknown:
         return 'Unknown error: ${e.message ?? e.error.toString()}';
 
-      default:
-        return 'Error: ${e.message ?? e.error?.toString() ?? "Unknown"}';
-    }
+      }
   }
 
 
