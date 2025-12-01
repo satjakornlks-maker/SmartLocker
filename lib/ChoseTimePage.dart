@@ -114,8 +114,8 @@ class _ChoseTimePage extends State<ChoseTimePage> {
           _handleSubmitTime();
         }
       },
-      fontsize: fontsize,
-      lable: 'ยืนยัน',
+      fontSize: fontsize,
+      label: 'ยืนยัน',
       alignment: AlignmentGeometry.center,
     );
   }

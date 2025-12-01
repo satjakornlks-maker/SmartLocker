@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class BuildConfirmButton extends StatelessWidget{
   final VoidCallback onPressed;
-  final double fontsize;
-  final String? lable;
+  final double fontSize;
+  final String? label;
   final AlignmentGeometry alignment;
 
-  const BuildConfirmButton({super.key, required this.onPressed, required this.fontsize, required this.lable,this.alignment = AlignmentDirectional.bottomEnd});
+  const BuildConfirmButton({super.key, required this.onPressed, required this.fontSize, required this.label,this.alignment = AlignmentDirectional.bottomEnd});
 
   @override
   Widget build (BuildContext context){
@@ -15,8 +15,8 @@ class BuildConfirmButton extends StatelessWidget{
       child: TextButton(
         onPressed: onPressed,
         child: Text(
-          lable!,
-          style: TextStyle(fontSize: fontsize),
+          label!,
+          style: TextStyle(fontSize: fontSize),
         ),
       ),
     );

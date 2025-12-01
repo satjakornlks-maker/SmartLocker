@@ -138,8 +138,8 @@ class _UnlockPage extends State<UnlockPage> {
     return BuildConfirmButton(
       alignment: AlignmentGeometry.center,
       onPressed: _handleUnlock,
-      fontsize: fontsize,
-      lable: 'ปลดล็อค',
+      fontSize: fontsize,
+      label: 'ปลดล็อค',
     );
   }
 
@@ -174,7 +174,7 @@ class _UnlockPage extends State<UnlockPage> {
   }
 
   void _onLockerTap(String lockerId, bool isAvailable) {
-    if (isAvailable) {
+    if (!isAvailable) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -192,7 +192,7 @@ class _UnlockPage extends State<UnlockPage> {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('ตู้ $lockerId ไม่ว่าง'),
+          content: Text('ตู้ $lockerId ว่างอยู่'),
           duration: Duration(seconds: 3),
         ),
       );

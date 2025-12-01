@@ -68,12 +68,12 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
 
   Widget confirmButton(){
     return BuildConfirmButton(
-        lable:'ยืนยัน',
+        label:'ยืนยัน',
         onPressed: (){
           if (_formKey.currentState!.validate()) {
             _handleSubmitOTP();
           }
-        }, fontsize: fontsize);
+        }, fontSize: fontsize);
   }
 
   Widget sendOTPButton(){
@@ -89,8 +89,8 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       } else {
         _handleSendOTPForgotPassword();
       }},
-        fontsize: fontsize,
-        lable: 'ส่ง OTP');
+        fontSize: fontsize,
+        label: 'ส่ง OTP');
   }
 
   Widget? refCodeZone(){

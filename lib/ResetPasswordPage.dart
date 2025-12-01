@@ -69,8 +69,8 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       onPressed: () {
         _handleResetPassword();
       },
-      fontsize: fontsize,
-      lable: 'ยืนยัน',
+      fontSize: fontsize,
+      label: 'ยืนยัน',
     );
   }
 
@@ -85,8 +85,8 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
           ),
         );
       },
-      fontsize: fontsize,
-      lable: 'ลืมรหัสผ่าน',
+      fontSize: fontsize,
+      label: 'ลืมรหัสผ่าน',
     );
   }
 

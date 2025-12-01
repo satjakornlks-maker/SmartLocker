@@ -136,8 +136,8 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
       onPressed: () {
         _handleUnlockMember();
       },
-      fontsize: fontsize,
-      lable: 'จอง',
+      fontSize: fontsize,
+      label: 'จอง',
     );
   }
 

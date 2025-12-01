@@ -89,8 +89,8 @@ class _OTPPage extends State<OTPPage> {
           _handleSubmitOTP();
         }
       },
-      fontsize: fontsize,
-      lable: 'ยืนยัน',
+      fontSize: fontsize,
+      label: 'ยืนยัน',
     );
   }
 
@@ -109,8 +109,8 @@ class _OTPPage extends State<OTPPage> {
           _handleSendOTP();
         }
       },
-      fontsize: fontsize,
-      lable: 'ส่ง OTP',
+      fontSize: fontsize,
+      label: 'ส่ง OTP',
     );
   }
 

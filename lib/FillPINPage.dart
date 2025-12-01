@@ -63,8 +63,8 @@ class _FillPinPage extends State<FillPinPage> {
           _handlePINSubmit();
         }
       },
-      fontsize: fontsize,
-      lable: 'ยืนยัน',
+      fontSize: fontsize,
+      label: 'ยืนยัน',
     );
   }
 
@@ -79,8 +79,8 @@ class _FillPinPage extends State<FillPinPage> {
           ),
         );
       },
-      fontsize: fontsize,
-      lable: 'ลืมรหัสผ่าน',
+      fontSize: fontsize,
+      label: 'ลืมรหัสผ่าน',
     );
   }
 

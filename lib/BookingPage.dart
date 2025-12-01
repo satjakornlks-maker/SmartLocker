@@ -143,8 +143,8 @@ class _BookingPage extends State<BookingPage> {
       onPressed: () {
         _handleBooking();
       },
-      fontsize: fontsize,
-      lable: 'จอง',
+      fontSize: fontsize,
+      label: 'จอง',
       alignment: AlignmentGeometry.center,
     );
   }

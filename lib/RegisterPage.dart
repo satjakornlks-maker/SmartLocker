@@ -69,8 +69,8 @@ class _RegisterPage extends State<RegisterPage> {
           );
         }
       },
-      fontsize: fontsize,
-      lable: 'ยืนยัน',
+      fontSize: fontsize,
+      label: 'ยืนยัน',
       alignment: AlignmentDirectional.center,
     );
   }

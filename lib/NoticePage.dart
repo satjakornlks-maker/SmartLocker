@@ -13,39 +13,31 @@ class NoticePage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Center(
-          child: Container(
-            child: Column(
-              children: [
-                SizedBox(height: 50),
-                Container(
-                  child: Text(
-                    'ลงทะเบียนสำเร็จ',
-                    style: TextStyle(fontSize: fontsize),
-                  ),
+          child: Column(
+            children: [
+              SizedBox(height: 50),
+              Text(
+                'ลงทะเบียนสำเร็จ',
+                style: TextStyle(fontSize: fontsize),
+              ),
+              SizedBox(height: 20),
+              Container(
+                margin: EdgeInsets.all(20),
+                child: Text(
+                  'เมื่อ admin อนุมัติจะแจ้งผลการลงทะเบียน และ รหัสผ่าน ผ่านทาง email หรือ เบอร์โทร',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 32),
                 ),
-                SizedBox(height: 20),
-                Container(
-                  margin: EdgeInsets.all(20),
-                  child: Text(
-                    'เมื่อ admin อนุมัติจะแจ้งผลการลงทะเบียน และ รหัสผ่าน ผ่านทาง email หรือ เบอร์โทร',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 32),
-                  ),
-                ),
-                Container(
-                  child: Text('', style: TextStyle(fontSize: fontsize)),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                    },
-                    child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Text('', style: TextStyle(fontSize: fontsize)),
+              SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                child: Text('ยืนยัน', style: TextStyle(fontSize: fontsize)),
+              ),
+            ],
           ),
         ),
       ),

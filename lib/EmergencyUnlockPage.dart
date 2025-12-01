@@ -127,8 +127,8 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
           onPressed: () {
             _isLoading ? null : _handleOrder();
           },
-          fontsize: fontsize,
-          lable: 'เปิด',
+          fontSize: fontsize,
+          label: 'เปิด',
         ),
         SizedBox(height: 10),
       ],

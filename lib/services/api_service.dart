@@ -151,7 +151,7 @@ class ApiService {
   Future<Map<String,dynamic>> handleResetPassword(String oldPIN,String newPIN) async{
     try{
       final response = await _dio.post(
-          '/post',
+          '/locker/forgot_password',
           data: {
             'oldPIN': oldPIN,
             'newPIN': newPIN,
