@@ -14,7 +14,7 @@ class EmergencyUnlockPage extends StatefulWidget {
 class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
   String? selectedLocker;
   List<Map<String, dynamic>> lockerStatus = [];
-
+  String? selectedLockerName;
   bool _showGrid = false;
 
   @override
@@ -164,8 +164,9 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
     );
   }
 
-  void _onLockerTap(String lockerId, bool isAvailable) {
+  void _onLockerTap(String lockerId, bool isAvailable,String lockerName) {
     setState(() => selectedLocker = lockerId);
+    setState(() => selectedLockerName = lockerName);
   }
 
 

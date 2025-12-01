@@ -17,7 +17,7 @@ class _UnlockPage extends State<UnlockPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
   List<Map<String, dynamic>> lockerStatus = [];
-
+  String? selectedLockerName;
   bool _showGrid = false;
 
   @override
@@ -173,21 +173,11 @@ class _UnlockPage extends State<UnlockPage> {
     }
   }
 
-  void _onLockerTap(String lockerId, bool isAvailable) {
+  void _onLockerTap(String lockerId, bool isAvailable,String lockerName) {
     if (!isAvailable) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          onVisible: () {
-            setState(() => selectedLocker = lockerId);
-          },
-          content: Text('เลือกตู้ $lockerId '),
-          //   action: SnackBarAction(label: 'ยกเลิก', onPressed: (){
-          //   setState(()=>selectedLocker = null);
-          // }),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      setState(() => selectedLocker = lockerId);
+      setState(() => selectedLockerName = lockerName);
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(

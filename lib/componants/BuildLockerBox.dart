@@ -4,7 +4,7 @@ class BuildLockerBox extends StatelessWidget{
 
   final Map<String,dynamic> lockerStatus;
   final String? selectedLocker;
-  final Function(String, bool) onTap;
+  final Function(String, bool, String) onTap;
   const BuildLockerBox({
     super.key,
     required this.selectedLocker,
@@ -17,7 +17,7 @@ class BuildLockerBox extends StatelessWidget{
     bool isAvailable = !lockerStatus['status'];
     bool isSelected = selectedLocker == lockerStatus['id'].toString();
     return GestureDetector(
-      onTap: ()=> onTap(lockerStatus['id'].toString(), isAvailable),
+      onTap: ()=> onTap(lockerStatus['id'].toString(), isAvailable,lockerStatus['name'].toString()),
       child: Material(
 
           color: _getColor(isAvailable, isSelected),

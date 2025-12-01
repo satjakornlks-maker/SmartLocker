@@ -25,7 +25,7 @@ class MemberLockerSelectPage extends StatefulWidget {
 
 class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
   List<Map<String, dynamic>> lockerStatus = [];
-
+  String? selectedLockerName;
   bool _showGrid = false;
 
   @override
@@ -198,9 +198,10 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     );
   }
 
-  void _onLockerTap(String lockerId, bool isAvailable) {
+  void _onLockerTap(String lockerId, bool isAvailable, String lockerName) {
     if (isAvailable) {
       setState(() => selectedLocker = lockerId);
+      setState(() => selectedLockerName = lockerName);
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(

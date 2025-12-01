@@ -1,34 +1,106 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:untitled/ChoseTimePage.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'package:untitled/componants/BuildFromField.dart';
 import 'package:untitled/validators/validator.dart';
 import 'services/api_service.dart';
 
-class OTPPage extends StatefulWidget {
-  final String lockerId;
-  final String lockerName;
-  const OTPPage({super.key, required this.lockerId, required this.lockerName});
+class InstanceUse extends StatefulWidget {
+  const InstanceUse({super.key,});
   @override
-  State<OTPPage> createState() => _OTPPage();
+  State<InstanceUse> createState() => _InstanceUse();
 }
 
-class _OTPPage extends State<OTPPage> {
+class _InstanceUse extends State<InstanceUse> {
+  String? selectedLockerId;
+  String? selectedLockerName;
   final ApiService _apiService = ApiService();
-  bool _isloading = false;
+  bool _isLoading = false;
   final _OTPController = TextEditingController();
   final _TelOrEMailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   double fontsize = 32;
   String? refCode ;
+  List<Map<String, dynamic>> lockerStatus = [];
+
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      //call API to get locker
+      _loadLocker();
+    });
+  }
+
+  Future<void> _loadLocker() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await _apiService.getLocker();
+      if (!mounted) return;
+      if (result['success']) {
+        print(result);
+        setState(() {
+          if (result['data'] is List) {
+            lockerStatus = List<Map<String, dynamic>>.from(result['data']);
+          } else {
+            lockerStatus = [result['data'] as Map<String, dynamic>];
+          }
+          _isLoading = false;
+          _selectRandomAvailableLocker();
+        });
+      } else {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('เกิดข้อผิดพลาด: ${result['error']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      print('Error loading lockers: $e');
+    }
+  }
+
+  void _selectRandomAvailableLocker() {
+    // Filter available lockers (status = false means available)
+    List<Map<String, dynamic>> availableLockers = lockerStatus
+        .where((locker) => locker['status'] == false)
+        .toList();
+
+    if (availableLockers.isEmpty) {
+      // No available lockers
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Randomly select one available locker
+    Random random = Random();
+    Map<String, dynamic> randomLocker = availableLockers[random.nextInt(availableLockers.length)];
+
+    setState(() {
+      selectedLockerId = randomLocker['id'].toString();
+      selectedLockerName = randomLocker['name'];
+    });
+
+    print('✅ Selected random locker: $selectedLockerName (ID: $selectedLockerId)');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("หน้าลงทะเบียน"),
-        backgroundColor: Colors.blue,
-      ),
-      body: body()
+        appBar: AppBar(
+          title: Text("หน้าลงทะเบียน"),
+          backgroundColor: Colors.blue,
+        ),
+        body: body()
     );
   }
 
@@ -46,7 +118,7 @@ class _OTPPage extends State<OTPPage> {
                   crossAxisAlignment: .center,
                   children: [
                     Text(
-                      'ตู้ที่เลือก ${widget.lockerName}',
+                      'ตู้ที่ได้ ${selectedLockerName}',
                       style: TextStyle(
                         fontSize: fontsize,
                         color: Colors.green,
@@ -74,7 +146,7 @@ class _OTPPage extends State<OTPPage> {
             ),
           ),
         ),
-        if (_isloading)
+        if (_isLoading)
           Container(
             color: Colors.black54,
             child: Center(child: CircularProgressIndicator()),
@@ -127,16 +199,32 @@ class _OTPPage extends State<OTPPage> {
   }
 
   Future<void> _handleSendOTP() async {
-    setState(() => _isloading = true);
+    if(selectedLockerId == null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(child: Text('ไม่มีตู้ว่าง')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    setState(() => _isLoading = true);
     String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
     try {
       final result = await _apiService.sendOTP(
-        cleanValue,
-        cleanValue.contains('@'),
-        widget.lockerId
+          cleanValue,
+          cleanValue.contains('@'),
+          selectedLockerId!
       );
       if (!mounted) return;
-      setState(() => _isloading = false);
+      setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(
@@ -151,7 +239,7 @@ class _OTPPage extends State<OTPPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() => _isloading = false);
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(
         context,
@@ -160,7 +248,7 @@ class _OTPPage extends State<OTPPage> {
   }
 
   Future<void> _handleSubmitOTP() async {
-    setState(() => _isloading = true);
+    setState(() => _isLoading = true);
     String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
     try {
       final result = await _apiService.handleSubmitOTP(
@@ -169,7 +257,7 @@ class _OTPPage extends State<OTPPage> {
         cleanValue.contains('@'),
       );
       if (!mounted) return;
-      setState(() => _isloading = false);
+      setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(
@@ -179,10 +267,10 @@ class _OTPPage extends State<OTPPage> {
           context,
           MaterialPageRoute(
             builder: (context) => ChoseTimePage(
-              lockerId: widget.lockerId,
+              lockerId: selectedLockerId!,
               TelOrEmail: _TelOrEMailController.text,
               OTP: _OTPController.text,
-              lockerName: widget.lockerName,
+              lockerName: selectedLockerName!,
             ),
           ),
         );
@@ -194,7 +282,7 @@ class _OTPPage extends State<OTPPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() => _isloading = false);
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(
         context,

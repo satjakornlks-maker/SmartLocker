@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/BookingPage.dart';
 import 'package:untitled/EmergencyUnlockPage.dart';
+import 'package:untitled/InstanceUse.dart';
 import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
 import 'UnlockPage.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/reset-password': (context) => const ResetPasswordPage(),
         '/emergency-unlock': (context) => const EmergencyUnlockPage(),
+        '/instance-use': (context) => const InstanceUse(),
       },
     );
   }
@@ -54,6 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: .start,
             children: [
               SizedBox(height: 50),
+              _buildMenuButton('ลงทะเบียนด่วน', (){Navigator.pushNamed(context, '/instance-use');}),
+              SizedBox(),
               _buildMenuButton('ลงทะเบียน', _handleBooking),
               SizedBox(),
               _buildMenuButton('ปลดล็อค', (){

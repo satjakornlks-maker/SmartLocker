@@ -5,6 +5,7 @@ import 'services/api_service.dart';
 
 class ChoseTimePage extends StatefulWidget {
   final String lockerId;
+  final String lockerName;
   final String TelOrEmail;
   final String OTP;
   const ChoseTimePage({
@@ -12,6 +13,7 @@ class ChoseTimePage extends StatefulWidget {
     required this.lockerId,
     required this.TelOrEmail,
     required this.OTP,
+    required this.lockerName
   });
   @override
   State<ChoseTimePage> createState() => _ChoseTimePage();
@@ -49,6 +51,14 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     return Column(
       children: [
         const SizedBox(height: 50),
+        Text(
+          'ตู้ที่เลือก ${widget.lockerName}',
+          style: TextStyle(
+            fontSize: fontsize,
+            color: Colors.green,
+          ),
+        ),
+        const SizedBox(height: 20,),
         Text('เลือกเวลาการจอง', style: TextStyle(fontSize: fontsize)),
         const SizedBox(height: 20),
         Container(

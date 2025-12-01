@@ -15,6 +15,7 @@ class BookingPage extends StatefulWidget {
 class _BookingPage extends State<BookingPage> {
   bool _isLoading = true;
   String? selectedLocker;
+  String? selectedLockerName;
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> lockerStatus = [];
 
@@ -111,9 +112,10 @@ class _BookingPage extends State<BookingPage> {
     );
   }
 
-  void _onLockerTap(String lockerId, bool isAvailable) {
+  void _onLockerTap(String lockerId, bool isAvailable,String lockerName) {
     if (isAvailable) {
       setState(() => selectedLocker = lockerId);
+      setState(() => selectedLockerName = lockerName);
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(
@@ -127,7 +129,7 @@ class _BookingPage extends State<BookingPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OTPPage(lockerId: selectedLocker!),
+          builder: (context) => OTPPage(lockerId: selectedLocker!,lockerName: selectedLockerName!,),
         ),
       );
     } else {
