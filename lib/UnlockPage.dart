@@ -194,7 +194,7 @@ class _UnlockPage extends State<UnlockPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => FillPinPage(lockerId: selectedLocker!),
+          builder: (context) => FillPinPage(lockerId: selectedLocker!,lockerName: selectedLockerName!,),
         ),
       );
     } else {

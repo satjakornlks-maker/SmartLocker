@@ -171,7 +171,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
         ).showSnackBar(SnackBar(content: Text('ยืนยัน OTP สำเร็จ')));
         Navigator.of(
           context,
-        ).popUntil((route) => route.isFirst);
+        ).pop(context);
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(

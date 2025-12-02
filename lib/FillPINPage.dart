@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/ForgotPasswordPage.dart';
+import 'package:untitled/OvertimePage.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
 
 class FillPinPage extends StatefulWidget {
   final String lockerId;
-  const FillPinPage({super.key,  required this.lockerId});
+  final String lockerName;
+  const FillPinPage({super.key, required this.lockerId, required this.lockerName});
   @override
   State<FillPinPage> createState() => _FillPinPage();
 }
@@ -21,10 +23,11 @@ class _FillPinPage extends State<FillPinPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('หน้าใส่ PIN'), backgroundColor: Colors.blue),
-      body: body()
+      body: body(),
     );
   }
-  Widget body(){
+
+  Widget body() {
     return Stack(
       children: [
         SingleChildScrollView(
@@ -55,7 +58,7 @@ class _FillPinPage extends State<FillPinPage> {
     );
   }
 
-  Widget confirmButton(){
+  Widget confirmButton() {
     return BuildConfirmButton(
       alignment: AlignmentGeometry.center,
       onPressed: () {
@@ -68,15 +71,13 @@ class _FillPinPage extends State<FillPinPage> {
     );
   }
 
-  Widget forgotPasswordButton(){
+  Widget forgotPasswordButton() {
     return BuildConfirmButton(
       alignment: AlignmentGeometry.center,
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ForgotPasswordPage(),
-          ),
+          MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
         );
       },
       fontSize: fontsize,
@@ -84,7 +85,7 @@ class _FillPinPage extends State<FillPinPage> {
     );
   }
 
-  Widget fillPinZone(){
+  Widget fillPinZone() {
     return BuildFormField(
       label: 'PIN(OTP)',
       controller: _PINContorller,
@@ -97,20 +98,20 @@ class _FillPinPage extends State<FillPinPage> {
     );
   }
 
-  Widget selectLockerDisplay(){
+  Widget selectLockerDisplay() {
     return Text(
-      'ตู้ที่เลือก ${widget.lockerId}',
-      style: TextStyle(
-        fontSize: fontsize,
-        color: Colors.green,
-      ),
+      'ตู้ที่เลือก ${widget.lockerName}',
+      style: TextStyle(fontSize: fontsize, color: Colors.green),
     );
   }
 
   Future<void> _handlePINSubmit() async {
     setState(() => _isLoading = true);
     try {
-      final result = await _apiService.handleFillPIN(_PINContorller.text,widget.lockerId);
+      final result = await _apiService.handleFillPIN(
+        _PINContorller.text,
+        widget.lockerId,
+      );
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
@@ -118,7 +119,22 @@ class _FillPinPage extends State<FillPinPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('ยืนยัน PIN สำเร็จ')));
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        print(result);
+        if (result['data'] != null && result['data']['overtime'] != null) {
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => OverTimePage(
+                day: result['data']['overtime']['days'].toString(),
+                hour: result['data']['overtime']['hours'].toString(),
+                minute: result['data']['overtime']['minutes'].toString(),
+                second: result['data']['overtime']['seconds'].toString(),
+              ),
+            ),
+          );
+        }else{
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -131,7 +147,7 @@ class _FillPinPage extends State<FillPinPage> {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด frontEnd: $e')));
     }
   }
 

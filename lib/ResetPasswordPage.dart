@@ -17,6 +17,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
   final _OldPINController = TextEditingController();
   final _NewPINController = TextEditingController();
   final _EnsurePINController = TextEditingController();
+  final _TelController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
   double fontsize = 32;
   @override
@@ -42,6 +43,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                 child: Column(
                   children: [
                     SizedBox(height: 50),
+                    telField(),
                     oldOTPField(),
                     newOTPField(),
                     ensureOTPField(),
@@ -90,6 +92,14 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     );
   }
 
+  Widget telField(){
+    return BuildFormField(
+      label: 'เบอร์โทรศัพท์',
+      controller: _TelController,
+      validator: (value) => validatePIN(value, false),
+    );
+  }
+
   Widget oldOTPField(){
     return BuildFormField(
       label: 'PIN เดิม',
@@ -134,6 +144,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
         final result = await _apiService.handleResetPassword(
           _OldPINController.text,
           _NewPINController.text,
+          _TelController.text
         );
         if (!mounted) return;
         setState(() => _isLoading = false);
