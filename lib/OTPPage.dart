@@ -45,25 +45,11 @@ class _OTPPage extends State<OTPPage> {
                   mainAxisAlignment: .start,
                   crossAxisAlignment: .center,
                   children: [
-                    Text(
-                      'ตู้ที่เลือก ${widget.lockerName}',
-                      style: TextStyle(
-                        fontSize: fontsize,
-                        color: Colors.green,
-                      ),
-                    ),
+                    displaySelect(),
                     SizedBox(height: 20),
-                    BuildFormField(
-                      label: 'เบอร์โทรศัพท์หรืออีเมล',
-                      controller: _TelOrEMailController,
-                      validator: (value)=>Validators.validateEmailOrPhone(value),
-                    ),
+                    telOrEmailField(),
                     sendOTPButton(),
-                    BuildFormField(
-                      label: 'OTP',
-                      controller: _OTPController,
-                      validator: Validators.validateOTP,
-                    ),
+                    otpField(),
                     confirmButton(),
                     const SizedBox(height: 20,),
                     ?refcodeZone(),
@@ -80,6 +66,32 @@ class _OTPPage extends State<OTPPage> {
             child: Center(child: CircularProgressIndicator()),
           ),
       ],
+    );
+  }
+
+  Widget displaySelect(){
+    return Text(
+      'ตู้ที่เลือก ${widget.lockerName}',
+      style: TextStyle(
+        fontSize: fontsize,
+        color: Colors.green,
+      ),
+    );
+  }
+
+  Widget telOrEmailField(){
+    return BuildFormField(
+      label: 'เบอร์โทรศัพท์หรืออีเมล',
+      controller: _TelOrEMailController,
+      validator: (value)=>Validators.validateEmailOrPhone(value),
+    );
+  }
+
+  Widget otpField(){
+    return BuildFormField(
+      label: 'OTP',
+      controller: _OTPController,
+      validator: Validators.validateOTP,
     );
   }
 

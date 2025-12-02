@@ -105,10 +105,7 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
               crossAxisAlignment: .center,
               children: [
                 SizedBox(height: 100),
-                Text(
-                  'เลือกตู้ล็อคเกอร์',
-                  style: TextStyle(fontSize: fontsize),
-                ),
+                displaySelected(),
                 SizedBox(height: 50),
                 BuildLegend(),
                 SizedBox(height: 30),
@@ -127,6 +124,13 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
             child: Center(child: CircularProgressIndicator()),
           ),
       ],
+    );
+  }
+
+  Widget displaySelected(){
+    return Text(
+      'เลือกตู้ล็อคเกอร์',
+      style: TextStyle(fontSize: fontsize),
     );
   }
 

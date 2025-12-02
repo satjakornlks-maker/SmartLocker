@@ -117,25 +117,11 @@ class _InstanceUse extends State<InstanceUse> {
                   mainAxisAlignment: .start,
                   crossAxisAlignment: .center,
                   children: [
-                    Text(
-                      'ตู้ที่ได้ ${selectedLockerName}',
-                      style: TextStyle(
-                        fontSize: fontsize,
-                        color: Colors.green,
-                      ),
-                    ),
+                    lockerDisplay(),
                     SizedBox(height: 20),
-                    BuildFormField(
-                      label: 'เบอร์โทรศัพท์หรืออีเมล',
-                      controller: _TelOrEMailController,
-                      validator: (value)=>Validators.validateEmailOrPhone(value),
-                    ),
+                    telField(),
                     sendOTPButton(),
-                    BuildFormField(
-                      label: 'OTP',
-                      controller: _OTPController,
-                      validator: Validators.validateOTP,
-                    ),
+                    otpField(),
                     confirmButton(),
                     const SizedBox(height: 20,),
                     ?refcodeZone(),
@@ -152,6 +138,31 @@ class _InstanceUse extends State<InstanceUse> {
             child: Center(child: CircularProgressIndicator()),
           ),
       ],
+    );
+  }
+  Widget telField(){
+    return BuildFormField(
+      label: 'เบอร์โทรศัพท์หรืออีเมล',
+      controller: _TelOrEMailController,
+      validator: (value)=>Validators.validateEmailOrPhone(value),
+    );
+  }
+
+  Widget otpField(){
+    return BuildFormField(
+      label: 'OTP',
+      controller: _OTPController,
+      validator: Validators.validateOTP,
+    );
+  }
+
+  Widget lockerDisplay(){
+    return Text(
+      'ตู้ที่ได้ ${selectedLockerName}',
+      style: TextStyle(
+        fontSize: fontsize,
+        color: Colors.green,
+      ),
     );
   }
 
