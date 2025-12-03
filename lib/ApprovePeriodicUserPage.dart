@@ -56,105 +56,103 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
         title: Text('หน้าอนุมัติการลงทะเบียนใช้ประจำ'),
         backgroundColor: Colors.blue,
       ),
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            // Main content
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : user.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.inbox, size: 80, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'ไม่มีคำขออนุมัติ',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ],
-              ),
-            )
-                : RefreshIndicator(
-              onRefresh: _loadUser,
-              child: ListView.builder(
-                padding: EdgeInsets.all(10),
-                itemCount: user.length,
-                itemBuilder: (context, index) {
-                  final userData = user[index];
-                  return Card(
-                    elevation: 3,
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    child: ExpansionTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        child: Text(
-                          '${userData['name']?[0] ?? 'U'}',
-                          style: TextStyle(color: Colors.white),
-                        ),
+      body: Stack(
+        children: [
+          // Main content
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : user.isEmpty
+              ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.inbox, size: 80, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'ไม่มีคำขออนุมัติ',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              ],
+            ),
+          )
+              : RefreshIndicator(
+            onRefresh: _loadUser,
+            child: ListView.builder(
+              padding: EdgeInsets.all(10),
+              itemCount: user.length,
+              itemBuilder: (context, index) {
+                final userData = user[index];
+                return Card(
+                  elevation: 3,
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  child: ExpansionTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      child: Text(
+                        '${userData['name']?[0] ?? 'U'}',
+                        style: TextStyle(color: Colors.white),
                       ),
-                      title: Text(
-                        '${userData['name'] ?? ''} ${userData['lastname'] ?? ''}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 4),
-                          Text('📞 ${userData['phone_number'] ?? 'ไม่ระบุ'}'),
-                          Text('📧 ${userData['email'] ?? 'ไม่ระบุ'}'),
-                        ],
-                      ),
+                    ),
+                    title: Text(
+                      '${userData['name'] ?? ''} ${userData['lastname'] ?? ''}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildInfoRow('ID', '${userData['id']}'),
-                              _buildInfoRow('Locker Unit', '${userData['locker_unit_id'] ?? 'ไม่ระบุ'}'),
-                              _buildInfoRow('เหตุผล', userData['reason'] ?? 'ไม่ระบุ'),
-                              SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () => _approveUser(
-                                        userData['id'],
-                                        userData['name'],
-                                        userData['lastname'],
-                                        userData['locker_unit_id'],
-                                        userData['email'],
-                                        userData['phone_number']),
-                                    icon: Icon(Icons.check),
-                                    label: Text('อนุมัติ'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  ),
-                                  ElevatedButton.icon(
-                                    onPressed: () => _rejectUser(userData['id'],userData['email'],userData['locker_unit_id'],userData['phone_number'],userData['name'],
-                                      userData['lastname'],),
-                                    icon: Icon(Icons.close),
-                                    label: Text('ไม่อนุมัติ'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        SizedBox(height: 4),
+                        Text('📞 ${userData['phone_number'] ?? 'ไม่ระบุ'}'),
+                        Text('📧 ${userData['email'] ?? 'ไม่ระบุ'}'),
                       ],
                     ),
-                  );
-                },
-              ),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildInfoRow('ID', '${userData['id']}'),
+                            _buildInfoRow('Locker Unit', '${userData['locker_unit_id'] ?? 'ไม่ระบุ'}'),
+                            _buildInfoRow('เหตุผล', userData['reason'] ?? 'ไม่ระบุ'),
+                            SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => _approveUser(
+                                      userData['id'],
+                                      userData['name'],
+                                      userData['lastname'],
+                                      userData['locker_unit_id'],
+                                      userData['email'],
+                                      userData['phone_number']),
+                                  icon: Icon(Icons.check),
+                                  label: Text('อนุมัติ'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                  ),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () => _rejectUser(userData['id'],userData['email'],userData['locker_unit_id'],userData['phone_number'],userData['name'],
+                                    userData['lastname'],),
+                                  icon: Icon(Icons.close),
+                                  label: Text('ไม่อนุมัติ'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
