@@ -67,6 +67,10 @@ class _RegisterPage extends State<RegisterPage> {
               ),
             ),
           );
+          _reasonController.clear();
+          _emailController.clear();
+          _telController.clear();
+          _nameController.clear();
         }
       },
       fontSize: fontsize,

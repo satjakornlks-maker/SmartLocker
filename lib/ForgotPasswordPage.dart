@@ -172,6 +172,9 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
         Navigator.of(
           context,
         ).pop(context);
+        _OTPController.clear();
+        _TelOrEmailController.clear();
+
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(

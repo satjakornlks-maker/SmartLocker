@@ -63,7 +63,6 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      print('Error loading lockers: $e');
     }
   }
 
@@ -94,7 +93,7 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
                 const SizedBox(height: 100),
                 const Text(
                   'เลือกตู้ล็อคเกอร์',
-                  style: const TextStyle(fontSize: fontsize),
+                  style: TextStyle(fontSize: fontsize),
                 ),
                 const SizedBox(height: 50),
                 BuildLegend(),
@@ -237,7 +236,6 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
         ),
       );
     } catch (e) {
-      print('Error parsing selectedLocker: $e');
       return null;
     }
   }

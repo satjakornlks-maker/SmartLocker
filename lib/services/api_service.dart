@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://localhost:44324',
+      baseUrl: 'http://localhost:44324',
       connectTimeout: Duration(seconds: 20),
       receiveTimeout: Duration(seconds: 20),
       headers: {
@@ -15,7 +15,6 @@ class ApiService {
 
 
   Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason,String lockerId) async {
-    print(DateTime.now().toIso8601String());
     List<String> stringList = name.split(RegExp(r' '));
 
     try{
@@ -36,7 +35,6 @@ class ApiService {
 
           }
       );
-      print('Response data: ${responss.data}');
       return{
         'success':true,
         'data':responss.data,
@@ -148,10 +146,25 @@ class ApiService {
     }
   }
 
+  Future<Map<String,dynamic>> getPendingUser()async{
+    try{
+      final response = await _dio.get('/init/get_pending_user');
+      return{
+        'success':true,
+        'data':response.data
+      };
+    }on DioException catch (e){
+      return{
+        'success': false,
+        'error': _handleError(e)
+      };
+    }
+  }
+
   Future<Map<String,dynamic>> handleResetPassword(String oldPIN,String newPIN,String tel) async{
     try{
       final response = await _dio.post(
-          '/locker/forgot_password',
+          '/forgot_password',
           data: {
             'tel': tel,
             'oldPIN': oldPIN,
@@ -229,7 +242,7 @@ class ApiService {
   Future<Map<String,dynamic>> handleFillPIN(String PIN,String lockerId)async{
     try{
       final responss = await _dio.post(
-          '/locker/unlock_locker',
+          '/unlock_locker',
           data: {
             'LockerUnitID': int.parse(lockerId),
             'pin':PIN,
@@ -248,16 +261,60 @@ class ApiService {
     }
   }
 
+  Future<Map<String,dynamic>> handleAcceptRequest(String name,String lastName,String lockerId,String email,String tel)async{
+    try{
+      final responss = await _dio.post(
+          '/approve/accept',
+          data: {
+            'Name': name,
+            'LastName':lastName,
+            'LockerUnitID': int.parse(lockerId),
+            'Email': email,
+            'PhoneNumber': tel,
+            'BookedTypeId': 3,
+            'FromDatetime': DateTime.now().toString(),
+            'ToDatetime': DateTime.now().add(Duration(days: 365 * 10)).toString(),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> handleRejectRequest(String lockerId,String email,String tel,String name,String lastName)async{
+    try{
+      final responss = await _dio.post(
+          '/approve/reject',
+          data: {
+            'Name': name,
+            'LastName':lastName,
+            'LockerUnitID': int.parse(lockerId),
+            'Email': email,
+            'PhoneNumber':tel,
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
 
 
   String _handleError(DioException e) {
-    print('═══ ERROR DEBUG ═══');
-    print('Type: ${e.type}');
-    print('Message: ${e.message}');
-    print('Status Code: ${e.response?.statusCode}');
-    print('Response Data: ${e.response?.data}');
-    print('Error: ${e.error}');
-    print('═══════════════════');
 
     switch (e.type) {
       case DioExceptionType.connectionTimeout:

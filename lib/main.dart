@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/ApprovePeriodicUserPage.dart';
 import 'package:untitled/BookingPage.dart';
 import 'package:untitled/EmergencyUnlockPage.dart';
 import 'package:untitled/InstanceUse.dart';
 import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
 import 'UnlockPage.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/reset-password': (context) => const ResetPasswordPage(),
         '/emergency-unlock': (context) => const EmergencyUnlockPage(),
         '/instance-use': (context) => const InstanceUse(),
+        '/periodic-approve':(context) => const ApprovePeriodicUserPage(),
       },
     );
   }
@@ -42,6 +45,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   double fontsize = 32;
+  Timer? _emergencyTimer;
   @override
 
   Widget build(BuildContext context) {
@@ -56,9 +60,21 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: .start,
             children: [
               SizedBox(height: 50),
-              _buildMenuButton('ลงทะเบียนด่วน', (){Navigator.pushNamed(context, '/instance-use');}),
+              GestureDetector(
+                  onTapDown: (_){
+                    _emergencyTimer = Timer(Duration(seconds: 5), (){Navigator.pushNamed(context, '/periodic-approve');});
+                  },
+                  onTapUp: (_)=> _emergencyTimer?.cancel(),
+                  onTapCancel: ()=> _emergencyTimer?.cancel(),
+                  child: _buildMenuButton('ลงทะเบียนด่วน', (){Navigator.pushNamed(context, '/instance-use');})),
               SizedBox(),
-              _buildMenuButton('ลงทะเบียน', _handleBooking),
+              GestureDetector(
+                 onTapDown: (_){
+                   _emergencyTimer = Timer(Duration(seconds: 5), (){Navigator.pushNamed(context, '/emergency-unlock');});
+                 },
+                  onTapUp: (_)=> _emergencyTimer?.cancel(),
+                  onTapCancel: ()=> _emergencyTimer?.cancel(),
+                  child: _buildMenuButton('ลงทะเบียน', _handleBooking)),
               SizedBox(),
               _buildMenuButton('ปลดล็อค', (){
                 Navigator.pushNamed(context, '/unlock'
@@ -71,10 +87,10 @@ class _MyHomePageState extends State<MyHomePage> {
               _buildMenuButton('เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ', (){
                 Navigator.pushNamed(context, '/reset-password');
               }),
-              SizedBox(),
-              _buildMenuButton('หน้าปลดล็อคฉุกเฉิน', (){
-                Navigator.pushNamed(context, '/emergency-unlock');
-              })
+              // SizedBox(),
+              // _buildMenuButton('หน้าปลดล็อคฉุกเฉิน', (){
+              //   Navigator.pushNamed(context, '/emergency-unlock');
+              // })
             ],
           ),
         ),

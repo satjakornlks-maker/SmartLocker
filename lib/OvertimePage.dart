@@ -25,9 +25,8 @@ class OverTimePage extends StatelessWidget{
               alignment: .center,
               child: Text('ท่านได้ทำการปลดล็อกเกินเวลาจองมาแล้ว $day วัน $hour ชั่วโมง $minute นาที $second วินาที',textAlign: TextAlign.center,style: TextStyle(color: Colors.red,fontSize: 30),))
           ,SizedBox(height: 30,),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
-              // Close the app
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: Text('ย้อนกลับ'),

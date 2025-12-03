@@ -41,7 +41,6 @@ class _UnlockPage extends State<UnlockPage> {
       if (!mounted) return;
 
       if (result['success']) {
-        print(result);
         setState(() {
           if (result['data'] is List) {
             lockerStatus = List<Map<String, dynamic>>.from(result['data']);
@@ -62,7 +61,6 @@ class _UnlockPage extends State<UnlockPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      print('Error loading lockers: $e');
     }
   }
 
@@ -168,7 +166,6 @@ class _UnlockPage extends State<UnlockPage> {
         ),
       );
     } catch (e) {
-      print('Error parsing selectedLocker: $e');
       return null;
     }
   }

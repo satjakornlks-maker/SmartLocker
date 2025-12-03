@@ -39,7 +39,6 @@ class _BookingPage extends State<BookingPage> {
       final result = await _apiService.getLocker();
       if (!mounted) return;
       if (result['success']) {
-        print(result);
         setState(() {
           if (result['data'] is List) {
             lockerStatus = List<Map<String, dynamic>>.from(result['data']);
@@ -60,7 +59,6 @@ class _BookingPage extends State<BookingPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      print('Error loading lockers: $e');
     }
   }
 
@@ -132,6 +130,7 @@ class _BookingPage extends State<BookingPage> {
           builder: (context) => OTPPage(lockerId: selectedLocker!,lockerName: selectedLockerName!,),
         ),
       );
+
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(
@@ -205,7 +204,6 @@ class _BookingPage extends State<BookingPage> {
         ),
       );
     } catch (e) {
-      print('Error parsing selectedLocker: $e');
       return null;
     }
   }

@@ -198,6 +198,8 @@ class _OTPPage extends State<OTPPage> {
             ),
           ),
         );
+        _TelOrEMailController.clear();
+        _OTPController.clear();
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(

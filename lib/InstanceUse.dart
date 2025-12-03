@@ -24,6 +24,7 @@ class _InstanceUse extends State<InstanceUse> {
   String? refCode ;
   List<Map<String, dynamic>> lockerStatus = [];
 
+  @override
   void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_){
@@ -38,7 +39,6 @@ class _InstanceUse extends State<InstanceUse> {
       final result = await _apiService.getLocker();
       if (!mounted) return;
       if (result['success']) {
-        print(result);
         setState(() {
           if (result['data'] is List) {
             lockerStatus = List<Map<String, dynamic>>.from(result['data']);
@@ -60,7 +60,6 @@ class _InstanceUse extends State<InstanceUse> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      print('Error loading lockers: $e');
     }
   }
 
@@ -90,7 +89,6 @@ class _InstanceUse extends State<InstanceUse> {
       selectedLockerName = randomLocker['name'];
     });
 
-    print('✅ Selected random locker: $selectedLockerName (ID: $selectedLockerId)');
   }
 
   @override
@@ -158,7 +156,7 @@ class _InstanceUse extends State<InstanceUse> {
 
   Widget lockerDisplay(){
     return Text(
-      'ตู้ที่ได้ ${selectedLockerName}',
+      'ตู้ที่ได้ $selectedLockerName',
       style: TextStyle(
         fontSize: fontsize,
         color: Colors.green,

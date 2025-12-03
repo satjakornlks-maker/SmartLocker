@@ -73,7 +73,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      print('Error loading lockers: $e');
     }
   }
   double fontsize = 32;
@@ -170,7 +169,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
         ),
       );
     } catch (e) {
-      print('Error parsing selectedLocker: $e');
       return null;
     }
   }
@@ -240,7 +238,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
             MaterialPageRoute(builder: (context) => NoticePage()),
           );
         } else {
-          print(result);
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

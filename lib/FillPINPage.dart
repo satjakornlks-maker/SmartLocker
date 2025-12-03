@@ -17,7 +17,7 @@ class _FillPinPage extends State<FillPinPage> {
   bool _isLoading = false;
   final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
-  final _PINContorller = TextEditingController();
+  final _PINController = TextEditingController();
   double fontsize = 32;
   @override
   Widget build(BuildContext context) {
@@ -88,7 +88,7 @@ class _FillPinPage extends State<FillPinPage> {
   Widget fillPinZone() {
     return BuildFormField(
       label: 'PIN(OTP)',
-      controller: _PINContorller,
+      controller: _PINController,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'กรุณากรอก PIN';
@@ -109,7 +109,7 @@ class _FillPinPage extends State<FillPinPage> {
     setState(() => _isLoading = true);
     try {
       final result = await _apiService.handleFillPIN(
-        _PINContorller.text,
+        _PINController.text,
         widget.lockerId,
       );
       if (!mounted) return;
@@ -119,7 +119,6 @@ class _FillPinPage extends State<FillPinPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('ยืนยัน PIN สำเร็จ')));
-        print(result);
         if (result['data'] != null && result['data']['overtime'] != null) {
 
           Navigator.of(context).push(
@@ -132,8 +131,10 @@ class _FillPinPage extends State<FillPinPage> {
               ),
             ),
           );
+          _PINController.clear();
         }else{
           Navigator.of(context).popUntil((route) => route.isFirst);
+          _PINController.clear();
         }
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -153,7 +154,7 @@ class _FillPinPage extends State<FillPinPage> {
 
   @override
   void dispose() {
-    _PINContorller.dispose();
+    _PINController.dispose();
     super.dispose();
   }
 }

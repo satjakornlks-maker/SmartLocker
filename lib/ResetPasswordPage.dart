@@ -154,6 +154,9 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
             context,
           ).showSnackBar(SnackBar(content: Text('เปลี่ยนรหัสผ่านเสร็จสิ้น')));
           Navigator.of(context).popUntil((route) => route.isFirst);
+          _NewPINController.clear();
+          _OldPINController.clear();
+          _TelController.clear();
         } else {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
