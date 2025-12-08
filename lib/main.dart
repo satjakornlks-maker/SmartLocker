@@ -17,12 +17,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flow Demo',
+      title: 'SmartLocker',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       useMaterial3: true),
       initialRoute: '/',
       routes: {
-        '/': (context) => const MyHomePage(title: 'Flow Prototype'),
+        '/': (context) => const MyHomePage(title: 'Smart Locker'),
         '/booking': (context) => const BookingPage(),
         '/unlock': (context) => const UnlockPage(),
         '/register': (context) => const RegisterPage(),

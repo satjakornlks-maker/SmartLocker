@@ -96,6 +96,7 @@ class _RegisterPage extends State<RegisterPage> {
     return BuildFormField(
       label: 'เบอร์โทร',
       controller: _telController,
+      keyboardType: TextInputType.number,
       validator: Validators.validateTel,
     );
   }

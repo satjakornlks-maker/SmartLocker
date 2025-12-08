@@ -108,6 +108,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
     return BuildFormField(
         label: 'OPT',
         controller: _OTPController,
+        keyboardType: TextInputType.number,
         validator: Validators.validateOTP
     );
   }

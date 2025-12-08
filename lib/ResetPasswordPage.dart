@@ -96,6 +96,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     return BuildFormField(
       label: 'เบอร์โทรศัพท์',
       controller: _TelController,
+      keyboardType: TextInputType.number,
       validator: (value) => validatePIN(value, false),
     );
   }
@@ -104,6 +105,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     return BuildFormField(
       label: 'PIN เดิม',
       controller: _OldPINController,
+      keyboardType: TextInputType.number,
       validator: (value) => validatePIN(value, false),
     );
   }
@@ -112,6 +114,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     return BuildFormField(
       label: 'PIN ใหม่',
       controller: _NewPINController,
+      keyboardType: TextInputType.number,
       validator: (value) => validatePIN(value, false),
     );
   }
@@ -120,6 +123,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     return BuildFormField(
       label: 'ยืนยัน PIN ใหม่',
       controller: _EnsurePINController,
+      keyboardType: TextInputType.number,
       validator: (value) => validatePIN(value, true),
     );
   }

@@ -88,6 +88,7 @@ class _FillPinPage extends State<FillPinPage> {
   Widget fillPinZone() {
     return BuildFormField(
       label: 'PIN(OTP)',
+      keyboardType: TextInputType.number,
       controller: _PINController,
       validator: (value) {
         if (value == null || value.isEmpty) {

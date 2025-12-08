@@ -91,6 +91,7 @@ class _OTPPage extends State<OTPPage> {
     return BuildFormField(
       label: 'OTP',
       controller: _OTPController,
+      keyboardType: TextInputType.number,
       validator: Validators.validateOTP,
     );
   }

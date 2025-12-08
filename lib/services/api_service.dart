@@ -5,6 +5,8 @@ class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: 'https://localhost:44324',
+      //for build test
+      // baseUrl: 'http://localhost:44324',
       connectTimeout: Duration(seconds: 20),
       receiveTimeout: Duration(seconds: 20),
       headers: {
@@ -316,6 +318,15 @@ class ApiService {
 
   String _handleError(DioException e) {
 
+    print('============ DIO ERROR DEBUG ============');
+    print('Error Type: ${e.type}');
+    print('Error Message: ${e.message}');
+    print('Status Code: ${e.response?.statusCode}');
+    print('Response Data: ${e.response?.data}');
+    print('Request URL: ${e.requestOptions.uri}');
+    print('Request Method: ${e.requestOptions.method}');
+    print('Request Data: ${e.requestOptions.data}');
+    print('========================================');
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
         return 'Connection timeout - เซิร์ฟเวอร์ไม่ตอบสนอง';
