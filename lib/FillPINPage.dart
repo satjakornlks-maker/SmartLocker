@@ -132,10 +132,10 @@ class _FillPinPage extends State<FillPinPage> {
               ),
             ),
           );
-          _PINController.clear();
+          // _PINController.clear();
         }else{
           Navigator.of(context).popUntil((route) => route.isFirst);
-          _PINController.clear();
+          // _PINController.clear();
         }
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();

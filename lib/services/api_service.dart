@@ -4,9 +4,9 @@ import 'package:dio/dio.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://localhost:44324',
+      // baseUrl: 'https://localhost:44324',
       //for build test
-      // baseUrl: 'http://localhost:44324',
+      baseUrl: 'http://localhost:44324',
       connectTimeout: Duration(seconds: 20),
       receiveTimeout: Duration(seconds: 20),
       headers: {
