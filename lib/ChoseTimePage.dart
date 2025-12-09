@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'services/api_service.dart';
+import 'package:untitled/WaitUserToCloseLockerPage.dart';
 
 class ChoseTimePage extends StatefulWidget {
   final String lockerId;
@@ -144,7 +145,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("เปิดใช้ตู้สำเร็จ")));
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => WaitUserToCloseLockerPage(lockerId: widget.lockerId)));
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(

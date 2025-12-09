@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/ForgotPasswordPage.dart';
 import 'package:untitled/OvertimePage.dart';
+import 'package:untitled/WaitUserToCloseLockerPage.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
@@ -77,7 +78,7 @@ class _FillPinPage extends State<FillPinPage> {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+          MaterialPageRoute(builder: (context) => ForgotPasswordPage(lockerId: widget.lockerId,)),
         );
       },
       fontSize: fontsize,
@@ -129,12 +130,13 @@ class _FillPinPage extends State<FillPinPage> {
                 hour: result['data']['overtime']['hours'].toString(),
                 minute: result['data']['overtime']['minutes'].toString(),
                 second: result['data']['overtime']['seconds'].toString(),
+                lockerId: widget.lockerId,
               ),
             ),
           );
           // _PINController.clear();
         }else{
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => WaitUserToCloseLockerPage(lockerId: widget.lockerId)));
           // _PINController.clear();
         }
       } else {

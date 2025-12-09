@@ -4,9 +4,9 @@ import 'package:dio/dio.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      // baseUrl: 'https://localhost:44324',
+      baseUrl: 'https://localhost:44324',
       //for build test
-      baseUrl: 'http://localhost:44324',
+      // baseUrl: 'http://localhost:44324',
       connectTimeout: Duration(seconds: 20),
       receiveTimeout: Duration(seconds: 20),
       headers: {
@@ -166,7 +166,7 @@ class ApiService {
   Future<Map<String,dynamic>> handleResetPassword(String oldPIN,String newPIN,String tel) async{
     try{
       final response = await _dio.post(
-          '/forgot_password',
+          '/reset_password',
           data: {
             'tel': tel,
             'oldPIN': oldPIN,
@@ -186,7 +186,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleForgotPassword(String data, bool isEmail) async{
+  Future<Map<String,dynamic>> handleForgotPassword(String data, bool isEmail,String? lockerId ) async{
     late String type;
     if(isEmail){
       type = 'Email';
@@ -196,9 +196,11 @@ class ApiService {
 
     try{
       final responss = await _dio.post(
-          '/locker/forgot_password',
+          '/forgot_password',
           data: {
             type: data,
+            if(lockerId != null)
+            'LockerUnitId' : int.parse(lockerId)
           }
       );
       return{
@@ -314,7 +316,26 @@ class ApiService {
     }
   }
 
-
+  Future<Map<String,dynamic>> handleCheckLockerStatus(String lockerId)async{
+    try{
+      final responss = await _dio.post(
+          '/locker/status',
+          data: {
+            'LockerID': 1,
+            'LockerUnitID': int.parse(lockerId),
+          }
+      );
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
 
   String _handleError(DioException e) {
 

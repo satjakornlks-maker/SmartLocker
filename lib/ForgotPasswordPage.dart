@@ -5,7 +5,8 @@ import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+  final String? lockerId;
+  const ForgotPasswordPage({super.key, this.lockerId});
 
   @override
   State<ForgotPasswordPage> createState() => _ForgotPasswordPage();
@@ -128,6 +129,7 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       final result = await _apiService.handleForgotPassword(
         cleanValue,
         cleanValue.contains('@'),
+        widget.lockerId
 
       );
       if (!mounted) return;
