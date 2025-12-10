@@ -3,6 +3,7 @@ import 'package:untitled/ForgotPasswordPage.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildFromField.dart';
 import 'services/api_service.dart';
+import 'validators/validator.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -97,7 +98,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       label: 'เบอร์โทรศัพท์',
       controller: _TelController,
       keyboardType: TextInputType.number,
-      validator: (value) => validatePIN(value, false),
+      validator: (value) => Validators.validateTel(value),
     );
   }
 
@@ -106,7 +107,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       label: 'PIN เดิม',
       controller: _OldPINController,
       keyboardType: TextInputType.number,
-      validator: (value) => validatePIN(value, false),
+      validator: (value) => Validators.validateOTP(value)
     );
   }
 
@@ -115,7 +116,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       label: 'PIN ใหม่',
       controller: _NewPINController,
       keyboardType: TextInputType.number,
-      validator: (value) => validatePIN(value, false),
+      validator: (value) => Validators.validateOTP(value),
     );
   }
 
@@ -124,21 +125,8 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       label: 'ยืนยัน PIN ใหม่',
       controller: _EnsurePINController,
       keyboardType: TextInputType.number,
-      validator: (value) => validatePIN(value, true),
+      validator: (value) => Validators.validateOTP(value),
     );
-  }
-
-  String? validatePIN(String? value, bool ensure) {
-    if (value == null || value.isEmpty) {
-      return 'กรุณากรอก PIN';
-    }
-    if (value.length != 6) {
-      return 'กรุณากรอกจำนวน PIN ให้ถูกต้อง';
-    }
-    if (ensure && _NewPINController.text != _EnsurePINController.text) {
-      return 'PIN ยืนยันไม่ตรงกัน';
-    }
-    return null;
   }
 
   Future<void> _handleResetPassword() async {
