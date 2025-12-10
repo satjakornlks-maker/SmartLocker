@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:untitled/MemberLockerSelectPage.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'package:untitled/validators/validator.dart';
+import 'NoticePage.dart';
 import 'componants/BuildFromField.dart';
+import 'services/api_service.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final String selectedLocker;
+  const RegisterPage({super.key, required this.selectedLocker});
 
   @override
   State<RegisterPage> createState() => _RegisterPage();
 }
 
 class _RegisterPage extends State<RegisterPage> {
+  final ApiService _apiService = ApiService();
+  bool _isLoading = false;
   double fontsize = 32;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -36,18 +41,27 @@ class _RegisterPage extends State<RegisterPage> {
           key: _formKey,
           child: SingleChildScrollView(
             padding: EdgeInsets.all(40),
-            child: Column(
-              children: [
-                SizedBox(height: 50),
-                nameField(),
-                telField(),
-                emailField(),
-                reasonField(),
-                confirmButton()
-              ],
+            child: Center(
+              child: Column(
+                children: [
+                  SizedBox(height: 50),
+                  nameField(),
+                  telField(),
+                  emailField(),
+                  reasonField(),
+                  confirmButton()
+                ],
+              ),
             ),
           ),
         ),
+        if(_isLoading)
+          Container(
+            color: Colors.black54,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
       ],
     );
   }
@@ -56,21 +70,8 @@ class _RegisterPage extends State<RegisterPage> {
     return BuildConfirmButton(
       onPressed: () {
         if (_formKey.currentState!.validate()) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MemberLockerSelectPage(
-                reason: _reasonController.text,
-                email: _emailController.text,
-                tel: _telController.text,
-                name: _nameController.text,
-              ),
-            ),
-          );
-          // _reasonController.clear();
-          // _emailController.clear();
-          // _telController.clear();
-          // _nameController.clear();
+          _handleUnlockMember();
+
         }
       },
       fontSize: fontsize,
@@ -120,5 +121,46 @@ class _RegisterPage extends State<RegisterPage> {
         return null;
       },
     );
+  }
+
+  Future<void> _handleUnlockMember() async {
+
+      setState(() => _isLoading = true);
+      try {
+        final result = await _apiService.regisAccount(
+          _nameController.text,
+          _telController.text,
+          _emailController.text,
+          _reasonController.text,
+          widget.selectedLocker!,
+        );
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        if (result['success']) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('สมัครสมาชิกเสร็จสิ้น')));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => NoticePage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('เกิดข้อผิดพลาด ข้อมูลที่ส่งไปไม่ตรงกับ backend : ${result['error']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      }
   }
 }

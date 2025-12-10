@@ -1,19 +1,32 @@
 import 'package:dio/dio.dart';
-
+import 'package:dio/io.dart';
+import 'dart:io';
 
 class ApiService {
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://localhost:44324',
-      //for build test
-      // baseUrl: 'http://localhost:44324',
-      connectTimeout: Duration(seconds: 20),
-      receiveTimeout: Duration(seconds: 20),
-      headers: {
-        'Content-Type' : 'application/json'
-      }
-    )
-  );
+  late final Dio _dio;
+
+  ApiService() {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: 'http://localhost:44324',  // ไม่มี /api
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          // 'Content-Type': 'application/json',
+          // 'Accept': 'application/json',
+        },
+      ),
+    );
+
+    // _dio.httpClientAdapter = IOHttpClientAdapter(
+    //   createHttpClient: () {
+    //     final client = HttpClient();
+    //     client.badCertificateCallback =
+    //         (X509Certificate cert, String host, int port) => true;
+    //     return client;
+    //   },
+    // );
+  }
 
 
   Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason,String lockerId) async {

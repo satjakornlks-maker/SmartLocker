@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/NoticePage.dart';
+import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 import 'services/api_service.dart';
 
 class MemberLockerSelectPage extends StatefulWidget {
-  final String name;
-  final String tel;
-  final String email;
-  final String reason;
+
 
   const MemberLockerSelectPage({
     super.key,
-    required this.name,
-    required this.tel,
-    required this.email,
-    required this.reason,
+
   });
 
   @override
@@ -137,7 +132,7 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     return BuildConfirmButton(
       alignment: AlignmentGeometry.center,
       onPressed: () {
-        _handleUnlockMember();
+        Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage(selectedLocker: selectedLocker!)));
       },
       fontSize: fontsize,
       label: 'จอง',
@@ -215,53 +210,5 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     }
   }
 
-  Future<void> _handleUnlockMember() async {
-    if (selectedLocker != null) {
-      setState(() => _isLoading = true);
-      try {
-        final result = await _apiService.regisAccount(
-          widget.name,
-          widget.tel,
-          widget.email,
-          widget.reason,
-          selectedLocker!,
-        );
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        if (result['success']) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('สมัครสมาชิกเสร็จสิ้น')));
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NoticePage()),
-          );
-        } else {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('เกิดข้อผิดพลาด ข้อมูลที่ส่งไปไม่ตรงกับ backend : ${result['error']}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
-      }
-    } else {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('โปรดเลือกตู้ล็อคเกอร์'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
+
 }

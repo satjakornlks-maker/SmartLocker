@@ -3,6 +3,7 @@ import 'package:untitled/ApprovePeriodicUserPage.dart';
 import 'package:untitled/BookingPage.dart';
 import 'package:untitled/EmergencyUnlockPage.dart';
 import 'package:untitled/InstanceUse.dart';
+import 'package:untitled/MemberLockerSelectPage.dart';
 import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
 import 'UnlockPage.dart';
@@ -25,11 +26,12 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Smart Locker'),
         '/booking': (context) => const BookingPage(),
         '/unlock': (context) => const UnlockPage(),
-        '/register': (context) => const RegisterPage(),
+
         '/reset-password': (context) => const ResetPasswordPage(),
         '/emergency-unlock': (context) => const EmergencyUnlockPage(),
         '/instance-use': (context) => const InstanceUse(),
         '/periodic-approve':(context) => const ApprovePeriodicUserPage(),
+        '/member-locker-select-page':(context)=> const MemberLockerSelectPage()
       },
     );
   }
@@ -81,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
               );}),
               SizedBox(),
               _buildMenuButton('สมัครสมาชิก(จองใช้ประจำ)', (){
-                Navigator.pushNamed(context, '/register');
+                Navigator.pushNamed(context, '/member-locker-select-page');
               }),
               SizedBox(),
               _buildMenuButton('เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ', (){

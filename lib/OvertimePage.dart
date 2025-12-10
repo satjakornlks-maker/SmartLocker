@@ -43,14 +43,15 @@ class _OverTimePage extends State<OverTimePage>{
                   },
                   child: Text('ยืนยัน'),
                 ),
-                if (isLoading)
-                  Container(
-                    color: Colors.black54,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
+
               ],
             ),
           ),
+          if (isLoading)
+            Container(
+              color: Colors.black54,
+              child: Center(child: CircularProgressIndicator()),
+            ),
         ],
       )
       );
