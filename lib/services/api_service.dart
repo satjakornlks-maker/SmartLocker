@@ -278,18 +278,12 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleAcceptRequest(String name,String lastName,String lockerId,String email,String tel)async{
+  Future<Map<String,dynamic>> handleAcceptRequest(int userId)async{
     try{
       final responss = await _dio.post(
           '/approve/accept',
           data: {
-            'Name': name,
-            'LastName':lastName,
-            'LockerUnitID': int.parse(lockerId),
-            'Email': email,
-            'PhoneNumber': tel,
-            'BookedTypeId': 3,
-            'FromDatetime': DateTime.now().toString(),
+            'userId':userId,
             'ToDatetime': DateTime.now().add(Duration(days: 365 * 10)).toString(),
           }
       );
@@ -305,17 +299,13 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleRejectRequest(String lockerId,String email,String tel,String name,String lastName)async{
+  Future<Map<String,dynamic>> handleRejectRequest(int userId)async{
     try{
       final responss = await _dio.post(
           '/approve/reject',
           data: {
-            'Name': name,
-            'LastName':lastName,
-            'LockerUnitID': int.parse(lockerId),
-            'Email': email,
-            'PhoneNumber':tel,
-          }
+            'userId':userId,
+            }
       );
       return{
         'success':true,

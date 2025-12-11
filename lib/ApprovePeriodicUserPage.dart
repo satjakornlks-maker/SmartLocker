@@ -288,12 +288,7 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
                       children: [
                         ElevatedButton.icon(
                           onPressed: () => _approveUser(
-                              userData['id'],
-                              userData['name'],
-                              userData['lastname'],
-                              userData['locker_unit_id'],
-                              userData['email'],
-                              userData['phone_number']),
+                              userData['id']),
                           icon: Icon(Icons.check),
                           label: Text('อนุมัติ',style: TextStyle(color: Colors.white),),
                           style: ElevatedButton.styleFrom(
@@ -301,8 +296,7 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: () => _rejectUser(userData['id'],userData['email'],userData['locker_unit_id'],userData['phone_number'],userData['name'],
-                            userData['lastname'],),
+                          onPressed: () => _rejectUser(userData['id']),
                           icon: Icon(Icons.close),
                           label: Text('ไม่อนุมัติ',style: TextStyle(color: Colors.white),),
                           style: ElevatedButton.styleFrom(
@@ -378,7 +372,7 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
     );
   }
 
-  void _approveUser(int userId,String name,String lastName,int lockerId,String email,String tel){
+  void _approveUser(int userId){
     bool isRejecting = false;
     showDialog(context: context, builder: (context)=>StatefulBuilder(
       builder:(context, setState) =>  PopScope(
@@ -402,7 +396,7 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
                 :()async{
               setState(()=> isRejecting = true);
               try {
-                final result = await _apiService.handleAcceptRequest(name, lastName, lockerId.toString(), email, tel);
+                final result = await _apiService.handleAcceptRequest(userId);
                 if (!mounted) return;
                 if(result['success'])
                 {
@@ -434,7 +428,7 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
     ));
   }
 
-  void _rejectUser(int userId,String email,int lockerId,String tel,String name, String last_name){
+  void _rejectUser(int userId){
     bool isRejecting = false;
     showDialog(context: context,
         barrierDismissible: false,
@@ -463,7 +457,7 @@ class _ApprovePeriodicUserPage extends State<ApprovePeriodicUserPage>{
               setState(()=> isRejecting = true);
               //API func
               try {
-              final result = await _apiService.handleRejectRequest(lockerId.toString(), email,tel,name,last_name);
+              final result = await _apiService.handleRejectRequest(userId);
               if (!mounted) return;
               if(result['success'])
               {
