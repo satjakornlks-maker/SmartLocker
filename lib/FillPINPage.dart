@@ -136,7 +136,7 @@ class _FillPinPage extends State<FillPinPage> {
           );
           // _PINController.clear();
         }else{
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => WaitUserToCloseLockerPage(lockerId: widget.lockerId)));
+          Navigator.of(context).popUntil((route) => route.isFirst);
           // _PINController.clear();
         }
       } else {

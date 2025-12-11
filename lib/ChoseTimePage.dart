@@ -145,7 +145,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("เปิดใช้ตู้สำเร็จ")));
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => WaitUserToCloseLockerPage(lockerId: widget.lockerId)));
+        Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
