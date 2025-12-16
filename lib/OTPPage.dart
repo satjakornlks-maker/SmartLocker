@@ -21,6 +21,7 @@ class _OTPPage extends State<OTPPage> {
   final _formKey = GlobalKey<FormState>();
   double fontsize = 32;
   String? refCode ;
+  int? userId;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,6 +157,7 @@ class _OTPPage extends State<OTPPage> {
           context,
         ).showSnackBar(SnackBar(content: Text('ส่ง OTP สำเร็จ')));
         refCode = result['data']['refercode'] ?? '';
+        userId = result['data']['userId']??'';
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -196,6 +198,7 @@ class _OTPPage extends State<OTPPage> {
               TelOrEmail: _TelOrEMailController.text,
               OTP: _OTPController.text,
               lockerName: widget.lockerName,
+              userId : userId!
             ),
           ),
         );

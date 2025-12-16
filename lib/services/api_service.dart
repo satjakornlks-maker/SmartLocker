@@ -92,7 +92,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> bookLocker(bool isEmail,String telOrEmail,String lockerId ,String pin,DateTime toDateTime) async {
+  Future<Map<String,dynamic>> bookLocker(bool isEmail,String telOrEmail,String lockerId ,String pin,DateTime toDateTime,int userId) async {
     late String type;
     if(isEmail){
       type = 'Email';
@@ -104,6 +104,7 @@ class ApiService {
       final responss = await _dio.post(
         '/locker/register',
         data: {
+          'userId':userId,
           'LockerUnitID':lockerId,
           //'name': name,
           type:telOrEmail,

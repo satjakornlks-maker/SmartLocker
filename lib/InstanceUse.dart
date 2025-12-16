@@ -22,6 +22,7 @@ class _InstanceUse extends State<InstanceUse> {
   final _formKey = GlobalKey<FormState>();
   double fontsize = 32;
   String? refCode ;
+  int? userId ;
   List<Map<String, dynamic>> lockerStatus = [];
 
   @override
@@ -240,6 +241,7 @@ class _InstanceUse extends State<InstanceUse> {
           context,
         ).showSnackBar(SnackBar(content: Text('ส่ง OTP สำเร็จ')));
         refCode = result['data']['refercode'] ?? '';
+        userId = result['data']['userId']??'';
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -280,6 +282,7 @@ class _InstanceUse extends State<InstanceUse> {
               TelOrEmail: _TelOrEMailController.text,
               OTP: _OTPController.text,
               lockerName: selectedLockerName!,
+              userId: userId!,
             ),
           ),
         );

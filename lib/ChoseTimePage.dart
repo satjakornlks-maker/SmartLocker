@@ -9,12 +9,14 @@ class ChoseTimePage extends StatefulWidget {
   final String lockerName;
   final String TelOrEmail;
   final String OTP;
+  final int userId;
   const ChoseTimePage({
     super.key,
     required this.lockerId,
     required this.TelOrEmail,
     required this.OTP,
-    required this.lockerName
+    required this.lockerName,
+    required this.userId
   });
   @override
   State<ChoseTimePage> createState() => _ChoseTimePage();
@@ -137,7 +139,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     setState(() => _isLoading = true);
     String cleanValue = widget.TelOrEmail.replaceAll(' ', '');
     try {
-      final result = await _apiService.bookLocker(cleanValue.contains('@'),cleanValue,widget.lockerId, widget.OTP, futureTime);
+      final result = await _apiService.bookLocker(cleanValue.contains('@'),cleanValue,widget.lockerId, widget.OTP, futureTime,widget.userId);
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
