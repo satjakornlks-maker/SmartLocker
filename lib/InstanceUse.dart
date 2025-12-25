@@ -7,7 +7,7 @@ import 'package:untitled/validators/validator.dart';
 import 'services/api_service.dart';
 
 class InstanceUse extends StatefulWidget {
-  const InstanceUse({super.key,});
+  const InstanceUse({super.key});
   @override
   State<InstanceUse> createState() => _InstanceUse();
 }
@@ -17,244 +17,453 @@ class _InstanceUse extends State<InstanceUse> {
   String? selectedLockerName;
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+  bool _otpSent = false; // Track if OTP has been sent
   final _OTPController = TextEditingController();
   final _TelOrEMailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  double fontsize = 32;
-  String? refCode ;
-  int? userId ;
+  double fontsize = 20;
+  String? refCode;
+  int? userId;
   List<Map<String, dynamic>> lockerStatus = [];
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      //call API to get locker
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLocker();
     });
   }
 
   Future<void> _loadLocker() async {
     setState(() => _isLoading = true);
+
     try {
       final result = await _apiService.getLocker();
       if (!mounted) return;
-      if (result['success']) {
-        setState(() {
-          if (result['data'] is List) {
-            lockerStatus = List<Map<String, dynamic>>.from(result['data']);
-          } else {
-            lockerStatus = [result['data'] as Map<String, dynamic>];
+
+      if (result['success'] == true) {
+        final data = result['data'];
+
+        List<Map<String, dynamic>> units = [];
+
+        if (data is List && data.isNotEmpty) {
+          final first = data.first;
+          if (first is Map<String, dynamic>) {
+            final lockerUnit = first['lockerUnit'];
+            if (lockerUnit is List) {
+              units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+            }
           }
+        } else if (data is Map<String, dynamic>) {
+          final lockerUnit = data['lockerUnit'];
+          if (lockerUnit is List) {
+            units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+          }
+        }
+
+        setState(() {
+          lockerStatus = units;
           _isLoading = false;
           _selectRandomAvailableLocker();
         });
       } else {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('เกิดข้อผิดพลาด: ${result['error']}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
+      _showSnackBar('เกิดข้อผิดพลาดในการเชื่อมต่อ', Colors.red);
     }
   }
 
+
   void _selectRandomAvailableLocker() {
-    // Filter available lockers (status = false means available)
     List<Map<String, dynamic>> availableLockers = lockerStatus
         .where((locker) => locker['status'] == false)
         .toList();
 
     if (availableLockers.isEmpty) {
-      // No available lockers
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showSnackBar('ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง', Colors.orange);
       return;
     }
 
-    // Randomly select one available locker
     Random random = Random();
-    Map<String, dynamic> randomLocker = availableLockers[random.nextInt(availableLockers.length)];
+    Map<String, dynamic> randomLocker =
+    availableLockers[random.nextInt(availableLockers.length)];
 
     setState(() {
       selectedLockerId = randomLocker['id'].toString();
       selectedLockerName = randomLocker['name'];
     });
+  }
 
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("หน้าลงทะเบียน"),
-          backgroundColor: Colors.blue,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.deepPurple.shade400,
+              Colors.deepPurple.shade700,
+              Colors.indigo.shade800,
+            ],
+          ),
         ),
-        body: body()
-    );
-  }
-
-  Widget body(){
-    return  Stack(
-      children: [
-        SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Center(
-              child: Container(
-                padding: EdgeInsetsGeometry.all(50.0),
-                child: Column(
-                  mainAxisAlignment: .start,
-                  crossAxisAlignment: .center,
-                  children: [
-                    lockerDisplay(),
-                    SizedBox(height: 20),
-                    telField(),
-                    sendOTPButton(),
-                    otpField(),
-                    confirmButton(),
-                    const SizedBox(height: 20,),
-                    ?refcodeZone(),
-                    const SizedBox(height: 20,)
-                  ],
-                ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  _buildHeader(),
+                  Expanded(child: _buildBody()),
+                ],
               ),
-            ),
+              if (_isLoading)
+                Container(
+                  color: Colors.black54,
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
-        if (_isLoading)
-          Container(
-            color: Colors.black54,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-      ],
-    );
-  }
-  Widget telField(){
-    return BuildFormField(
-      label: 'เบอร์โทรศัพท์หรืออีเมล',
-      controller: _TelOrEMailController,
-      validator: (value)=>Validators.validateEmailOrPhone(value),
-    );
-  }
-
-  Widget otpField(){
-    return BuildFormField(
-      label: 'OTP',
-      controller: _OTPController,
-      validator: Validators.validateOTP,
-    );
-  }
-
-  Widget lockerDisplay(){
-    return Text(
-      'ตู้ที่ได้ $selectedLockerName',
-      style: TextStyle(
-        fontSize: fontsize,
-        color: Colors.green,
       ),
     );
   }
 
-  Widget confirmButton(){
-    return BuildConfirmButton(
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          _handleSubmitOTP();
-        }
-      },
-      fontSize: fontsize,
-      label: 'ยืนยัน',
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'ลงทะเบียนด่วน',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget sendOTPButton(){
-    return BuildConfirmButton(
-      onPressed: () {
-        String? validatorError = Validators.validateEmailOrPhone(
-          _TelOrEMailController.text,
-        );
-        if (validatorError != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(validatorError)),
-          );
-          return;
-        } else {
-          _handleSendOTP();
-        }
-      },
-      fontSize: fontsize,
-      label: 'ส่ง OTP',
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildLockerCard(),
+              const SizedBox(height: 20),
+              _buildFormCard(),
+              const SizedBox(height: 20),
+              if (refCode != null) _buildRefCodeCard(),
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget? refcodeZone(){
-    if(refCode != null) {
-      return Container(
-        alignment: .center,
-        child: Text(
-          "refer code: $refCode!", style: TextStyle(fontSize: fontsize, color: Colors.blue),),
-      );
+  Widget _buildLockerCard() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade400, Colors.green.shade600],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.inbox_rounded,
+            size: 60,
+            color: Colors.white,
+          ),
+          const SizedBox(height: 15),
+          const Text(
+            'ตู้ที่สุ่มได้',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white70,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            selectedLockerName ?? 'กำลังเลือกตู้...',
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'กรอกข้อมูล',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildStyledTextField(
+            controller: _TelOrEMailController,
+            label: 'เบอร์โทรศัพท์หรืออีเมล',
+            icon: Icons.contact_phone_rounded,
+            validator: (value) => Validators.validateEmailOrPhone(value),
+          ),
+          const SizedBox(height: 15),
+          _buildActionButton(
+            label: 'ส่ง OTP',
+            icon: Icons.send_rounded,
+            color: Colors.blue,
+            onPressed: _handleSendOTPValidation,
+          ),
+          const SizedBox(height: 20),
+          _buildStyledTextField(
+            controller: _OTPController,
+            label: 'รหัส OTP',
+            icon: Icons.lock_rounded,
+            validator: Validators.validateOTP,
+          ),
+          const SizedBox(height: 20),
+          _buildActionButton(
+            label: 'ยืนยัน',
+            icon: Icons.check_circle_rounded,
+            color: _otpSent ? Colors.green : Colors.grey,
+            onPressed: _otpSent
+                ? () {
+              if (_formKey.currentState!.validate()) {
+                _handleSubmitOTP();
+              }
+            }
+                : () {
+              _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStyledTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      onChanged: (value) {
+        // Reset OTP sent status if phone/email field changes
+        if (controller == _TelOrEMailController && _otpSent) {
+          setState(() {
+            _otpSent = false;
+            refCode = null;
+          });
+        }
+      },
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.deepPurple),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    final bool isDisabled = (label == 'ยืนยัน' && !_otpSent);
+
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 24),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          elevation: isDisabled ? 0 : 5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRefCodeCard() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade400, Colors.blue.shade600],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          const Text(
+            'รหัสอ้างอิง',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white70,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            refCode!,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleSendOTPValidation() {
+    String? validatorError = Validators.validateEmailOrPhone(
+      _TelOrEMailController.text,
+    );
+    if (validatorError != null) {
+      _showSnackBar(validatorError, Colors.red);
+      return;
     }
-    return null;
+    _handleSendOTP();
   }
 
   Future<void> _handleSendOTP() async {
-    if(selectedLockerId == null){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.error, color: Colors.white),
-              SizedBox(width: 10),
-              Expanded(child: Text('ไม่มีตู้ว่าง')),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    if (selectedLockerId == null) {
+      _showSnackBar('ไม่มีตู้ว่าง', Colors.red);
       return;
     }
     setState(() => _isLoading = true);
     String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
     try {
       final result = await _apiService.sendOTP(
-          cleanValue,
-          cleanValue.contains('@'),
-          selectedLockerId!
-      );
+          cleanValue, cleanValue.contains('@'), selectedLockerId!);
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('ส่ง OTP สำเร็จ')));
-        refCode = result['data']['refercode'] ?? '';
-        userId = result['data']['userId']??'';
+        _showSnackBar('ส่ง OTP สำเร็จ', Colors.green);
+        setState(() {
+          refCode = result['data']['refercode'] ?? '';
+          userId = result['data']['userId'] ?? '';
+          _otpSent = true; // Enable confirm button
+        });
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด : ${result['error']}')),
-        );
+        _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
     }
   }
 
@@ -271,9 +480,7 @@ class _InstanceUse extends State<InstanceUse> {
       setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('ยืนยัน OTP สำเร็จ')));
+        _showSnackBar('ยืนยัน OTP สำเร็จ', Colors.green);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -288,17 +495,13 @@ class _InstanceUse extends State<InstanceUse> {
         );
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด : ${result['error']}')),
-        );
+        _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
     }
   }
 

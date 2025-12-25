@@ -19,19 +19,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SmartLocker',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      useMaterial3: true),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(title: 'Smart Locker'),
         '/booking': (context) => const BookingPage(),
         '/unlock': (context) => const UnlockPage(),
-
         '/reset-password': (context) => const ResetPasswordPage(),
         '/emergency-unlock': (context) => const EmergencyUnlockPage(),
         '/instance-use': (context) => const InstanceUse(),
-        '/periodic-approve':(context) => const ApprovePeriodicUserPage(),
-        '/member-locker-select-page':(context)=> const MemberLockerSelectPage()
+        '/periodic-approve': (context) => const ApprovePeriodicUserPage(),
+        '/member-locker-select-page': (context) => const MemberLockerSelectPage()
       },
     );
   }
@@ -45,67 +46,232 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  double fontsize = 32;
   Timer? _emergencyTimer;
-  @override
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: .start,
-            children: [
-              SizedBox(height: 50),
-              GestureDetector(
-                  onTapDown: (_){
-                    _emergencyTimer = Timer(Duration(seconds: 5), (){Navigator.pushNamed(context, '/periodic-approve');});
-                  },
-                  onTapUp: (_)=> _emergencyTimer?.cancel(),
-                  onTapCancel: ()=> _emergencyTimer?.cancel(),
-                  child: _buildMenuButton('ลงทะเบียนด่วน', (){Navigator.pushNamed(context, '/instance-use');})),
-              SizedBox(),
-              GestureDetector(
-                 onTapDown: (_){
-                   _emergencyTimer = Timer(Duration(seconds: 5), (){Navigator.pushNamed(context, '/emergency-unlock');});
-                 },
-                  onTapUp: (_)=> _emergencyTimer?.cancel(),
-                  onTapCancel: ()=> _emergencyTimer?.cancel(),
-                  child: _buildMenuButton('ลงทะเบียน', _handleBooking)),
-              SizedBox(),
-              _buildMenuButton('ปลดล็อค', (){
-                Navigator.pushNamed(context, '/unlock'
-              );}),
-              SizedBox(),
-              _buildMenuButton('สมัครสมาชิก(จองใช้ประจำ)', (){
-                Navigator.pushNamed(context, '/member-locker-select-page');
-              }),
-              SizedBox(),
-              _buildMenuButton('เปลี่ยนรหัสผ่านสำหรับผู้ใช้ประจำ', (){
-                Navigator.pushNamed(context, '/reset-password');
-              }),
-              // SizedBox(),
-              // _buildMenuButton('หน้าปลดล็อคฉุกเฉิน', (){
-              //   Navigator.pushNamed(context, '/emergency-unlock');
-              // })
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.deepPurple.shade400,
+              Colors.deepPurple.shade700,
+              Colors.indigo.shade800,
             ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+                  // Header Section
+                  _buildHeader(),
+                  const SizedBox(height: 40),
+                  // Menu Buttons
+                  GestureDetector(
+                    onTapDown: (_) {
+                      _emergencyTimer = Timer(
+                        const Duration(seconds: 5),
+                            () => Navigator.pushNamed(context, '/periodic-approve'),
+                      );
+                    },
+                    onTapUp: (_) => _emergencyTimer?.cancel(),
+                    onTapCancel: () => _emergencyTimer?.cancel(),
+                    child: _buildMenuCard(
+                      'ลงทะเบียนด่วน',
+                      'Quick Registration',
+                      Icons.flash_on_rounded,
+                      Colors.orange,
+                          () => Navigator.pushNamed(context, '/instance-use'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTapDown: (_) {
+                      _emergencyTimer = Timer(
+                        const Duration(seconds: 5),
+                            () => Navigator.pushNamed(context, '/emergency-unlock'),
+                      );
+                    },
+                    onTapUp: (_) => _emergencyTimer?.cancel(),
+                    onTapCancel: () => _emergencyTimer?.cancel(),
+                    child: _buildMenuCard(
+                      'ลงทะเบียน',
+                      'Registration',
+                      Icons.app_registration_rounded,
+                      Colors.blue,
+                      _handleBooking,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuCard(
+                    'ปลดล็อค',
+                    'Unlock Locker',
+                    Icons.lock_open_rounded,
+                    Colors.green,
+                        () => Navigator.pushNamed(context, '/unlock'),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuCard(
+                    'สมัครสมาชิก',
+                    'Member Registration (Periodic Use)',
+                    Icons.card_membership_rounded,
+                    Colors.purple,
+                        () => Navigator.pushNamed(context, '/member-locker-select-page'),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuCard(
+                    'เปลี่ยนรหัสผ่าน',
+                    'Reset Password (Members)',
+                    Icons.password_rounded,
+                    Colors.red,
+                        () => Navigator.pushNamed(context, '/reset-password'),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildMenuButton(String text, VoidCallback onPressed){
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.lock_person_rounded,
+            size: 80,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Smart Locker',
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'ระบบล็อคเกอร์อัจฉริยะ',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white.withValues(alpha: 0.9),
+            letterSpacing: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuCard(
+      String titleTh,
+      String titleEn,
+      IconData icon,
+      Color color,
+      VoidCallback onPressed,
+      ) {
     return Container(
-      padding: EdgeInsets.all(20),
-      child: TextButton(onPressed: onPressed,
-          child: Text(text,style: TextStyle(fontSize: fontsize),
-          textAlign: TextAlign.center,)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(20),
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.white.withValues(alpha: 0.95),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 40,
+                      color: color,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          titleTh,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          titleEn,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.grey.shade400,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -114,7 +280,13 @@ class _MyHomePageState extends State<MyHomePage> {
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => BookingPage()),
+      MaterialPageRoute(builder: (context) => const BookingPage()),
     );
+  }
+
+  @override
+  void dispose() {
+    _emergencyTimer?.cancel();
+    super.dispose();
   }
 }
