@@ -39,26 +39,41 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
 
     try {
       final result = await _apiService.getLocker();
-
       if (!mounted) return;
 
-      if (result['success']) {
-        setState(() {
-          if (result['data'] is List) {
-            lockerStatus = List<Map<String, dynamic>>.from(result['data']);
-          } else {
-            lockerStatus = [result['data'] as Map<String, dynamic>];
+      if (result['success'] == true) {
+        final data = result['data'];
+
+        List<Map<String, dynamic>> units = [];
+
+        if (data is List && data.isNotEmpty) {
+          // data[0] should be { lockerUnit: [...], cu: [...] }
+          final first = data.first;
+
+          if (first is Map<String, dynamic>) {
+            final lockerUnit = first['lockerUnit'];
+
+            if (lockerUnit is List) {
+              units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+            }
           }
+        } else if (data is Map<String, dynamic>) {
+          // In case API returns directly a map
+          final lockerUnit = data['lockerUnit'];
+          if (lockerUnit is List) {
+            units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+          }
+        }
+
+        setState(() {
+          lockerStatus = units;
           _isLoading = false;
         });
+
+        print('lockerStatus count = ${lockerStatus.length}');
+        print(lockerStatus);
       } else {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('เกิดข้อผิดพลาด: ${result['error']}'),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     } catch (e) {
       if (!mounted) return;

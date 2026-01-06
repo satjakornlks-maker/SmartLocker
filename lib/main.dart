@@ -4,12 +4,14 @@ import 'package:untitled/BookingPage.dart';
 import 'package:untitled/EmergencyUnlockPage.dart';
 import 'package:untitled/InstanceUse.dart';
 import 'package:untitled/MemberLockerSelectPage.dart';
-import 'package:untitled/RegisterPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
 import 'UnlockPage.dart';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -120,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 16),
                   _buildMenuCard(
                     'สมัครสมาชิก',
-                    'Member Registration (Periodic Use)',
+                    'Member Registration ',
                     Icons.card_membership_rounded,
                     Colors.purple,
                         () => Navigator.pushNamed(context, '/member-locker-select-page'),
@@ -128,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 16),
                   _buildMenuCard(
                     'เปลี่ยนรหัสผ่าน',
-                    'Reset Password (Members)',
+                    'Reset Password ',
                     Icons.password_rounded,
                     Colors.red,
                         () => Navigator.pushNamed(context, '/reset-password'),
@@ -146,26 +148,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 20,
-                spreadRadius: 5,
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.lock_person_rounded,
-            size: 80,
-            color: Colors.white,
-          ),
+        Image(
+          image:AssetImage('assets/images/Logo.png'),
+          width: 400.0,
+          height: 200.0,
         ),
-        const SizedBox(height: 20),
         const Text(
           'Smart Locker',
           style: TextStyle(
@@ -173,15 +160,6 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: 2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'ระบบล็อคเกอร์อัจฉริยะ',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white.withValues(alpha: 0.9),
-            letterSpacing: 1,
           ),
         ),
       ],

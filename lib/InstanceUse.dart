@@ -288,6 +288,8 @@ class _InstanceUse extends State<InstanceUse> {
             label: 'รหัส OTP',
             icon: Icons.lock_rounded,
             validator: Validators.validateOTP,
+            keyboardType: TextInputType.number,
+
           ),
           const SizedBox(height: 20),
           _buildActionButton(
@@ -313,9 +315,11 @@ class _InstanceUse extends State<InstanceUse> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
+    TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
+      keyboardType: keyboardType,
       controller: controller,
       validator: validator,
       onChanged: (value) {

@@ -2,13 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiService {
   late final Dio _dio;
 
   ApiService() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'http://localhost:44324',  // ไม่มี /api
+        baseUrl: dotenv.env['BASE_URL']??'default_url',  // ไม่มี /api
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
