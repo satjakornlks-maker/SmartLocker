@@ -7,11 +7,8 @@ import 'package:untitled/MemberLockerSelectPage.dart';
 import 'package:untitled/ResetPasswordPage.dart';
 import 'UnlockPage.dart';
 import 'dart:async';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-Future<void> main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+void main() {
   runApp(const MyApp());
 }
 
