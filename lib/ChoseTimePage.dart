@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'services/api_service.dart';
-import 'package:untitled/WaitUserToCloseLockerPage.dart';
 
 class ChoseTimePage extends StatefulWidget {
   final String lockerId;

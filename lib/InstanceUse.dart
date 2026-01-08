@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:untitled/ChoseTimePage.dart';
-import 'package:untitled/componants/BuildConfirmButton.dart';
-import 'package:untitled/componants/BuildFromField.dart';
 import 'package:untitled/validators/validator.dart';
 import 'services/api_service.dart';
 

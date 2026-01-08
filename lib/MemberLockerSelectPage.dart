@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/NoticePage.dart';
 import 'package:untitled/RegisterPage.dart';
-import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
 import 'services/api_service.dart';

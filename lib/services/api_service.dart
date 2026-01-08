@@ -1,8 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
-import 'dart:io';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   late final Dio _dio;
@@ -10,17 +7,18 @@ class ApiService {
   ApiService() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: "http://localhost:44324/",
-        // baseUrl: "http://10.3.0.4:8097",
+        // baseUrl: "http://localhost:44324/",
+        baseUrl: "http://10.3.0.4:8097",
         // use for prod
         // baseUrl: String.fromEnvironment("BASE_URL")??'default_url',  // ไม่มี /api
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
           // 'Content-Type': 'application/json',
-          'X-API-KEY': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
+          'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
           //for prod
-          // 'X-API-KEY': String.fromEnvironment("API_KEY")
+          // 'X-API-Key': String.fromEnvironment("API_KEY")
+          // 'x-app-token': String.fromEnvironment("APP_KEY"),
         },
       ),
     );

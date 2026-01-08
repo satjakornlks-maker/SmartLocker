@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/componants/BuildConfirmButton.dart';
 import 'FillPINPage.dart';
 import 'componants/BuildLegend.dart';
 import 'componants/BuildLockerBox.dart';
