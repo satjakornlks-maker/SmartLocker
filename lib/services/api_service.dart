@@ -5,20 +5,23 @@ class ApiService {
   late final Dio _dio;
 
   ApiService() {
+
+    const baseUrl = String.fromEnvironment('BASE_URL', defaultValue: 'http://localhost');
+    // const apiKey = String.fromEnvironment('API_KEY', defaultValue: '');
+    const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
     _dio = Dio(
       BaseOptions(
         // baseUrl: "http://localhost:44324/",
-        baseUrl: "http://10.3.0.4:8097",
+        // baseUrl: "http://10.3.0.4:8097",
         // use for prod
-        // baseUrl: String.fromEnvironment("BASE_URL")??'default_url',  // ไม่มี /api
+        baseUrl: baseUrl,
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
           // 'Content-Type': 'application/json',
-          'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
           //for prod
-          // 'X-API-Key': String.fromEnvironment("API_KEY")
-          // 'x-app-token': String.fromEnvironment("APP_KEY"),
+          // 'X-API-Key': apiKey,
+          'x-app-token': appKey,
         },
       ),
     );
