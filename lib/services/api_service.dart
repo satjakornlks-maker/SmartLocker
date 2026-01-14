@@ -12,16 +12,17 @@ class ApiService {
     _dio = Dio(
       BaseOptions(
         // baseUrl: "http://localhost:44324/",
-        // baseUrl: "http://10.3.0.4:8097",
+        baseUrl: "http://10.3.0.4:8098",
         // use for prod
-        baseUrl: baseUrl,
+        // baseUrl: baseUrl,
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
           // 'Content-Type': 'application/json',
           //for prod
           // 'X-API-Key': apiKey,
-          'x-app-token': appKey,
+          // 'x-app-token': appKey,
+          'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
         },
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/ForgotPasswordPage.dart';
-import 'package:untitled/OvertimePage.dart';
-import 'services/api_service.dart';
+import '../auth/forgot_password_page.dart';
+import '../common/overtime_page.dart';
+import '../../services/api_service.dart';
 
 class FillPinPage extends StatefulWidget {
   final String lockerId;
@@ -97,18 +97,23 @@ class _FillPinPage extends State<FillPinPage> {
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              _buildLockerCard(),
-              const SizedBox(height: 25),
-              _buildPINCard(),
-              const SizedBox(height: 25),
-              _buildConfirmButton(),
-              const SizedBox(height: 15),
-              _buildForgotPasswordButton(),
-              const SizedBox(height: 30),
-            ],
+          child: Container(
+            margin: MediaQuery.of(context).size.width > 600
+                ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+                : EdgeInsets.zero,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                _buildLockerCard(),
+                const SizedBox(height: 25),
+                _buildPINCard(),
+                const SizedBox(height: 25),
+                _buildConfirmButton(),
+                const SizedBox(height: 15),
+                _buildForgotPasswordButton(),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
@@ -117,6 +122,7 @@ class _FillPinPage extends State<FillPinPage> {
 
   Widget _buildLockerCard() {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.orange.shade400, Colors.orange.shade600],
@@ -135,25 +141,16 @@ class _FillPinPage extends State<FillPinPage> {
         children: [
           const Icon(
             Icons.lock_open_rounded,
-            size: 60,
+            size: 30,
             color: Colors.white,
           ),
           const SizedBox(height: 15),
-          const Text(
-            'ตู้ที่เลือก',
-            style: TextStyle(
+          Text(
+            'ตู้ที่เลือก : ${widget.lockerName}',
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.white70,
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            widget.lockerName,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ],
@@ -332,7 +329,7 @@ class _FillPinPage extends State<FillPinPage> {
         if (result['data'] != null && result['data']['overtime'] != null) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => OverTimePage(
+              builder: (context) => OvertimePage(
                 day: result['data']['overtime']['days'].toString(),
                 hour: result['data']['overtime']['hours'].toString(),
                 minute: result['data']['overtime']['minutes'].toString(),

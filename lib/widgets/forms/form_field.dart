@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class BuildFormField extends StatelessWidget {
+class CustomFormField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final TextInputType? keyboardType;
@@ -9,7 +9,7 @@ class BuildFormField extends StatelessWidget {
   final double spacing;
   final int maxLine;
 
-  const BuildFormField({
+  const CustomFormField({
     super.key,
     required this.label,
     required this.controller,
@@ -19,10 +19,11 @@ class BuildFormField extends StatelessWidget {
     this.spacing = 20,
     this.maxLine = 1,
   });
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(fontSize: fontSize)),
         SizedBox(height: spacing),
@@ -31,16 +32,16 @@ class BuildFormField extends StatelessWidget {
           keyboardType: keyboardType,
           maxLines: maxLine,
           decoration: InputDecoration(
-            errorBorder: OutlineInputBorder(
+            errorBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red),
             ),
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.blue),
             ),
-            focusedErrorBorder: OutlineInputBorder(
+            focusedErrorBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red, width: 4),
             ),
-            focusedBorder: OutlineInputBorder(
+            focusedBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.blue, width: 4),
             ),
           ),

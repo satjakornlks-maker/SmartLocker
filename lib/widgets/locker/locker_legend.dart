@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class BuildLegend extends StatelessWidget {
-  const BuildLegend({super.key});
+class LockerLegend extends StatelessWidget {
+  const LockerLegend({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: .center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _legendItem(Colors.green, 'ว่าง'),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         _legendItem(Colors.red, 'ไม่ว่าง'),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         _legendItem(Colors.blue, 'เลือกแล้ว'),
       ],
     );
@@ -21,7 +21,7 @@ class BuildLegend extends StatelessWidget {
     return Row(
       children: [
         Container(width: 20, height: 20, color: color),
-        SizedBox(width: 5),
+        const SizedBox(width: 5),
         Text(label),
       ],
     );

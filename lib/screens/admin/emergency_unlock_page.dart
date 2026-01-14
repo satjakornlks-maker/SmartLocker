@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/componants/BuildConfirmButton.dart';
-import 'componants/BuildLegend.dart';
-import 'componants/BuildLockerBox.dart';
-import 'services/api_service.dart';
+import '../../widgets/buttons/confirm_button.dart';
+import '../../widgets/locker/locker_legend.dart';
+import '../../widgets/locker/locker_box.dart';
+import '../../services/api_service.dart';
 
 class EmergencyUnlockPage extends StatefulWidget {
   const EmergencyUnlockPage({super.key});
@@ -18,14 +18,12 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
   bool _showGrid = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      //call API to get locker
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLocker();
-      Future.delayed(const Duration(microseconds: 50),(){
-
-        if(mounted) setState(() => _showGrid = true);
+      Future.delayed(const Duration(microseconds: 50), () {
+        if (mounted) setState(() => _showGrid = true);
       });
     });
   }
@@ -47,7 +45,6 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
         List<Map<String, dynamic>> units = [];
 
         if (data is List && data.isNotEmpty) {
-          // data[0] should be { lockerUnit: [...], cu: [...] }
           final first = data.first;
 
           if (first is Map<String, dynamic>) {
@@ -58,7 +55,6 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
             }
           }
         } else if (data is Map<String, dynamic>) {
-          // In case API returns directly a map
           final lockerUnit = data['lockerUnit'];
           if (lockerUnit is List) {
             units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
@@ -85,14 +81,14 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("หน้าปลดล็อคฉุกเฉิน"),
+        title: const Text("หน้าปลดล็อคฉุกเฉิน"),
         backgroundColor: Colors.blue,
       ),
-      body:  _isLoading
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _showGrid
-          ? body()
-          : const SizedBox.shrink(),
+              ? body()
+              : const SizedBox.shrink(),
     );
   }
 
@@ -102,8 +98,8 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
         SingleChildScrollView(
           child: Center(
             child: Column(
-              mainAxisAlignment: .start,
-              crossAxisAlignment: .center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 100),
                 const Text(
@@ -111,12 +107,12 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
                   style: TextStyle(fontSize: fontsize),
                 ),
                 const SizedBox(height: 50),
-                BuildLegend(),
+                const LockerLegend(),
                 const SizedBox(height: 30),
                 lockerZone(),
                 const SizedBox(height: 30),
-                ?selectedBox(),
-                const SizedBox(height: 20,),
+                selectedBox(),
+                const SizedBox(height: 20),
                 commandButton(),
                 const SizedBox(height: 40),
               ],
@@ -126,37 +122,36 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
         if (_isLoading)
           Container(
             color: Colors.black54,
-            child: Center(child: CircularProgressIndicator()),
+            child: const Center(child: CircularProgressIndicator()),
           ),
       ],
     );
   }
 
-  Widget commandButton(){
+  Widget commandButton() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        BuildConfirmButton(
+        ConfirmButton(
           onPressed: () {
             _isLoading ? null : _handleOrder();
           },
           fontSize: fontsize,
           label: 'เปิด',
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
       ],
     );
   }
 
-  Widget lockerZone(){
+  Widget lockerZone() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Calculate max width to force 3 columns
         final double maxWidth = (constraints.maxWidth - 100 * 2 - 10 * 2) / 3;
 
         return GridView.extent(
-          maxCrossAxisExtent: maxWidth, // ✅ Dynamic based on screen width
+          maxCrossAxisExtent: maxWidth,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           padding: const EdgeInsets.all(100),
@@ -166,8 +161,7 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
           children: lockerStatus.map((entry) {
-
-            return BuildLockerBox(
+            return LockerBox(
               selectedLocker: selectedLocker,
               lockerStatus: entry,
               onTap: _onLockerTap,
@@ -178,19 +172,16 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
     );
   }
 
-  void _onLockerTap(String lockerId, bool isAvailable,String lockerName) {
+  void _onLockerTap(String lockerId, bool isAvailable, String lockerName) {
     setState(() => selectedLocker = lockerId);
     setState(() => selectedLockerName = lockerName);
   }
 
-
-
   Future<void> _handleOrder() async {
     if (selectedLocker == null) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('โปรดเลือกตู้ล็อคเกอร์')));
       return;
     }
     setState(() => _isLoading = true);
@@ -201,9 +192,8 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
       setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('ประตูล็อคเกอร์เปิด')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('ประตูล็อคเกอร์เปิด')));
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -226,32 +216,33 @@ class _EmergencyUnlockPage extends State<EmergencyUnlockPage> {
     }
   }
 
-  Widget? selectedBox() {
-    if (selectedLocker == null || selectedLocker!.isEmpty) return null;
+  Widget selectedBox() {
+    if (selectedLocker == null || selectedLocker!.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     try {
       final locker = lockerStatus.firstWhere(
-            (l) => l['id'] == int.parse(selectedLocker!),
+        (l) => l['id'] == int.parse(selectedLocker!),
         orElse: () => {},
       );
 
-      if (locker.isEmpty) return null;
+      if (locker.isEmpty) return const SizedBox.shrink();
 
       String displayName = locker['name'] ?? '';
-      // print(displayName);
       return Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: Colors.blue,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           'เลือกตู้: $displayName',
-          style: TextStyle(fontSize: 20, color: Colors.white),
+          style: const TextStyle(fontSize: 20, color: Colors.white),
         ),
       );
     } catch (e) {
-      return null;
+      return const SizedBox.shrink();
     }
   }
 }

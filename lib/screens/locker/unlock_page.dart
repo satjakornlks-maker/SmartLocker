@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/OTPPage.dart';
-import 'componants/BuildLegend.dart';
-import 'componants/BuildLockerBox.dart';
-import 'services/api_service.dart';
+import '../unlock/fill_pin_page.dart';
+import '../../widgets/locker/locker_legend.dart';
+import '../../widgets/locker/locker_box.dart';
+import '../../services/api_service.dart';
 
-class BookingPage extends StatefulWidget {
-  const BookingPage({super.key});
+class UnlockPage extends StatefulWidget {
+  const UnlockPage({super.key});
 
   @override
-  State<BookingPage> createState() => _BookingPage();
+  State<UnlockPage> createState() => _UnlockPage();
 }
 
-class _BookingPage extends State<BookingPage> {
-  bool _isLoading = true;
+class _UnlockPage extends State<UnlockPage> {
   String? selectedLocker;
-  String? selectedLockerName;
   final ApiService _apiService = ApiService();
+  bool _isLoading = false;
   List<Map<String, dynamic>> lockerStatus = [];
+  String? selectedLockerName;
   bool _showGrid = false;
 
   @override
@@ -43,7 +43,6 @@ class _BookingPage extends State<BookingPage> {
         List<Map<String, dynamic>> units = [];
 
         if (data is List && data.isNotEmpty) {
-          // data[0] should be { lockerUnit: [...], cu: [...] }
           final first = data.first;
 
           if (first is Map<String, dynamic>) {
@@ -54,7 +53,6 @@ class _BookingPage extends State<BookingPage> {
             }
           }
         } else if (data is Map<String, dynamic>) {
-          // In case API returns directly a map
           final lockerUnit = data['lockerUnit'];
           if (lockerUnit is List) {
             units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
@@ -78,7 +76,6 @@ class _BookingPage extends State<BookingPage> {
       _showSnackBar('เกิดข้อผิดพลาดในการเชื่อมต่อ', Colors.red);
     }
   }
-
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -109,18 +106,18 @@ class _BookingPage extends State<BookingPage> {
         child: SafeArea(
           child: _isLoading
               ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          )
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
               : Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: _showGrid ? _buildBody() : const SizedBox.shrink(),
-              ),
-            ],
-          ),
+                  children: [
+                    _buildHeader(),
+                    Expanded(
+                      child: _showGrid ? _buildBody() : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -137,7 +134,7 @@ class _BookingPage extends State<BookingPage> {
           ),
           const SizedBox(width: 10),
           const Text(
-            'จองตู้ล็อคเกอร์',
+            'ปลดล็อคตู้ล็อคเกอร์',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -153,46 +150,21 @@ class _BookingPage extends State<BookingPage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildTitleCard(),
-            const SizedBox(height: 20),
-            _buildLegendCard(),
-            const SizedBox(height: 20),
-            _buildLockerGrid(),
-            const SizedBox(height: 20),
-            if (selectedLocker != null) _buildSelectedLockerCard(),
-            const SizedBox(height: 20),
-            _buildConfirmButton(),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitleCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.touch_app_rounded, color: Colors.white, size: 28),
-          SizedBox(width: 12),
-          Text(
-            'เลือกตู้ล็อคเกอร์',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        child: Container(
+          margin: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+              : EdgeInsets.zero,
+          child: Column(
+            children: [
+              _buildLegendCard(),
+              const SizedBox(height: 20),
+              _buildLockerGrid(),
+              const SizedBox(height: 20),
+              _buildUnlockButton(),
+              const SizedBox(height: 30),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -229,7 +201,7 @@ class _BookingPage extends State<BookingPage> {
             ],
           ),
           const SizedBox(height: 15),
-          BuildLegend(),
+          const LockerLegend(),
         ],
       ),
     );
@@ -256,7 +228,7 @@ class _BookingPage extends State<BookingPage> {
               Icon(Icons.grid_view_rounded, color: Colors.deepPurple, size: 24),
               SizedBox(width: 10),
               Text(
-                'ตู้ที่มีให้บริการ',
+                'ตู้ที่กำลังใช้งาน',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -287,7 +259,7 @@ class _BookingPage extends State<BookingPage> {
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
           children: lockerStatus.map((entry) {
-            return BuildLockerBox(
+            return LockerBox(
               selectedLocker: selectedLocker,
               lockerStatus: entry,
               onTap: _onLockerTap,
@@ -298,79 +270,14 @@ class _BookingPage extends State<BookingPage> {
     );
   }
 
-  Widget _buildSelectedLockerCard() {
-    try {
-      final locker = lockerStatus.firstWhere(
-            (l) => l['id'] == int.parse(selectedLocker!),
-        orElse: () => {},
-      );
-
-      if (locker.isEmpty) return const SizedBox.shrink();
-
-      String displayName = locker['name'] ?? '';
-
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade400, Colors.blue.shade600],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(25),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle_rounded,
-              size: 40,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 15),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'ตู้ที่เลือก',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  displayName,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildConfirmButton() {
+  Widget _buildUnlockButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: _handleBooking,
-        icon: const Icon(Icons.event_available_rounded, size: 28),
+        onPressed: _handleUnlock,
+        icon: const Icon(Icons.lock_open_rounded, size: 28),
         label: const Text(
-          'จองตู้นี้',
+          'ปลดล็อค',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
@@ -387,23 +294,24 @@ class _BookingPage extends State<BookingPage> {
   }
 
   void _onLockerTap(String lockerId, bool isAvailable, String lockerName) {
-    if (isAvailable) {
+    if (!isAvailable) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       setState(() {
         selectedLocker = lockerId;
         selectedLockerName = lockerName;
       });
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
-      _showSnackBar('ตู้ $lockerId ไม่ว่าง', Colors.orange);
+      _showSnackBar('ตู้ $lockerId ว่างอยู่', Colors.orange);
     }
   }
 
-  void _handleBooking() {
+  void _handleUnlock() {
     if (selectedLocker != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OTPPage(
+          builder: (context) => FillPinPage(
             lockerId: selectedLocker!,
             lockerName: selectedLockerName!,
           ),

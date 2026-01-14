@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/validators/validator.dart';
-import 'services/api_service.dart';
+import '../../validators/validator.dart';
+import '../../services/api_service.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   final String? lockerId;
@@ -34,6 +34,9 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        margin: MediaQuery.of(context).size.width > 600
+            ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+            : EdgeInsets.zero,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -214,13 +217,13 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
             color: _otpSent ? Colors.green : Colors.grey,
             onPressed: _otpSent
                 ? () {
-              if (_formKey.currentState!.validate()) {
-                _handleSubmitOTP();
-              }
-            }
+                    if (_formKey.currentState!.validate()) {
+                      _handleSubmitOTP();
+                    }
+                  }
                 : () {
-              _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
-            },
+                    _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
+                  },
           ),
         ],
       ),
@@ -239,7 +242,6 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       keyboardType: keyboardType,
       validator: validator,
       onChanged: (value) {
-        // Reset OTP sent status if phone/email field changes
         if (controller == _TelOrEmailController && _otpSent) {
           setState(() {
             _otpSent = false;
@@ -320,7 +322,6 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
       padding: const EdgeInsets.all(25),
       child: Column(
         children: [
-
           const SizedBox(height: 10),
           const Text(
             'รหัสอ้างอิง',

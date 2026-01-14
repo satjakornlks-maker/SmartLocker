@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:untitled/ChoseTimePage.dart';
-import 'package:untitled/validators/validator.dart';
-import 'services/api_service.dart';
+import '../common/chose_time_page.dart';
+import '../../validators/validator.dart';
+import '../../services/api_service.dart';
 
-class InstanceUse extends StatefulWidget {
-  const InstanceUse({super.key});
+class InstanceUsePage extends StatefulWidget {
+  const InstanceUsePage({super.key});
   @override
-  State<InstanceUse> createState() => _InstanceUse();
+  State<InstanceUsePage> createState() => _InstanceUsePage();
 }
 
-class _InstanceUse extends State<InstanceUse> {
+class _InstanceUsePage extends State<InstanceUsePage> {
   String? selectedLockerId;
   String? selectedLockerName;
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
-  bool _otpSent = false; // Track if OTP has been sent
+  bool _otpSent = false;
   final _OTPController = TextEditingController();
   final _TelOrEMailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -75,7 +75,6 @@ class _InstanceUse extends State<InstanceUse> {
     }
   }
 
-
   void _selectRandomAvailableLocker() {
     List<Map<String, dynamic>> availableLockers = lockerStatus
         .where((locker) => locker['status'] == false)
@@ -88,7 +87,7 @@ class _InstanceUse extends State<InstanceUse> {
 
     Random random = Random();
     Map<String, dynamic> randomLocker =
-    availableLockers[random.nextInt(availableLockers.length)];
+        availableLockers[random.nextInt(availableLockers.length)];
 
     setState(() {
       selectedLockerId = randomLocker['id'].toString();
@@ -176,19 +175,24 @@ class _InstanceUse extends State<InstanceUse> {
 
   Widget _buildBody() {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              _buildLockerCard(),
-              const SizedBox(height: 20),
-              _buildFormCard(),
-              const SizedBox(height: 20),
-              if (refCode != null) _buildRefCodeCard(),
-              const SizedBox(height: 30),
-            ],
+      child: Container(
+        margin: MediaQuery.of(context).size.width > 600
+            ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+            : EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildLockerCard(),
+                const SizedBox(height: 20),
+                _buildFormCard(),
+                const SizedBox(height: 20),
+                if (refCode != null) _buildRefCodeCard(),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
@@ -197,6 +201,7 @@ class _InstanceUse extends State<InstanceUse> {
 
   Widget _buildLockerCard() {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.green.shade400, Colors.green.shade600],
@@ -215,25 +220,16 @@ class _InstanceUse extends State<InstanceUse> {
         children: [
           const Icon(
             Icons.inbox_rounded,
-            size: 60,
+            size: 30,
             color: Colors.white,
           ),
           const SizedBox(height: 15),
-          const Text(
-            'ตู้ที่สุ่มได้',
-            style: TextStyle(
+          Text(
+            'ตู้ที่สุ่มได้ : ${selectedLockerName ?? 'กำลังเลือกตู้...'}',
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.white70,
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            selectedLockerName ?? 'กำลังเลือกตู้...',
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ],
@@ -287,7 +283,6 @@ class _InstanceUse extends State<InstanceUse> {
             icon: Icons.lock_rounded,
             validator: Validators.validateOTP,
             keyboardType: TextInputType.number,
-
           ),
           const SizedBox(height: 20),
           _buildActionButton(
@@ -296,13 +291,13 @@ class _InstanceUse extends State<InstanceUse> {
             color: _otpSent ? Colors.green : Colors.grey,
             onPressed: _otpSent
                 ? () {
-              if (_formKey.currentState!.validate()) {
-                _handleSubmitOTP();
-              }
-            }
+                    if (_formKey.currentState!.validate()) {
+                      _handleSubmitOTP();
+                    }
+                  }
                 : () {
-              _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
-            },
+                    _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
+                  },
           ),
         ],
       ),
@@ -321,7 +316,6 @@ class _InstanceUse extends State<InstanceUse> {
       controller: controller,
       validator: validator,
       onChanged: (value) {
-        // Reset OTP sent status if phone/email field changes
         if (controller == _TelOrEMailController && _otpSent) {
           setState(() {
             _otpSent = false;
@@ -386,6 +380,7 @@ class _InstanceUse extends State<InstanceUse> {
 
   Widget _buildRefCodeCard() {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blue.shade400, Colors.blue.shade600],
@@ -455,7 +450,7 @@ class _InstanceUse extends State<InstanceUse> {
         setState(() {
           refCode = result['data']['refercode'] ?? '';
           userId = result['data']['userId'] ?? '';
-          _otpSent = true; // Enable confirm button
+          _otpSent = true;
         });
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();

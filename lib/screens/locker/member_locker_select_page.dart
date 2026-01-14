@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/RegisterPage.dart';
-import 'componants/BuildLegend.dart';
-import 'componants/BuildLockerBox.dart';
-import 'services/api_service.dart';
+import '../auth/register_page.dart';
+import '../../widgets/locker/locker_legend.dart';
+import '../../widgets/locker/locker_box.dart';
+import '../../services/api_service.dart';
 
 class MemberLockerSelectPage extends StatefulWidget {
   const MemberLockerSelectPage({super.key});
@@ -43,7 +43,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
         List<Map<String, dynamic>> units = [];
 
         if (data is List && data.isNotEmpty) {
-          // data[0] should be { lockerUnit: [...], cu: [...] }
           final first = data.first;
 
           if (first is Map<String, dynamic>) {
@@ -54,7 +53,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
             }
           }
         } else if (data is Map<String, dynamic>) {
-          // In case API returns directly a map
           final lockerUnit = data['lockerUnit'];
           if (lockerUnit is List) {
             units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
@@ -78,7 +76,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
       _showSnackBar('เกิดข้อผิดพลาดในการเชื่อมต่อ', Colors.red);
     }
   }
-
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -109,18 +106,18 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
         child: SafeArea(
           child: _isLoading
               ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          )
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
               : Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: _showGrid ? _buildBody() : const SizedBox.shrink(),
-              ),
-            ],
-          ),
+                  children: [
+                    _buildHeader(),
+                    Expanded(
+                      child: _showGrid ? _buildBody() : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -155,49 +152,21 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildTitleCard(),
-            const SizedBox(height: 20),
-            _buildLegendCard(),
-            const SizedBox(height: 20),
-            _buildLockerGrid(),
-            const SizedBox(height: 20),
-            if (selectedLocker != null) _buildSelectedLockerCard(),
-            const SizedBox(height: 20),
-            _buildConfirmButton(),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitleCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.card_membership_rounded, color: Colors.white, size: 28),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'เลือกตู้สำหรับการใช้งานประจำ',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
+        child: Container(
+          margin: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+              : EdgeInsets.zero,
+          child: Column(
+            children: [
+              _buildLegendCard(),
+              const SizedBox(height: 20),
+              _buildLockerGrid(),
+              const SizedBox(height: 20),
+              _buildConfirmButton(),
+              const SizedBox(height: 30),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -234,7 +203,7 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
             ],
           ),
           const SizedBox(height: 15),
-          BuildLegend(),
+          const LockerLegend(),
         ],
       ),
     );
@@ -292,7 +261,7 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
           children: lockerStatus.map((entry) {
-            return BuildLockerBox(
+            return LockerBox(
               selectedLocker: selectedLocker,
               lockerStatus: entry,
               onTap: _onLockerTap,
@@ -301,71 +270,6 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
         );
       },
     );
-  }
-
-  Widget _buildSelectedLockerCard() {
-    try {
-      final locker = lockerStatus.firstWhere(
-            (l) => l['id'] == int.parse(selectedLocker!),
-        orElse: () => {},
-      );
-
-      if (locker.isEmpty) return const SizedBox.shrink();
-
-      String displayName = locker['name'] ?? '';
-
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.purple.shade400, Colors.purple.shade600],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(25),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle_rounded,
-              size: 40,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 15),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'ตู้ที่เลือก',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  displayName,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      return const SizedBox.shrink();
-    }
   }
 
   Widget _buildConfirmButton() {

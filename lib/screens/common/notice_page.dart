@@ -55,16 +55,21 @@ class NoticePage extends StatelessWidget {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            _buildSuccessCard(),
-            const SizedBox(height: 30),
-            _buildInstructionCard(),
-            const SizedBox(height: 30),
-            _buildConfirmButton(context),
-            const SizedBox(height: 30),
-          ],
+        child: Container(
+          margin: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+              : EdgeInsets.zero,
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              _buildSuccessCard(),
+              const SizedBox(height: 30),
+              _buildInstructionCard(),
+              const SizedBox(height: 30),
+              _buildConfirmButton(context),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -186,11 +191,11 @@ class NoticePage extends StatelessWidget {
   }
 
   Widget _buildInstructionStep(
-      IconData icon,
-      String title,
-      String description,
-      Color color,
-      ) {
+    IconData icon,
+    String title,
+    String description,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(

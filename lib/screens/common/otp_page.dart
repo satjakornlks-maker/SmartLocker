@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/ChoseTimePage.dart';
-import 'package:untitled/validators/validator.dart';
-import 'services/api_service.dart';
+import 'chose_time_page.dart';
+import '../../validators/validator.dart';
+import '../../services/api_service.dart';
 
 class OTPPage extends StatefulWidget {
   final String lockerId;
@@ -14,7 +14,7 @@ class OTPPage extends StatefulWidget {
 class _OTPPage extends State<OTPPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
-  bool _otpSent = false; // Track if OTP has been sent
+  bool _otpSent = false;
   final _OTPController = TextEditingController();
   final _TelOrEMailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -102,15 +102,20 @@ class _OTPPage extends State<OTPPage> {
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              _buildLockerCard(),
-              const SizedBox(height: 20),
-              _buildFormCard(),
-              const SizedBox(height: 20),
-              if (refCode != null) _buildRefCodeCard(),
-              const SizedBox(height: 30),
-            ],
+          child: Container(
+            margin: MediaQuery.of(context).size.width > 600
+                ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+                : EdgeInsets.zero,
+            child: Column(
+              children: [
+                _buildLockerCard(),
+                const SizedBox(height: 20),
+                _buildFormCard(),
+                const SizedBox(height: 20),
+                if (refCode != null) _buildRefCodeCard(),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
@@ -119,6 +124,7 @@ class _OTPPage extends State<OTPPage> {
 
   Widget _buildLockerCard() {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.green.shade400, Colors.green.shade600],
@@ -137,25 +143,16 @@ class _OTPPage extends State<OTPPage> {
         children: [
           const Icon(
             Icons.inbox_rounded,
-            size: 60,
+            size: 30,
             color: Colors.white,
           ),
           const SizedBox(height: 15),
-          const Text(
-            'ตู้ที่เลือก',
-            style: TextStyle(
+          Text(
+            'ตู้ที่เลือก : ${widget.lockerName}',
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.white70,
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            widget.lockerName,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ],
@@ -217,13 +214,13 @@ class _OTPPage extends State<OTPPage> {
             color: _otpSent ? Colors.green : Colors.grey,
             onPressed: _otpSent
                 ? () {
-              if (_formKey.currentState!.validate()) {
-                _handleSubmitOTP();
-              }
-            }
+                    if (_formKey.currentState!.validate()) {
+                      _handleSubmitOTP();
+                    }
+                  }
                 : () {
-              _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
-            },
+                    _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
+                  },
           ),
         ],
       ),
@@ -242,7 +239,6 @@ class _OTPPage extends State<OTPPage> {
       keyboardType: keyboardType,
       validator: validator,
       onChanged: (value) {
-        // Reset OTP sent status if phone/email field changes
         if (controller == _TelOrEMailController && _otpSent) {
           setState(() {
             _otpSent = false;
@@ -307,6 +303,7 @@ class _OTPPage extends State<OTPPage> {
 
   Widget _buildRefCodeCard() {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blue.shade400, Colors.blue.shade600],
@@ -323,7 +320,6 @@ class _OTPPage extends State<OTPPage> {
       padding: const EdgeInsets.all(25),
       child: Column(
         children: [
-
           const SizedBox(height: 10),
           const Text(
             'รหัสอ้างอิง',
@@ -376,7 +372,7 @@ class _OTPPage extends State<OTPPage> {
         setState(() {
           refCode = result['data']['refercode'] ?? '';
           userId = result['data']['userId'] ?? '';
-          _otpSent = true; // Enable confirm button
+          _otpSent = true;
         });
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'services/api_service.dart';
+import '../../services/api_service.dart';
 
 class ChoseTimePage extends StatefulWidget {
   final String lockerId;
@@ -30,6 +30,8 @@ class _ChoseTimePage extends State<ChoseTimePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -42,6 +44,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
           ),
         ),
         child: SafeArea(
+          bottom: false,
           child: Stack(
             children: [
               Column(
@@ -68,7 +71,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         children: [
           IconButton(
@@ -90,22 +93,41 @@ class _ChoseTimePage extends State<ChoseTimePage> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildLockerCard(),
-            const SizedBox(height: 20),
-            _buildTimeSelectionCard(),
-            const SizedBox(height: 20),
-            _buildSummaryCard(),
-            const SizedBox(height: 20),
-            _buildConfirmButton(),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight;
+
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Container(
+            margin: MediaQuery.of(context).size.width > 600
+                ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+                : EdgeInsets.zero,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: availableHeight,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 12),
+                    _buildLockerCard(),
+                    const SizedBox(height: 12),
+                    _buildTimeSelectionCard(),
+                    const SizedBox(height: 12),
+                    _buildSummaryCard(),
+                    const SizedBox(height: 12),
+                    _buildConfirmButton(),
+                    SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -115,40 +137,47 @@ class _ChoseTimePage extends State<ChoseTimePage> {
         gradient: LinearGradient(
           colors: [Colors.green.shade400, Colors.green.shade600],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(25),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
             Icons.inbox_rounded,
-            size: 60,
+            size: 30,
             color: Colors.white,
           ),
-          const SizedBox(height: 15),
-          const Text(
-            'ตู้ที่เลือก',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            widget.lockerName,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          const SizedBox(width: 15),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'ตู้ที่เลือก',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                widget.lockerName,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -159,49 +188,70 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(25),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Row(
             children: [
-              Icon(Icons.schedule_rounded, color: Colors.deepPurple, size: 28),
-              SizedBox(width: 10),
+              Icon(Icons.schedule_rounded, color: Colors.deepPurple, size: 20),
+              SizedBox(width: 8),
               Text(
                 'กำหนดระยะเวลา',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          _buildPickerSection(
-            'ชั่วโมง',
-            Icons.access_time_rounded,
-            Colors.blue,
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildPickerSection(
+                      'ชั่วโมง',
+                      Icons.access_time_rounded,
+                      Colors.blue,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildHourPicker(),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildPickerSection(
+                      'นาที',
+                      Icons.timer_rounded,
+                      Colors.orange,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildMinutePicker(),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          _buildHourPicker(),
-          const SizedBox(height: 25),
-          _buildPickerSection(
-            'นาที',
-            Icons.timer_rounded,
-            Colors.orange,
-          ),
-          const SizedBox(height: 10),
-          _buildMinutePicker(),
         ],
       ),
     );
@@ -211,18 +261,18 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: color, size: 24),
+          child: Icon(icon, color: color, size: 18),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
@@ -233,25 +283,25 @@ class _ChoseTimePage extends State<ChoseTimePage> {
 
   Widget _buildHourPicker() {
     return Container(
-      height: 180,
+      height: 140,
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.blue.shade200, width: 2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200, width: 1.5),
       ),
       child: CupertinoPicker(
-        itemExtent: 45,
+        itemExtent: 35,
         scrollController: FixedExtentScrollController(initialItem: hour),
         onSelectedItemChanged: (int index) {
           setState(() => hour = index);
         },
         children: List.generate(
           25,
-              (index) => Center(
+          (index) => Center(
             child: Text(
               '$index ชม.',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.blue.shade700,
               ),
@@ -264,25 +314,25 @@ class _ChoseTimePage extends State<ChoseTimePage> {
 
   Widget _buildMinutePicker() {
     return Container(
-      height: 180,
+      height: 140,
       decoration: BoxDecoration(
         color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.orange.shade200, width: 2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade200, width: 1.5),
       ),
       child: CupertinoPicker(
-        itemExtent: 45,
+        itemExtent: 35,
         scrollController: FixedExtentScrollController(initialItem: minute),
         onSelectedItemChanged: (int index) {
           setState(() => minute = index);
         },
         children: List.generate(
           60,
-              (index) => Center(
+          (index) => Center(
             child: Text(
               '$index นาที',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.orange.shade700,
               ),
@@ -299,43 +349,44 @@ class _ChoseTimePage extends State<ChoseTimePage> {
         gradient: LinearGradient(
           colors: [Colors.purple.shade400, Colors.purple.shade600],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(25),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
             Icons.timelapse_rounded,
-            size: 40,
+            size: 32,
             color: Colors.white,
           ),
-          const SizedBox(width: 15),
+          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 'ระยะเวลาทั้งหมด',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Colors.white70,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 3),
               Text(
                 hour == 0 && minute == 0
                     ? 'โปรดเลือกเวลา'
                     : '${hour > 0 ? "$hour ชม. " : ""}${minute > 0 ? "$minute นาที" : ""}',
                 style: const TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -348,7 +399,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
   }
 
   Widget _buildConfirmButton() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () {
@@ -368,19 +419,19 @@ class _ChoseTimePage extends State<ChoseTimePage> {
             _handleSubmitTime();
           }
         },
-        icon: const Icon(Icons.check_circle_rounded, size: 28),
+        icon: const Icon(Icons.check_circle_rounded, size: 24),
         label: const Text(
           'ยืนยันการจอง',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 8,
+          elevation: 6,
         ),
       ),
     );

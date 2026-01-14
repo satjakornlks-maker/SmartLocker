@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/ForgotPasswordPage.dart';
-import 'services/api_service.dart';
-import 'validators/validator.dart';
+import '../../validators/validator.dart';
+import '../common/notice_page.dart';
+import '../../services/api_service.dart';
 
-class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
+class RegisterPage extends StatefulWidget {
+  final String selectedLocker;
+  const RegisterPage({super.key, required this.selectedLocker});
 
   @override
-  State<ResetPasswordPage> createState() => _ResetPasswordPage();
+  State<RegisterPage> createState() => _RegisterPage();
 }
 
-class _ResetPasswordPage extends State<ResetPasswordPage> {
+class _RegisterPage extends State<RegisterPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
-  final _OldPINController = TextEditingController();
-  final _NewPINController = TextEditingController();
-  final _EnsurePINController = TextEditingController();
-  final _TelController = TextEditingController();
-  final _formkey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _telController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _reasonController = TextEditingController();
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -34,6 +35,9 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        margin: MediaQuery.of(context).size.width > 600
+            ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+            : EdgeInsets.zero,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -81,7 +85,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
           ),
           const SizedBox(width: 10),
           const Text(
-            'เปลี่ยนรหัสผ่าน',
+            'สมัครสมาชิก',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -98,7 +102,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
-          key: _formkey,
+          key: _formKey,
           child: Column(
             children: [
               _buildInfoCard(),
@@ -106,8 +110,6 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
               _buildFormCard(),
               const SizedBox(height: 20),
               _buildConfirmButton(),
-              const SizedBox(height: 15),
-              _buildForgotPasswordButton(),
               const SizedBox(height: 30),
             ],
           ),
@@ -120,7 +122,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.blue.shade600],
+          colors: [Colors.purple.shade400, Colors.purple.shade600],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -132,28 +134,28 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
         ],
       ),
       padding: const EdgeInsets.all(25),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(
-            Icons.security_rounded,
+          const Icon(
+            Icons.card_membership_rounded,
             size: 60,
             color: Colors.white,
           ),
-          SizedBox(height: 15),
-          Text(
-            'เปลี่ยนรหัสผ่าน',
+          const SizedBox(height: 15),
+          const Text(
+            'สมัครสมาชิกใช้งานประจำ',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'สำหรับสมาชิกใช้งานประจำ',
+            'กรอกข้อมูลเพื่อสมัครใช้งานตู้ประจำ',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white70,
+              color: Colors.white.withValues(alpha: 0.9),
             ),
           ),
         ],
@@ -180,10 +182,10 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
         children: [
           const Row(
             children: [
-              Icon(Icons.vpn_key_rounded, color: Colors.deepPurple, size: 28),
+              Icon(Icons.edit_note_rounded, color: Colors.deepPurple, size: 28),
               SizedBox(width: 12),
               Text(
-                'กรอกข้อมูล',
+                'ข้อมูลผู้สมัคร',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -194,71 +196,44 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
           ),
           const SizedBox(height: 20),
           _buildStyledTextField(
-            controller: _TelController,
-            label: 'เบอร์โทรศัพท์',
-            icon: Icons.phone_rounded,
-            keyboardType: TextInputType.phone,
-            validator: (value) => Validators.validateTel(value),
-          ),
-          const SizedBox(height: 15),
-          _buildStyledTextField(
-            controller: _OldPINController,
-            label: 'รหัส PIN เดิม',
-            icon: Icons.lock_outline_rounded,
-            keyboardType: TextInputType.number,
-            obscureText: true,
-            validator: (value) => Validators.validateOTP(value),
-          ),
-          const SizedBox(height: 15),
-          const Divider(height: 30),
-          const SizedBox(height: 5),
-          _buildStyledTextField(
-            controller: _NewPINController,
-            label: 'รหัส PIN ใหม่',
-            icon: Icons.lock_rounded,
-            keyboardType: TextInputType.number,
-            obscureText: true,
-            validator: (value) => Validators.validateOTP(value),
-          ),
-          const SizedBox(height: 15),
-          _buildStyledTextField(
-            controller: _EnsurePINController,
-            label: 'ยืนยันรหัส PIN ใหม่',
-            icon: Icons.lock_reset_rounded,
-            keyboardType: TextInputType.number,
-            obscureText: true,
+            controller: _nameController,
+            label: 'ชื่อ-นามสกุล',
+            icon: Icons.person_rounded,
             validator: (value) {
-              final otpError = Validators.validateOTP(value);
-              if (otpError != null) return otpError;
-              if (value != _NewPINController.text) {
-                return 'รหัส PIN ไม่ตรงกัน';
+              if (value == null || value.isEmpty) {
+                return 'กรุณากรอกชื่อ';
               }
               return null;
             },
           ),
           const SizedBox(height: 15),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.amber.shade50,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.amber.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.amber.shade700, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'รหัส PIN ต้องตรงกันทั้งสองช่อง',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.amber.shade900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          _buildStyledTextField(
+            controller: _telController,
+            label: 'เบอร์โทรศัพท์',
+            icon: Icons.phone_rounded,
+            keyboardType: TextInputType.phone,
+            validator: Validators.validateTel,
+          ),
+          const SizedBox(height: 15),
+          _buildStyledTextField(
+            controller: _emailController,
+            label: 'อีเมล',
+            icon: Icons.email_rounded,
+            keyboardType: TextInputType.emailAddress,
+            validator: Validators.validateEmail,
+          ),
+          const SizedBox(height: 15),
+          _buildStyledTextField(
+            controller: _reasonController,
+            label: 'เหตุผลในจอง',
+            icon: Icons.description_rounded,
+            maxLines: 3,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'กรุณากรอกเหตุผล';
+              }
+              return null;
+            },
           ),
         ],
       ),
@@ -270,17 +245,14 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     required String label,
     required IconData icon,
     TextInputType? keyboardType,
-    bool obscureText = false,
+    int maxLines = 1,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      obscureText: obscureText,
+      maxLines: maxLines,
       validator: validator,
-      style: obscureText
-          ? const TextStyle(letterSpacing: 4, fontWeight: FontWeight.bold)
-          : null,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: Colors.deepPurple),
@@ -311,11 +283,13 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () {
-          _handleResetPassword();
+          if (_formKey.currentState!.validate()) {
+            _handleUnlockMember();
+          }
         },
-        icon: const Icon(Icons.check_circle_rounded, size: 28),
+        icon: const Icon(Icons.how_to_reg_rounded, size: 28),
         label: const Text(
-          'เปลี่ยนรหัสผ่าน',
+          'ส่งคำร้อง',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
@@ -331,69 +305,43 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     );
   }
 
-  Widget _buildForgotPasswordButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ForgotPasswordPage(),
-            ),
-          );
-        },
-        icon: const Icon(Icons.help_outline_rounded, size: 24),
-        label: const Text(
-          'ลืมรหัสผ่าน',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Colors.white, width: 2),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _handleResetPassword() async {
-    if (_formkey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      try {
-        final result = await _apiService.handleResetPassword(
-          _OldPINController.text,
-          _NewPINController.text,
-          _TelController.text,
-        );
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        if (result['success']) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          _showSnackBar('เปลี่ยนรหัสผ่านเสร็จสิ้น', Colors.green);
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        } else {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
-        }
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => _isLoading = false);
+  Future<void> _handleUnlockMember() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await _apiService.regisAccount(
+        _nameController.text,
+        _telController.text,
+        _emailController.text,
+        _reasonController.text,
+        widget.selectedLocker,
+      );
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
+        _showSnackBar('สมัครสมาชิกเสร็จสิ้น', Colors.green);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NoticePage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
       }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
     }
   }
 
   @override
   void dispose() {
-    _OldPINController.dispose();
-    _NewPINController.dispose();
-    _EnsurePINController.dispose();
-    _TelController.dispose();
+    _nameController.dispose();
+    _telController.dispose();
+    _emailController.dispose();
+    _reasonController.dispose();
     super.dispose();
   }
 }

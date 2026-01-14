@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'services/api_service.dart';
+import '../../services/api_service.dart';
 
-class OverTimePage extends StatefulWidget {
+class OvertimePage extends StatefulWidget {
   final String day;
   final String hour;
   final String minute;
   final String second;
   final String lockerId;
 
-  const OverTimePage({
+  const OvertimePage({
     super.key,
     required this.second,
     required this.day,
@@ -18,10 +18,10 @@ class OverTimePage extends StatefulWidget {
   });
 
   @override
-  State<OverTimePage> createState() => _OverTimePage();
+  State<OvertimePage> createState() => _OvertimePage();
 }
 
-class _OverTimePage extends State<OverTimePage> {
+class _OvertimePage extends State<OvertimePage> {
   final ApiService _apiService = ApiService();
   bool isLoading = false;
 
@@ -101,18 +101,23 @@ class _OverTimePage extends State<OverTimePage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            _buildWarningCard(),
-            const SizedBox(height: 25),
-            _buildOvertimeDetailsCard(),
-            const SizedBox(height: 25),
-            _buildInstructionCard(),
-            const SizedBox(height: 30),
-            _buildConfirmButton(),
-            const SizedBox(height: 30),
-          ],
+        child: Container(
+          margin: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+              : EdgeInsets.zero,
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              _buildWarningCard(),
+              const SizedBox(height: 25),
+              _buildOvertimeDetailsCard(),
+              const SizedBox(height: 25),
+              _buildInstructionCard(),
+              const SizedBox(height: 30),
+              _buildConfirmButton(),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -136,11 +141,7 @@ class _OverTimePage extends State<OverTimePage> {
       padding: const EdgeInsets.all(30),
       child: const Column(
         children: [
-          Icon(
-            Icons.access_time_filled_rounded,
-            size: 70,
-            color: Colors.white,
-          ),
+          Icon(Icons.access_time_filled_rounded, size: 70, color: Colors.white),
           SizedBox(height: 15),
           Text(
             'เกินเวลาที่กำหนด',
@@ -154,10 +155,7 @@ class _OverTimePage extends State<OverTimePage> {
           SizedBox(height: 8),
           Text(
             'คุณได้ปลดล็อคเกินกำหนด',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
           ),
         ],
       ),
@@ -279,10 +277,7 @@ class _OverTimePage extends State<OverTimePage> {
                 const SizedBox(height: 4),
                 Text(
                   'กดยืนยันเมื่อปิดตู้เรียบร้อยแล้ว',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.amber.shade800,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.amber.shade800),
                 ),
               ],
             ),
@@ -325,7 +320,8 @@ class _OverTimePage extends State<OverTimePage> {
         ScaffoldMessenger.of(context).clearSnackBars();
         _showSnackBar('ดำเนินการเสร็จสิ้น', Colors.green);
         Navigator.of(context).popUntil((route) => route.isFirst);
-      } else if (result['success'] && result['data']['lockStatus'] == 'Unlocked') {
+      } else if (result['success'] &&
+          result['data']['lockStatus'] == 'Unlocked') {
         ScaffoldMessenger.of(context).clearSnackBars();
         _showSnackBar('ล็อคเกอร์ยังปิดไม่สนิท', Colors.orange);
       } else {

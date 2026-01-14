@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'FillPINPage.dart';
-import 'componants/BuildLegend.dart';
-import 'componants/BuildLockerBox.dart';
-import 'services/api_service.dart';
+import '../common/otp_page.dart';
+import '../../widgets/locker/locker_legend.dart';
+import '../../widgets/locker/locker_box.dart';
+import '../../services/api_service.dart';
 
-class UnlockPage extends StatefulWidget {
-  const UnlockPage({super.key});
+class BookingPage extends StatefulWidget {
+  const BookingPage({super.key});
 
   @override
-  State<UnlockPage> createState() => _UnlockPage();
+  State<BookingPage> createState() => _BookingPage();
 }
 
-class _UnlockPage extends State<UnlockPage> {
+class _BookingPage extends State<BookingPage> {
+  bool _isLoading = true;
   String? selectedLocker;
-  final ApiService _apiService = ApiService();
-  bool _isLoading = false;
-  List<Map<String, dynamic>> lockerStatus = [];
   String? selectedLockerName;
+  final ApiService _apiService = ApiService();
+  List<Map<String, dynamic>> lockerStatus = [];
   bool _showGrid = false;
 
   @override
@@ -43,7 +43,6 @@ class _UnlockPage extends State<UnlockPage> {
         List<Map<String, dynamic>> units = [];
 
         if (data is List && data.isNotEmpty) {
-          // data[0] should be { lockerUnit: [...], cu: [...] }
           final first = data.first;
 
           if (first is Map<String, dynamic>) {
@@ -54,7 +53,6 @@ class _UnlockPage extends State<UnlockPage> {
             }
           }
         } else if (data is Map<String, dynamic>) {
-          // In case API returns directly a map
           final lockerUnit = data['lockerUnit'];
           if (lockerUnit is List) {
             units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
@@ -78,7 +76,6 @@ class _UnlockPage extends State<UnlockPage> {
       _showSnackBar('เกิดข้อผิดพลาดในการเชื่อมต่อ', Colors.red);
     }
   }
-
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -109,18 +106,18 @@ class _UnlockPage extends State<UnlockPage> {
         child: SafeArea(
           child: _isLoading
               ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          )
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
               : Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: _showGrid ? _buildBody() : const SizedBox.shrink(),
-              ),
-            ],
-          ),
+                  children: [
+                    _buildHeader(),
+                    Expanded(
+                      child: _showGrid ? _buildBody() : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -137,7 +134,7 @@ class _UnlockPage extends State<UnlockPage> {
           ),
           const SizedBox(width: 10),
           const Text(
-            'ปลดล็อคตู้ล็อคเกอร์',
+            'จองตู้ล็อคเกอร์',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -153,46 +150,21 @@ class _UnlockPage extends State<UnlockPage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildTitleCard(),
-            const SizedBox(height: 20),
-            _buildLegendCard(),
-            const SizedBox(height: 20),
-            _buildLockerGrid(),
-            const SizedBox(height: 20),
-            if (selectedLocker != null) _buildSelectedLockerCard(),
-            const SizedBox(height: 20),
-            _buildUnlockButton(),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitleCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.touch_app_rounded, color: Colors.white, size: 28),
-          SizedBox(width: 12),
-          Text(
-            'เลือกตู้ที่ต้องการปลดล็อค',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        child: Container(
+          margin: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+              : EdgeInsets.zero,
+          child: Column(
+            children: [
+              _buildLegendCard(),
+              const SizedBox(height: 20),
+              _buildLockerGrid(),
+              const SizedBox(height: 20),
+              _buildConfirmButton(),
+              const SizedBox(height: 30),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -229,7 +201,7 @@ class _UnlockPage extends State<UnlockPage> {
             ],
           ),
           const SizedBox(height: 15),
-          BuildLegend(),
+          const LockerLegend(),
         ],
       ),
     );
@@ -256,7 +228,7 @@ class _UnlockPage extends State<UnlockPage> {
               Icon(Icons.grid_view_rounded, color: Colors.deepPurple, size: 24),
               SizedBox(width: 10),
               Text(
-                'ตู้ที่กำลังใช้งาน',
+                'ตู้ที่มีให้บริการ',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -287,7 +259,7 @@ class _UnlockPage extends State<UnlockPage> {
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
           children: lockerStatus.map((entry) {
-            return BuildLockerBox(
+            return LockerBox(
               selectedLocker: selectedLocker,
               lockerStatus: entry,
               onTap: _onLockerTap,
@@ -298,79 +270,14 @@ class _UnlockPage extends State<UnlockPage> {
     );
   }
 
-  Widget _buildSelectedLockerCard() {
-    try {
-      final locker = lockerStatus.firstWhere(
-            (l) => l['id'] == int.parse(selectedLocker!),
-        orElse: () => {},
-      );
-
-      if (locker.isEmpty) return const SizedBox.shrink();
-
-      String displayName = locker['name'] ?? '';
-
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.orange.shade400, Colors.orange.shade600],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(25),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.lock_open_rounded,
-              size: 40,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 15),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'ตู้ที่เลือก',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  displayName,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildUnlockButton() {
+  Widget _buildConfirmButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: _handleUnlock,
-        icon: const Icon(Icons.lock_open_rounded, size: 28),
+        onPressed: _handleBooking,
+        icon: const Icon(Icons.event_available_rounded, size: 28),
         label: const Text(
-          'ปลดล็อค',
+          'จองตู้นี้',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
@@ -387,24 +294,23 @@ class _UnlockPage extends State<UnlockPage> {
   }
 
   void _onLockerTap(String lockerId, bool isAvailable, String lockerName) {
-    if (!isAvailable) {
-      ScaffoldMessenger.of(context).clearSnackBars();
+    if (isAvailable) {
       setState(() {
         selectedLocker = lockerId;
         selectedLockerName = lockerName;
       });
     } else {
       ScaffoldMessenger.of(context).clearSnackBars();
-      _showSnackBar('ตู้ $lockerId ว่างอยู่', Colors.orange);
+      _showSnackBar('ตู้ $lockerId ไม่ว่าง', Colors.orange);
     }
   }
 
-  void _handleUnlock() {
+  void _handleBooking() {
     if (selectedLocker != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => FillPinPage(
+          builder: (context) => OTPPage(
             lockerId: selectedLocker!,
             lockerName: selectedLockerName!,
           ),
