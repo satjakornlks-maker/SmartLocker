@@ -1,17 +1,37 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'chose_time_page.dart';
 import '../../validators/validator.dart';
 import '../../services/api_service.dart';
 
-class OTPPage extends StatefulWidget {
-  final String lockerId;
-  final String lockerName;
-  const OTPPage({super.key, required this.lockerId, required this.lockerName});
-  @override
-  State<OTPPage> createState() => _OTPPage();
+enum OTPPageMode {
+  /// User provides lockerId and lockerName (normal registration)
+  normal,
+  /// System randomly selects an available locker (quick registration)
+  quickRegistration,
 }
 
-class _OTPPage extends State<OTPPage> {
+class OTPPage extends StatefulWidget {
+  final OTPPageMode mode;
+  final String? lockerId;
+  final String? lockerName;
+
+  const OTPPage({
+    super.key,
+    required this.mode,
+    this.lockerId,
+    this.lockerName,
+  }) : assert(
+          mode == OTPPageMode.quickRegistration ||
+              (lockerId != null && lockerName != null),
+          'lockerId and lockerName are required for normal mode',
+        );
+
+  @override
+  State<OTPPage> createState() => _OTPPageState();
+}
+
+class _OTPPageState extends State<OTPPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
   bool _otpSent = false;
@@ -21,6 +41,98 @@ class _OTPPage extends State<OTPPage> {
   double fontsize = 20;
   String? refCode;
   int? userId;
+
+  // For quick registration mode
+  String? _selectedLockerId;
+  String? _selectedLockerName;
+  List<Map<String, dynamic>> _lockerStatus = [];
+
+  String get _lockerId =>
+      widget.mode == OTPPageMode.normal ? widget.lockerId! : _selectedLockerId!;
+
+  String get _lockerName =>
+      widget.mode == OTPPageMode.normal ? widget.lockerName! : _selectedLockerName ?? 'กำลังเลือกตู้...';
+
+  String get _headerTitle =>
+      widget.mode == OTPPageMode.normal ? 'ลงทะเบียน' : 'ลงทะเบียนด่วน';
+
+  String get _lockerDisplayText =>
+      widget.mode == OTPPageMode.normal
+          ? 'ตู้ที่เลือก : $_lockerName'
+          : 'ตู้ที่สุ่มได้ : $_lockerName';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.mode == OTPPageMode.quickRegistration) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadLocker();
+      });
+    }
+  }
+
+  Future<void> _loadLocker() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _apiService.getLocker();
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        final data = result['data'];
+
+        List<Map<String, dynamic>> units = [];
+
+        if (data is List && data.isNotEmpty) {
+          final first = data.first;
+          if (first is Map<String, dynamic>) {
+            final lockerUnit = first['lockerUnit'];
+            if (lockerUnit is List) {
+              units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+            }
+          }
+        } else if (data is Map<String, dynamic>) {
+          final lockerUnit = data['lockerUnit'];
+          if (lockerUnit is List) {
+            units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+          }
+        }
+
+        setState(() {
+          _lockerStatus = units;
+          _isLoading = false;
+          _selectRandomAvailableLocker();
+        });
+      } else {
+        setState(() => _isLoading = false);
+        _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showSnackBar('เกิดข้อผิดพลาดในการเชื่อมต่อ', Colors.red);
+    }
+  }
+
+  void _selectRandomAvailableLocker() {
+    List<Map<String, dynamic>> availableLockers = _lockerStatus
+        .where((locker) => locker['status'] == false)
+        .toList();
+
+    if (availableLockers.isEmpty) {
+      _showSnackBar('ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง', Colors.orange);
+      return;
+    }
+
+    Random random = Random();
+    Map<String, dynamic> randomLocker =
+        availableLockers[random.nextInt(availableLockers.length)];
+
+    setState(() {
+      _selectedLockerId = randomLocker['id'].toString();
+      _selectedLockerName = randomLocker['name'];
+    });
+  }
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -83,9 +195,9 @@ class _OTPPage extends State<OTPPage> {
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 10),
-          const Text(
-            'ลงทะเบียน',
-            style: TextStyle(
+          Text(
+            _headerTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -148,7 +260,7 @@ class _OTPPage extends State<OTPPage> {
           ),
           const SizedBox(height: 15),
           Text(
-            'ตู้ที่เลือก : ${widget.lockerName}',
+            _lockerDisplayText,
             style: const TextStyle(
               fontSize: 16,
               color: Colors.white70,
@@ -356,13 +468,19 @@ class _OTPPage extends State<OTPPage> {
   }
 
   Future<void> _handleSendOTP() async {
+    // For quick registration, check if locker is selected
+    if (widget.mode == OTPPageMode.quickRegistration && _selectedLockerId == null) {
+      _showSnackBar('ไม่มีตู้ว่าง', Colors.red);
+      return;
+    }
+
     setState(() => _isLoading = true);
     String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
     try {
       final result = await _apiService.sendOTP(
         cleanValue,
         cleanValue.contains('@'),
-        widget.lockerId,
+        _lockerId,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -404,10 +522,10 @@ class _OTPPage extends State<OTPPage> {
           context,
           MaterialPageRoute(
             builder: (context) => ChoseTimePage(
-              lockerId: widget.lockerId,
+              lockerId: _lockerId,
               TelOrEmail: _TelOrEMailController.text,
               OTP: _OTPController.text,
-              lockerName: widget.lockerName,
+              lockerName: _lockerName,
               userId: userId!,
             ),
           ),

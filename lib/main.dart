@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-// Screens - Booking
-import 'screens/locker/booking_page.dart';
-import 'screens/locker/instance_use_page.dart';
+// Screens - Locker
+import 'screens/locker/locker_selection_page.dart';
 
-// Screens - Unlock
-import 'screens/locker/unlock_page.dart';
+// Screens - Common
+import 'screens/common/otp_page.dart';
 
 // Screens - Auth
 import 'screens/auth/reset_password_page.dart';
-
-// Screens - Registration
-import 'screens/locker/member_locker_select_page.dart';
 
 // Screens - Admin
 import 'screens/admin/emergency_unlock_page.dart';
@@ -35,13 +31,13 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(title: 'Smart Locker'),
-        '/booking': (context) => const BookingPage(),
-        '/unlock': (context) => const UnlockPage(),
+        '/booking': (context) => const LockerSelectionPage(mode: LockerSelectionMode.booking),
+        '/unlock': (context) => const LockerSelectionPage(mode: LockerSelectionMode.unlock),
+        '/member-locker-select': (context) => const LockerSelectionPage(mode: LockerSelectionMode.memberSelect),
         '/reset-password': (context) => const ResetPasswordPage(),
         '/emergency-unlock': (context) => const EmergencyUnlockPage(),
-        '/instance-use': (context) => const InstanceUsePage(),
+        '/instance-use': (context) => const OTPPage(mode: OTPPageMode.quickRegistration),
         '/periodic-approve': (context) => const ApprovePeriodicUserPage(),
-        '/member-locker-select-page': (context) => const MemberLockerSelectPage()
       },
     );
   }
@@ -154,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             'Member Registration',
                             Icons.card_membership_rounded,
                             Colors.purple,
-                                () => Navigator.pushNamed(context, '/member-locker-select-page'),
+                                () => Navigator.pushNamed(context, '/member-locker-select'),
                           ),
                         ),
                       ],
@@ -380,10 +376,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _handleBooking() async {
     await Future.delayed(Duration.zero);
     if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const BookingPage()),
-    );
+    Navigator.pushNamed(context, '/booking');
   }
 
   @override

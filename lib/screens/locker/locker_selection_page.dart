@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
+import '../common/otp_page.dart';
 import '../auth/register_page.dart';
+import '../unlock/fill_pin_page.dart';
 import '../../widgets/locker/locker_legend.dart';
 import '../../widgets/locker/locker_box.dart';
 import '../../services/api_service.dart';
 
-class MemberLockerSelectPage extends StatefulWidget {
-  const MemberLockerSelectPage({super.key});
-
-  @override
-  State<MemberLockerSelectPage> createState() => _MemberLockerSelectPage();
+enum LockerSelectionMode {
+  booking,
+  memberSelect,
+  unlock,
 }
 
-class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
-  List<Map<String, dynamic>> lockerStatus = [];
-  String? selectedLockerName;
-  bool _showGrid = false;
-  final ApiService _apiService = ApiService();
-  bool _isLoading = false;
+class LockerSelectionPage extends StatefulWidget {
+  final LockerSelectionMode mode;
+
+  const LockerSelectionPage({super.key, required this.mode});
+
+  @override
+  State<LockerSelectionPage> createState() => _LockerSelectionPageState();
+}
+
+class _LockerSelectionPageState extends State<LockerSelectionPage> {
+  bool _isLoading = true;
   String? selectedLocker;
+  String? selectedLockerName;
+  final ApiService _apiService = ApiService();
+  List<Map<String, dynamic>> lockerStatus = [];
+  bool _showGrid = false;
 
   @override
   void initState() {
@@ -88,6 +98,49 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     );
   }
 
+  String get _pageTitle {
+    switch (widget.mode) {
+      case LockerSelectionMode.booking:
+        return 'จองตู้ล็อคเกอร์';
+      case LockerSelectionMode.memberSelect:
+        return 'เลือกตู้สำหรับสมาชิก';
+      case LockerSelectionMode.unlock:
+        return 'ปลดล็อคตู้ล็อคเกอร์';
+    }
+  }
+
+  String get _gridTitle {
+    switch (widget.mode) {
+      case LockerSelectionMode.booking:
+      case LockerSelectionMode.memberSelect:
+        return 'ตู้ที่มีให้บริการ';
+      case LockerSelectionMode.unlock:
+        return 'ตู้ที่กำลังใช้งาน';
+    }
+  }
+
+  String get _buttonText {
+    switch (widget.mode) {
+      case LockerSelectionMode.booking:
+        return 'จองตู้นี้';
+      case LockerSelectionMode.memberSelect:
+        return 'ดำเนินการต่อ';
+      case LockerSelectionMode.unlock:
+        return 'ปลดล็อค';
+    }
+  }
+
+  IconData get _buttonIcon {
+    switch (widget.mode) {
+      case LockerSelectionMode.booking:
+        return Icons.event_available_rounded;
+      case LockerSelectionMode.memberSelect:
+        return Icons.app_registration_rounded;
+      case LockerSelectionMode.unlock:
+        return Icons.lock_open_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,10 +186,10 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              'เลือกตู้สำหรับสมาชิก',
-              style: TextStyle(
+              _pageTitle,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -225,13 +278,13 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.grid_view_rounded, color: Colors.deepPurple, size: 24),
-              SizedBox(width: 10),
+              const Icon(Icons.grid_view_rounded, color: Colors.deepPurple, size: 24),
+              const SizedBox(width: 10),
               Text(
-                'ตู้ที่มีให้บริการ',
-                style: TextStyle(
+                _gridTitle,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -276,22 +329,11 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () {
-          if (selectedLocker != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RegisterPage(selectedLocker: selectedLocker!),
-              ),
-            );
-          } else {
-            _showSnackBar('โปรดเลือกตู้ล็อคเกอร์', Colors.orange);
-          }
-        },
-        icon: const Icon(Icons.app_registration_rounded, size: 28),
-        label: const Text(
-          'ดำเนินการต่อ',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        onPressed: _handleConfirm,
+        icon: Icon(_buttonIcon, size: 28),
+        label: Text(
+          _buttonText,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
@@ -307,15 +349,71 @@ class _MemberLockerSelectPage extends State<MemberLockerSelectPage> {
   }
 
   void _onLockerTap(String lockerId, bool isAvailable, String lockerName) {
-    if (isAvailable) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      setState(() {
-        selectedLocker = lockerId;
-        selectedLockerName = lockerName;
-      });
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    if (widget.mode == LockerSelectionMode.unlock) {
+      // Unlock mode: select unavailable (occupied) lockers
+      if (!isAvailable) {
+        setState(() {
+          selectedLocker = lockerId;
+          selectedLockerName = lockerName;
+        });
+      } else {
+        _showSnackBar('ตู้ $lockerId ว่างอยู่', Colors.orange);
+      }
     } else {
+      // Booking/Member mode: select available lockers
+      if (isAvailable) {
+        setState(() {
+          selectedLocker = lockerId;
+          selectedLockerName = lockerName;
+        });
+      } else {
+        _showSnackBar('ตู้ $lockerId ไม่ว่าง', Colors.orange);
+      }
+    }
+  }
+
+  void _handleConfirm() {
+    if (selectedLocker == null) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      _showSnackBar('ตู้ $lockerId ไม่ว่าง', Colors.orange);
+      _showSnackBar('โปรดเลือกตู้ล็อคเกอร์', Colors.orange);
+      return;
+    }
+
+    switch (widget.mode) {
+      case LockerSelectionMode.booking:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OTPPage(
+
+              lockerId: selectedLocker!,
+              lockerName: selectedLockerName!,
+              mode: OTPPageMode.normal,
+            ),
+          ),
+        );
+        break;
+      case LockerSelectionMode.memberSelect:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RegisterPage(selectedLocker: selectedLocker!),
+          ),
+        );
+        break;
+      case LockerSelectionMode.unlock:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FillPinPage(
+              lockerId: selectedLocker!,
+              lockerName: selectedLockerName!,
+            ),
+          ),
+        );
+        break;
     }
   }
 }
