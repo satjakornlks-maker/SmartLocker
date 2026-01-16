@@ -70,7 +70,43 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        child: SafeArea(
+        child: _buildBody(),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    // Get screen width to determine device type
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+
+    // Adjust sizes based on device
+    final logoSize = isTablet ? 150.0 : 100.0;
+    final fontSize = isTablet ? 26.0 : 20.0;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Image(
+          image: AssetImage('assets/images/Logo.png'),
+          width: logoSize,
+          height: logoSize,
+        ),
+        Text(
+          'Smart Locker',
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(){
+    return SafeArea(
           bottom: false,
           child: SingleChildScrollView(
             child: Padding(
@@ -170,41 +206,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
-
-  Widget _buildHeader() {
-    // Get screen width to determine device type
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-
-    // Adjust sizes based on device
-    final logoSize = isTablet ? 150.0 : 100.0;
-    final fontSize = isTablet ? 26.0 : 20.0;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Image(
-          image: AssetImage('assets/images/Logo.png'),
-          width: logoSize,
-          height: logoSize,
-        ),
-        Text(
-          'Smart Locker',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: 2,
-          ),
-        ),
-      ],
-    );
-  }
-
   // Small cards for the row (2 cards side by side)
   Widget _buildSmallMenuCard(
       String titleTh,
