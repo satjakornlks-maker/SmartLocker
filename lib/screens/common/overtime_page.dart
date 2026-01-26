@@ -102,8 +102,8 @@ class _OvertimePage extends State<OvertimePage> {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Container(
-          margin: MediaQuery.of(context).size.width > 600
-              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+          margin: MediaQuery.of(context).size.width > 940
+              ? const EdgeInsets.fromLTRB(200, 0, 200, 0)
               : EdgeInsets.zero,
           child: Column(
             children: [

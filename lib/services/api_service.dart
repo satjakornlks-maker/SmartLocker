@@ -18,9 +18,9 @@ class ApiService {
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
-          // 'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
           //for prod
-          // 'X-API-Key': apiKey,
+          // 'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
           // 'x-app-token': appKey,
           'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
         },
@@ -88,7 +88,9 @@ class ApiService {
             type: data,
             "BookedTypeId": 1,
           }
+
       );
+      print(responss);
       return{
         'success':true,
         'data':responss.data,
@@ -101,7 +103,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> bookLocker(bool isEmail,String telOrEmail,String lockerId ,String pin,DateTime toDateTime,int userId) async {
+  Future<Map<String,dynamic>> bookLocker(bool isEmail,String telOrEmail,String lockerId ,String pin,DateTime? toDateTime,int userId, bool isVisitor) async {
     late String type;
     if(isEmail){
       type = 'Email';
@@ -120,7 +122,7 @@ class ApiService {
           //'reason':reason,
           'FromDatetime' : DateTime.now().toString(),
           'ToDatetime': toDateTime.toString(),
-          'BookedTypeId': 1,
+          'BookedTypeId': isVisitor ? 5:1,
 
         }
       );

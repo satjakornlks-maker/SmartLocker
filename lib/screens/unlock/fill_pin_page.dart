@@ -15,7 +15,7 @@ class _FillPinPage extends State<FillPinPage> {
   bool _isLoading = false;
   final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
-  final _PINController = TextEditingController();
+  final _pinController = TextEditingController();
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -99,7 +99,7 @@ class _FillPinPage extends State<FillPinPage> {
           key: _formKey,
           child: Container(
             margin: MediaQuery.of(context).size.width > 600
-                ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+                ? const EdgeInsets.fromLTRB(200, 0, 200, 0)
                 : EdgeInsets.zero,
             child: Column(
               children: [
@@ -191,7 +191,7 @@ class _FillPinPage extends State<FillPinPage> {
           ),
           const SizedBox(height: 20),
           TextFormField(
-            controller: _PINController,
+            controller: _pinController,
             keyboardType: TextInputType.number,
             obscureText: true,
             validator: (value) {
@@ -318,7 +318,7 @@ class _FillPinPage extends State<FillPinPage> {
     setState(() => _isLoading = true);
     try {
       final result = await _apiService.handleFillPIN(
-        _PINController.text,
+        _pinController.text,
         widget.lockerId,
       );
       if (!mounted) return;
@@ -355,7 +355,7 @@ class _FillPinPage extends State<FillPinPage> {
 
   @override
   void dispose() {
-    _PINController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 }

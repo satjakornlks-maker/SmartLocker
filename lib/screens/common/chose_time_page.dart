@@ -5,16 +5,18 @@ import '../../services/api_service.dart';
 class ChoseTimePage extends StatefulWidget {
   final String lockerId;
   final String lockerName;
-  final String TelOrEmail;
-  final String OTP;
+  final String telOrEmail;
+  final String otp;
   final int userId;
+  final bool isVisitor;
   const ChoseTimePage({
     super.key,
     required this.lockerId,
-    required this.TelOrEmail,
-    required this.OTP,
+    required this.telOrEmail,
+    required this.otp,
     required this.lockerName,
     required this.userId,
+    this.isVisitor = false,
   });
   @override
   State<ChoseTimePage> createState() => _ChoseTimePage();
@@ -100,8 +102,8 @@ class _ChoseTimePage extends State<ChoseTimePage> {
         return SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Container(
-            margin: MediaQuery.of(context).size.width > 600
-                ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+            margin: MediaQuery.of(context).size.width > 940
+                ? const EdgeInsets.fromLTRB(200, 0, 200, 0)
                 : EdgeInsets.zero,
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -441,15 +443,16 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     DateTime now = DateTime.now();
     DateTime futureTime = now.add(Duration(hours: hour, minutes: minute));
     setState(() => _isLoading = true);
-    String cleanValue = widget.TelOrEmail.replaceAll(' ', '');
+    String cleanValue = widget.telOrEmail.replaceAll(' ', '');
     try {
       final result = await _apiService.bookLocker(
         cleanValue.contains('@'),
         cleanValue,
         widget.lockerId,
-        widget.OTP,
+        widget.otp,
         futureTime,
         widget.userId,
+        widget.isVisitor
       );
       if (!mounted) return;
       setState(() => _isLoading = false);

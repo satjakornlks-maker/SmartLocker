@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/Deposite%20Type/user_type_page.dart';
+import 'package:untitled/widgets/grid/HoverMenuCard.dart';
 import 'dart:async';
-
-// Screens - Locker
 import 'screens/locker/locker_selection_page.dart';
-
-// Screens - Common
-import 'screens/common/otp_page.dart';
-
-// Screens - Auth
 import 'screens/auth/reset_password_page.dart';
 
-// Screens - Admin
-import 'screens/admin/emergency_unlock_page.dart';
-import 'screens/admin/approve_periodic_user_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,13 +23,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(title: 'Smart Locker'),
-        '/booking': (context) => const LockerSelectionPage(mode: LockerSelectionMode.booking),
         '/unlock': (context) => const LockerSelectionPage(mode: LockerSelectionMode.unlock),
-        '/member-locker-select': (context) => const LockerSelectionPage(mode: LockerSelectionMode.memberSelect),
         '/reset-password': (context) => const ResetPasswordPage(),
-        '/emergency-unlock': (context) => const EmergencyUnlockPage(),
-        '/instance-use': (context) => const OTPPage(mode: OTPPageMode.quickRegistration),
-        '/periodic-approve': (context) => const ApprovePeriodicUserPage(),
+        '/user-type-page' : (context) => const UserTypePage(),
+
       },
     );
   }
@@ -59,17 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.deepPurple.shade400,
-              Colors.deepPurple.shade700,
-              Colors.indigo.shade800,
-            ],
-          ),
-        ),
+        decoration: BoxDecoration(color: Colors.grey.shade300),
         child: _buildBody(),
       ),
     );
@@ -78,224 +57,104 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildHeader() {
     // Get screen width to determine device type
     final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
+    final isTablet = screenWidth > 940;
 
     // Adjust sizes based on device
-    final logoSize = isTablet ? 150.0 : 100.0;
+    final logoSize = isTablet ? 150.0 : 150.0;
     final fontSize = isTablet ? 26.0 : 20.0;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Image(
           image: AssetImage('assets/images/Logo.png'),
           width: logoSize,
           height: logoSize,
         ),
-        Text(
-          'Smart Locker',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: 2,
-          ),
-        ),
       ],
     );
   }
 
-  Widget _buildBody(){
+  Widget _buildBody() {
     return SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Container(
-                margin: MediaQuery.of(context).size.width > 600
-                    ? const EdgeInsets.fromLTRB(300, 0, 300, 0)  // Tablet: add margin
-                    : EdgeInsets.zero,
+      bottom: false,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              _buildHeader(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(
+                  100,
+                  0,
+                  100,
+                  0,
+                ), // Tablet: add margin
+
                 child: Column(
-
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header Section
-                    _buildHeader(),
-
-                    // Menu Buttons - Row with 2 cards
+                    const Text('ยินดีต้อนรับ', style: TextStyle(fontSize: 40)),
+                    SizedBox(height: 5),
+                    const Text('เลือกรายการที่ท่านต้องการดำเนินการ'),
+                    SizedBox(height: 60),
                     Row(
                       children: [
                         Expanded(
-                          child: GestureDetector(
-                            onTapDown: (_) {
-                              _emergencyTimer = Timer(
-                                const Duration(seconds: 5),
-                                    () => Navigator.pushNamed(context, '/periodic-approve'),
-                              );
-                            },
-                            onTapUp: (_) => _emergencyTimer?.cancel(),
-                            onTapCancel: () => _emergencyTimer?.cancel(),
-                            child: _buildSmallMenuCard(
-                              'ลงทะเบียนด่วน',
-                              'Quick Registration',
-                              Icons.flash_on_rounded,
-                              Colors.orange,
-                                  () => Navigator.pushNamed(context, '/instance-use'),
-                            ),
+                          child: HoverMenuCard(
+                            titleTh: 'ฝากของ',
+                            icon: Icons.download_outlined,
+                            color: Colors.orange,
+                            onPressed: () => Navigator.pushNamed(context, '/user-type-page'),
+                            aspectRatio: 1.2,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: GestureDetector(
-                            onTapDown: (_) {
-                              _emergencyTimer = Timer(
-                                const Duration(seconds: 5),
-                                    () => Navigator.pushNamed(context, '/emergency-unlock'),
-                              );
-                            },
-                            onTapUp: (_) => _emergencyTimer?.cancel(),
-                            onTapCancel: () => _emergencyTimer?.cancel(),
-                            child: _buildSmallMenuCard(
-                              'ลงทะเบียน',
-                              'Registration',
-                              Icons.app_registration_rounded,
-                              Colors.blue,
-                              _handleBooking,
-                            ),
+                          child: HoverMenuCard(
+                            titleTh :'รับของ',
+                            icon : Icons.upload_outlined,
+                            color : Colors.blue,
+                            onPressed : ()=> Navigator.pushNamed(context, '/unlock'),
+                            aspectRatio: 1.2,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-
+                    SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: _buildSmallMenuCard(
-                            'ปลดล็อค',
-                            'Unlock Locker',
-                            Icons.lock_open_rounded,
-                            Colors.green,
-                                () => Navigator.pushNamed(context, '/unlock'),
-                          ),
+                        const Text(
+                          "©LANNACOM 2026",
+                          style: TextStyle(color: Colors.grey),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildSmallMenuCard(
-                            'สมัครสมาชิก',
-                            'Member Registration',
-                            Icons.card_membership_rounded,
-                            Colors.purple,
-                                () => Navigator.pushNamed(context, '/member-locker-select'),
-                          ),
+                        const Text(
+                          "SECURE ACCESS",
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 16),
-                    _buildMenuCard(
-                      'เปลี่ยนรหัสผ่าน',
-                      'Reset Password',
-                      Icons.password_rounded,
-                      Colors.red,
-                          () => Navigator.pushNamed(context, '/reset-password'),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).padding.bottom + 30),
                   ],
                 ),
               ),
-            ),
-          ),
-        );
-  }
-  // Small cards for the row (2 cards side by side)
-  Widget _buildSmallMenuCard(
-      String titleTh,
-      String titleEn,
-      IconData icon,
-      Color color,
-      VoidCallback onPressed,
-      ) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(20),
-          child: Ink(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white,
-                  Colors.white.withValues(alpha: 0.95),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Icon(
-                      icon,
-                      size: 36,
-                      color: color,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    titleTh,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    titleEn,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
+  // Small cards for the row (2 cards side by side)
 
   // Full-width cards
   Widget _buildMenuCard(
-      String titleTh,
-      String titleEn,
-      IconData icon,
-      Color color,
-      VoidCallback onPressed,
-      ) {
+    String titleTh,
+    String titleEn,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -315,10 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Ink(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Colors.white,
-                  Colors.white.withValues(alpha: 0.95),
-                ],
+                colors: [Colors.white, Colors.white.withValues(alpha: 0.95)],
               ),
               borderRadius: BorderRadius.circular(20),
             ),
@@ -332,11 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 40,
-                      color: color,
-                    ),
+                    child: Icon(icon, size: 40, color: color),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -376,11 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _handleBooking() async {
-    await Future.delayed(Duration.zero);
-    if (!mounted) return;
-    Navigator.pushNamed(context, '/booking');
-  }
+
 
   @override
   void dispose() {

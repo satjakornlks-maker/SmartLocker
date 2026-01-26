@@ -1,31 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/auth/reset_password_page.dart';
+import 'package:untitled/screens/common/success_page.dart';
+import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import 'dart:math';
 import 'chose_time_page.dart';
 import '../../validators/validator.dart';
 import '../../services/api_service.dart';
 
-enum OTPPageMode {
-  /// User provides lockerId and lockerName (normal registration)
-  normal,
-  /// System randomly selects an available locker (quick registration)
-  quickRegistration,
-}
-
 class OTPPage extends StatefulWidget {
-  final OTPPageMode mode;
+  final FromPage from;
   final String? lockerId;
   final String? lockerName;
+  final String? telOrEmail;
+  final String? refCode; // Passed from previous page
+  final int? userId; // Passed from previous page
 
   const OTPPage({
     super.key,
-    required this.mode,
+    required this.from,
     this.lockerId,
     this.lockerName,
-  }) : assert(
-          mode == OTPPageMode.quickRegistration ||
-              (lockerId != null && lockerName != null),
-          'lockerId and lockerName are required for normal mode',
-        );
+    this.telOrEmail,
+    this.refCode,
+    this.userId,
+  });
 
   @override
   State<OTPPage> createState() => _OTPPageState();
@@ -34,104 +32,21 @@ class OTPPage extends StatefulWidget {
 class _OTPPageState extends State<OTPPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
-  bool _otpSent = false;
-  final _OTPController = TextEditingController();
-  final _TelOrEMailController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  double fontsize = 20;
+
+  // OTP input controllers - 6 digits
+  final List<String> _otpDigits = List.filled(6, '');
+  int _currentIndex = 0;
+
+  // State variables
   String? refCode;
   int? userId;
-
-  // For quick registration mode
-  String? _selectedLockerId;
-  String? _selectedLockerName;
-  List<Map<String, dynamic>> _lockerStatus = [];
-
-  String get _lockerId =>
-      widget.mode == OTPPageMode.normal ? widget.lockerId! : _selectedLockerId!;
-
-  String get _lockerName =>
-      widget.mode == OTPPageMode.normal ? widget.lockerName! : _selectedLockerName ?? 'กำลังเลือกตู้...';
-
-  String get _headerTitle =>
-      widget.mode == OTPPageMode.normal ? 'ลงทะเบียน' : 'ลงทะเบียนด่วน';
-
-  String get _lockerDisplayText =>
-      widget.mode == OTPPageMode.normal
-          ? 'ตู้ที่เลือก : $_lockerName'
-          : 'ตู้ที่สุ่มได้ : $_lockerName';
 
   @override
   void initState() {
     super.initState();
-    if (widget.mode == OTPPageMode.quickRegistration) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadLocker();
-      });
-    }
-  }
-
-  Future<void> _loadLocker() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final result = await _apiService.getLocker();
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        final data = result['data'];
-
-        List<Map<String, dynamic>> units = [];
-
-        if (data is List && data.isNotEmpty) {
-          final first = data.first;
-          if (first is Map<String, dynamic>) {
-            final lockerUnit = first['lockerUnit'];
-            if (lockerUnit is List) {
-              units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
-            }
-          }
-        } else if (data is Map<String, dynamic>) {
-          final lockerUnit = data['lockerUnit'];
-          if (lockerUnit is List) {
-            units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
-          }
-        }
-
-        setState(() {
-          _lockerStatus = units;
-          _isLoading = false;
-          _selectRandomAvailableLocker();
-        });
-      } else {
-        setState(() => _isLoading = false);
-        _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      _showSnackBar('เกิดข้อผิดพลาดในการเชื่อมต่อ', Colors.red);
-    }
-  }
-
-  void _selectRandomAvailableLocker() {
-    List<Map<String, dynamic>> availableLockers = _lockerStatus
-        .where((locker) => locker['status'] == false)
-        .toList();
-
-    if (availableLockers.isEmpty) {
-      _showSnackBar('ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง', Colors.orange);
-      return;
-    }
-
-    Random random = Random();
-    Map<String, dynamic> randomLocker =
-        availableLockers[random.nextInt(availableLockers.length)];
-
-    setState(() {
-      _selectedLockerId = randomLocker['id'].toString();
-      _selectedLockerName = randomLocker['name'];
-    });
+    // Initialize from passed parameters (OTP already sent by previous page)
+    refCode = widget.refCode;
+    userId = widget.userId;
   }
 
   void _showSnackBar(String message, Color color) {
@@ -148,38 +63,29 @@ class _OTPPageState extends State<OTPPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.deepPurple.shade400,
-              Colors.deepPurple.shade700,
-              Colors.indigo.shade800,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(child: _buildBody()),
-                ],
-              ),
-              if (_isLoading)
-                Container(
-                  color: Colors.black54,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+      backgroundColor: Colors.grey.shade50,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: 20),
+                _buildHeader(),
+                Expanded(child: _buildBody()),
+              ],
+            ),
+            if (_isLoading)
+              Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.deepPurple,
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -190,17 +96,27 @@ class _OTPPageState extends State<OTPPage> {
       padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            _headerTitle,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          Container(
+            margin: EdgeInsets.fromLTRB(50, 0, 0, 0),
+            decoration: BoxDecoration(
               color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: _isLoading
+                  ? null
+                  : () => Navigator.pop(context), // Disable when loading
+            ),
+          ),
+          const SizedBox(width: 16),
+          const Text(
+            'SMART LOCKER',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
             ),
           ),
         ],
@@ -211,276 +127,300 @@ class _OTPPageState extends State<OTPPage> {
   Widget _buildBody() {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Container(
-            margin: MediaQuery.of(context).size.width > 600
-                ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
-                : EdgeInsets.zero,
-            child: Column(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            _buildTitle(),
+            const SizedBox(height: 10),
+            if (widget.from != FromPage.unlock) _buildPhoneDisplay(),
+
+            const SizedBox(height: 40),
+            _buildOTPInputBoxes(),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: .center,
               children: [
-                _buildLockerCard(),
-                const SizedBox(height: 20),
-                _buildFormCard(),
-                const SizedBox(height: 20),
-                if (refCode != null) _buildRefCodeCard(),
-                const SizedBox(height: 30),
+                widget.from != FromPage.unlock ? _buildRefCodeAndResend() : SizedBox.shrink() ,
+                SizedBox(width: 10),
+                if(widget.from == FromPage.unlock) _buildResetPassword(),
               ],
             ),
-          ),
+            const SizedBox(height: 50),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 350),
+              child: Column(
+                children: [
+                  _buildNumericKeypad(),
+                  const SizedBox(height: 30),
+                  _buildConfirmButton(),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildLockerCard() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade400, Colors.green.shade600],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+  Widget _buildTitle() {
+    return const Text(
+      'กรุณากรอกรหัส OTP',
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
       ),
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.inbox_rounded,
-            size: 30,
+    );
+  }
+
+  Widget _buildPhoneDisplay() {
+    return Row(
+      mainAxisAlignment: .center,
+      children: [
+        Text(
+          'ส่งรหัสไปที่ ${widget.telOrEmail ?? ""} ',
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+        ),
+        Text(
+          'สำหรับตู้ ${widget.lockerName ?? ""}',
+          style: TextStyle(fontSize: 18, color: Colors.blue),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOTPInputBoxes() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(6, (index) {
+        return Container(
+          width: 50,
+          height: 60,
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          decoration: BoxDecoration(
             color: Colors.white,
-          ),
-          const SizedBox(height: 15),
-          Text(
-            _lockerDisplayText,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-              fontWeight: FontWeight.w500,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.shade300,
+              width: 2,
             ),
           ),
-        ],
-      ),
+          child: Center(
+            child: Text(
+
+              _otpDigits[index].isNotEmpty ? '*':'',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        );
+      }),
     );
   }
 
-  Widget _buildFormCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'กรอกข้อมูล',
+  Widget _buildRefCodeAndResend() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'REF CODE',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              refCode ?? 'XXXXXX',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 80),
+        TextButton.icon(
+          onPressed: _handleResendOTP,
+          icon: const Icon(Icons.refresh, color: Colors.orange, size: 20),
+          label: const Text(
+            'ส่งรหัสใหม่',
             style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Colors.orange,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 20),
-          _buildStyledTextField(
-            controller: _TelOrEMailController,
-            label: 'เบอร์โทรศัพท์หรืออีเมล',
-            icon: Icons.contact_phone_rounded,
-            validator: (value) => Validators.validateEmailOrPhone(value),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
-          const SizedBox(height: 15),
-          _buildActionButton(
-            label: 'ส่ง OTP',
-            icon: Icons.send_rounded,
-            color: Colors.blue,
-            onPressed: _handleSendOTPValidation,
-          ),
-          const SizedBox(height: 20),
-          _buildStyledTextField(
-            controller: _OTPController,
-            label: 'รหัส OTP',
-            icon: Icons.lock_rounded,
-            keyboardType: TextInputType.number,
-            validator: Validators.validateOTP,
-          ),
-          const SizedBox(height: 20),
-          _buildActionButton(
-            label: 'ยืนยัน',
-            icon: Icons.check_circle_rounded,
-            color: _otpSent ? Colors.green : Colors.grey,
-            onPressed: _otpSent
-                ? () {
-                    if (_formKey.currentState!.validate()) {
-                      _handleSubmitOTP();
-                    }
-                  }
-                : () {
-                    _showSnackBar('กรุณาส่ง OTP ก่อน', Colors.orange);
-                  },
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildStyledTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      onChanged: (value) {
-        if (controller == _TelOrEMailController && _otpSent) {
-          setState(() {
-            _otpSent = false;
-            refCode = null;
-          });
+  Widget _buildNumericKeypad() {
+    return Column(
+      children: [
+        _buildKeypadRow(['1', '2', '3']),
+        const SizedBox(height: 15),
+        _buildKeypadRow(['4', '5', '6']),
+        const SizedBox(height: 15),
+        _buildKeypadRow(['7', '8', '9']),
+        const SizedBox(height: 15),
+        _buildKeypadRow(['0', 'delete']),
+      ],
+    );
+  }
+
+  Widget _buildKeypadRow(List<String> keys) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: keys.map((key) {
+        if (key == 'delete') {
+          return _buildKeypadButton(
+            child: const Icon(Icons.backspace_outlined, size: 24),
+            onTap: _handleDelete,
+          );
+        } else if (key == '0') {
+          return Row(
+            children: [
+              const SizedBox(width: 100), // Empty space for alignment
+              _buildKeypadButton(
+                child: Text(
+                  key,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onTap: () => _handleNumberTap(key),
+              ),
+            ],
+          );
+        } else {
+          return _buildKeypadButton(
+            child: Text(
+              key,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+            ),
+            onTap: () => _handleNumberTap(key),
+          );
         }
-      },
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.deepPurple),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
+      }).toList(),
+    );
+  }
+
+  Widget _buildKeypadButton({
+    required Widget child,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 70,
+        height: 70,
+        margin: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-        ),
+        child: Center(child: child),
       ),
     );
   }
 
-  Widget _buildActionButton({
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-    final bool isDisabled = (label == 'ยืนยัน' && !_otpSent);
+  Widget _buildConfirmButton() {
+    final bool isComplete = _otpDigits.every((digit) => digit.isNotEmpty);
 
-    return Opacity(
-      opacity: isDisabled ? 0.5 : 1.0,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 24),
-        label: Text(
-          label,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: isComplete ? _handleSubmitOTP : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
+          backgroundColor: isComplete ? Colors.green : Colors.grey.shade200,
+          foregroundColor: isComplete ? Colors.white : Colors.grey.shade400,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(30),
           ),
-          elevation: isDisabled ? 0 : 5,
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.check,
+              size: 20,
+              color: isComplete ? Colors.white : Colors.grey.shade400,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'ยืนยัน',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildRefCodeCard() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.blue.shade600],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          const Text(
-            'รหัสอ้างอิง',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            refCode!,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _handleSendOTPValidation() {
-    String? validatorError = Validators.validateEmailOrPhone(
-      _TelOrEMailController.text,
-    );
-    if (validatorError != null) {
-      _showSnackBar(validatorError, Colors.red);
-      return;
+  void _handleNumberTap(String number) {
+    if (_currentIndex < 6) {
+      setState(() {
+        _otpDigits[_currentIndex] = number;
+        _currentIndex++;
+      });
     }
-    _handleSendOTP();
+  }
+
+  void _handleDelete() {
+    if (_currentIndex > 0) {
+      setState(() {
+        _currentIndex--;
+        _otpDigits[_currentIndex] = '';
+      });
+    }
   }
 
   Future<void> _handleSendOTP() async {
-    // For quick registration, check if locker is selected
-    if (widget.mode == OTPPageMode.quickRegistration && _selectedLockerId == null) {
+    if (widget.lockerId == null) {
       _showSnackBar('ไม่มีตู้ว่าง', Colors.red);
       return;
     }
 
+    // Prevent duplicate calls if already loading
+    // if (_isLoading) {
+    //   print('Already sending OTP, ignoring duplicate call');
+    //   return;
+    // }
+
     setState(() => _isLoading = true);
-    String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
+    String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
     try {
       final result = await _apiService.sendOTP(
         cleanValue,
         cleanValue.contains('@'),
-        _lockerId,
+        widget.lockerId!,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -490,7 +430,6 @@ class _OTPPageState extends State<OTPPage> {
         setState(() {
           refCode = result['data']['refercode'] ?? '';
           userId = result['data']['userId'] ?? '';
-          _otpSent = true;
         });
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -504,32 +443,111 @@ class _OTPPageState extends State<OTPPage> {
     }
   }
 
+  Future<void> _handleResendOTP() async {
+    // Clear current OTP input
+    setState(() {
+      _otpDigits.fillRange(0, 6, '');
+      _currentIndex = 0;
+    });
+
+    await _handleSendOTP();
+  }
+
   Future<void> _handleSubmitOTP() async {
+    String otpCode = _otpDigits.join('');
+    if (otpCode.length != 6) {
+      _showSnackBar('กรุณากรอก OTP ให้ครบ 6 หลัก', Colors.orange);
+      return;
+    }
+
     setState(() => _isLoading = true);
-    String cleanValue = _TelOrEMailController.text.replaceAll(' ', '');
+
     try {
-      final result = await _apiService.handleSubmitOTP(
-        cleanValue,
-        _OTPController.text,
+      if (widget.from == FromPage.unlock) {
+        await _unlockLocker(otpCode);
+      } else {
+        String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
+        final result = await _apiService.handleSubmitOTP(
+          cleanValue,
+          otpCode,
+          cleanValue.contains('@'),
+        );
+
+        if (!mounted) return;
+
+        if (result['success']) {
+          await _bookLocker(userId!, otpCode);
+        } else {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).clearSnackBars();
+          _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
+    }
+  }
+
+  Future<void> _bookLocker(int userId, String otp) async {
+    DateTime now = DateTime.now();
+
+    // Don't set loading here since it's already true from _handleSubmitOTP
+    String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
+    try {
+      final result = await _apiService.bookLocker(
         cleanValue.contains('@'),
+        cleanValue,
+        widget.lockerId!,
+        otp,
+        now,
+        userId,
+        false,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage()));
+      } else {
         ScaffoldMessenger.of(context).clearSnackBars();
-        _showSnackBar('ยืนยัน OTP สำเร็จ', Colors.green);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChoseTimePage(
-              lockerId: _lockerId,
-              TelOrEmail: _TelOrEMailController.text,
-              OTP: _OTPController.text,
-              lockerName: _lockerName,
-              userId: userId!,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('เกิดข้อผิดพลาด: ${result['error']}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('เกิดข้อผิดพลาด: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _unlockLocker(String otp) async {
+    // Loading is already set to true from _handleSubmitOTP
+    try {
+      final result = await _apiService.handleFillPIN(otp, widget.lockerId!);
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      if (result['success']) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage()));
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
@@ -542,10 +560,16 @@ class _OTPPageState extends State<OTPPage> {
     }
   }
 
+
+  Widget _buildResetPassword() {
+    return TextButton(
+      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => InputTypePage(from: FromPage.resetPassword))),
+      child: Text('เปลี่ยนรหัสผ่าน(เฉพาะผู้ใช้ประจำ)',style: TextStyle(decoration: TextDecoration.underline),),
+    );
+  }
+
   @override
   void dispose() {
-    _OTPController.dispose();
-    _TelOrEMailController.dispose();
     super.dispose();
   }
 }

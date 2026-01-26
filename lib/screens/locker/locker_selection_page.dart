@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import '../common/otp_page.dart';
 import '../auth/register_page.dart';
 import '../unlock/fill_pin_page.dart';
-import '../../widgets/locker/locker_legend.dart';
-import '../../widgets/locker/locker_box.dart';
 import '../../services/api_service.dart';
 
-enum LockerSelectionMode {
-  booking,
-  memberSelect,
-  unlock,
-}
+enum LockerSelectionMode { booking, memberSelect, unlock }
 
 class LockerSelectionPage extends StatefulWidget {
   final LockerSelectionMode mode;
@@ -40,6 +35,18 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
     });
   }
 
+  // Get book type based on mode
+  int? get _bookTypeFilter {
+    switch (widget.mode) {
+      case LockerSelectionMode.booking:
+        return 1; // Filter for booking type
+      case LockerSelectionMode.memberSelect:
+        return 3; // Filter for member type
+      case LockerSelectionMode.unlock:
+        return null; // No filter for unlock, show all
+    }
+  }
+
   Future<void> _loadLocker() async {
     setState(() => _isLoading = true);
 
@@ -59,14 +66,26 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
             final lockerUnit = first['lockerUnit'];
 
             if (lockerUnit is List) {
-              units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+              units = lockerUnit
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList();
             }
           }
         } else if (data is Map<String, dynamic>) {
           final lockerUnit = data['lockerUnit'];
           if (lockerUnit is List) {
-            units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+            units = lockerUnit
+                .map((e) => Map<String, dynamic>.from(e))
+                .toList();
           }
+        }
+
+        // Filter by book type if needed
+        if (_bookTypeFilter != null) {
+          units = units.where((unit) {
+            final lockerBookType = unit['locker_booktype'];
+            return lockerBookType == _bookTypeFilter;
+          }).toList();
         }
 
         setState(() {
@@ -75,6 +94,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
         });
 
         print('lockerStatus count = ${lockerStatus.length}');
+        print('Filtered by bookType: $_bookTypeFilter');
         print(lockerStatus);
       } else {
         setState(() => _isLoading = false);
@@ -98,31 +118,10 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
     );
   }
 
-  String get _pageTitle {
-    switch (widget.mode) {
-      case LockerSelectionMode.booking:
-        return 'จองตู้ล็อคเกอร์';
-      case LockerSelectionMode.memberSelect:
-        return 'เลือกตู้สำหรับสมาชิก';
-      case LockerSelectionMode.unlock:
-        return 'ปลดล็อคตู้ล็อคเกอร์';
-    }
-  }
-
-  String get _gridTitle {
-    switch (widget.mode) {
-      case LockerSelectionMode.booking:
-      case LockerSelectionMode.memberSelect:
-        return 'ตู้ที่มีให้บริการ';
-      case LockerSelectionMode.unlock:
-        return 'ตู้ที่กำลังใช้งาน';
-    }
-  }
-
   String get _buttonText {
     switch (widget.mode) {
       case LockerSelectionMode.booking:
-        return 'จองตู้นี้';
+        return 'ยืนยัน';
       case LockerSelectionMode.memberSelect:
         return 'ดำเนินการต่อ';
       case LockerSelectionMode.unlock:
@@ -130,48 +129,26 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
     }
   }
 
-  IconData get _buttonIcon {
-    switch (widget.mode) {
-      case LockerSelectionMode.booking:
-        return Icons.event_available_rounded;
-      case LockerSelectionMode.memberSelect:
-        return Icons.app_registration_rounded;
-      case LockerSelectionMode.unlock:
-        return Icons.lock_open_rounded;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.deepPurple.shade400,
-              Colors.deepPurple.shade700,
-              Colors.indigo.shade800,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Column(
-                  children: [
-                    _buildHeader(),
-                    Expanded(
-                      child: _showGrid ? _buildBody() : const SizedBox.shrink(),
-                    ),
-                  ],
+      backgroundColor: Colors.grey.shade50,
+      body: SafeArea(
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
                 ),
-        ),
+              )
+            : Column(
+                children: [
+                  SizedBox(height: 15),
+                  _buildHeader(),
+                  Expanded(
+                    child: _showGrid ? _buildBody() : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -179,21 +156,28 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
+
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-            onPressed: () => Navigator.pop(context),
+          Container(
+            margin: EdgeInsets.fromLTRB(50, 0, 0, 0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _pageTitle,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          const SizedBox(width: 16),
+          const Text(
+            'SMART LOCKER',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
             ),
           ),
         ],
@@ -205,119 +189,149 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Container(
-          margin: MediaQuery.of(context).size.width > 600
-              ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
-              : EdgeInsets.zero,
-          child: Column(
-            children: [
-              _buildLegendCard(),
-              const SizedBox(height: 20),
-              _buildLockerGrid(),
-              const SizedBox(height: 20),
-              _buildConfirmButton(),
-              const SizedBox(height: 30),
-            ],
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+
+                // Title
+                const Text(
+                  'เลือกตู้ที่ต้องการ',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Legend
+                _buildLegend(),
+
+                const SizedBox(height: 40),
+
+                // Locker Grid
+                _buildLockerGrid(),
+
+                const SizedBox(height: 40),
+
+                // Confirm Button
+                _buildConfirmButton(),
+
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLegendCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.info_outline_rounded, color: Colors.deepPurple, size: 24),
-              SizedBox(width: 10),
-              Text(
-                'คำอธิบาย',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          const LockerLegend(),
-        ],
-      ),
+  Widget _buildLegend() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildLegendItem(Colors.green, 'ว่าง'),
+        const SizedBox(width: 30),
+        _buildLegendItem(Colors.red.shade400, 'ไม่ว่าง'),
+        const SizedBox(width: 30),
+        _buildLegendItem(Colors.yellow.shade700, 'กำลังเลือก'),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, color: Colors.black87),
+        ),
+      ],
     );
   }
 
   Widget _buildLockerGrid() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.grid_view_rounded, color: Colors.deepPurple, size: 24),
-              const SizedBox(width: 10),
-              Text(
-                _gridTitle,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          _buildLockerGridView(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLockerGridView() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double maxWidth = (constraints.maxWidth - 40) / 3;
+        // Calculate optimal button size based on available width
+        final double maxWidth = constraints.maxWidth > 900
+            ? 900
+            : constraints.maxWidth;
+        final double buttonWidth =
+            (maxWidth - 100) / 4; // 6 columns with spacing
 
-        return GridView.extent(
-          maxCrossAxisExtent: maxWidth,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          cacheExtent: 0,
-          addAutomaticKeepAlives: false,
-          addRepaintBoundaries: true,
+        return Wrap(
+          spacing: 20,
+          runSpacing: 20,
+          alignment: WrapAlignment.center,
           children: lockerStatus.map((entry) {
-            return LockerBox(
-              selectedLocker: selectedLocker,
-              lockerStatus: entry,
-              onTap: _onLockerTap,
+            final lockerId = entry['id']?.toString() ?? '';
+            final lockerName = entry['name']?.toString() ?? lockerId;
+            final isEnable = entry['enable'] == true;
+            final status = entry['status'] == true;
+
+            // Determine availability based on mode
+            final isAvailable = widget.mode == LockerSelectionMode.unlock
+                ? !status // For unlock mode, show occupied (status: true)
+                : !status &&
+                      !isEnable; // For booking mode, show available (status: false and enable: true)
+
+            final isSelected = selectedLocker == lockerId;
+
+            Color buttonColor;
+            if (isSelected) {
+              buttonColor = Colors.yellow.shade700;
+            } else if (isAvailable) {
+              buttonColor = Colors.green;
+            } else {
+              buttonColor = Colors.red.shade400;
+            }
+
+            return SizedBox(
+              width: buttonWidth,
+              height: 60,
+              child: ElevatedButton(
+                onPressed: () =>
+                    _onLockerTap(lockerId, isAvailable, lockerName),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: buttonColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  padding: EdgeInsets.zero,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.inventory_2_outlined,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      lockerName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }).toList(),
         );
@@ -326,23 +340,25 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
   }
 
   Widget _buildConfirmButton() {
-    return SizedBox(
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 400),
       width: double.infinity,
-      child: ElevatedButton.icon(
+      child: ElevatedButton(
         onPressed: _handleConfirm,
-        icon: Icon(_buttonIcon, size: 28),
-        label: Text(
-          _buttonText,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.black87,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          elevation: 8,
+          elevation: 3,
+        ),
+        child: Text(
+          selectedLockerName != null
+              ? '$_buttonText #$selectedLockerName'
+              : _buttonText,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -352,14 +368,14 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
     ScaffoldMessenger.of(context).clearSnackBars();
 
     if (widget.mode == LockerSelectionMode.unlock) {
-      // Unlock mode: select unavailable (occupied) lockers
+      // Unlock mode: select occupied lockers
       if (!isAvailable) {
         setState(() {
           selectedLocker = lockerId;
           selectedLockerName = lockerName;
         });
       } else {
-        _showSnackBar('ตู้ $lockerId ว่างอยู่', Colors.orange);
+        _showSnackBar('ตู้ $lockerName ว่างอยู่', Colors.orange);
       }
     } else {
       // Booking/Member mode: select available lockers
@@ -369,7 +385,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
           selectedLockerName = lockerName;
         });
       } else {
-        _showSnackBar('ตู้ $lockerId ไม่ว่าง', Colors.orange);
+        _showSnackBar('ตู้ $lockerName ไม่ว่าง', Colors.orange);
       }
     }
   }
@@ -386,11 +402,10 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OTPPage(
-
-              lockerId: selectedLocker!,
+            builder: (context) => InputTypePage(
+              from: FromPage.normal,
+              selectedLocker: selectedLocker!,
               lockerName: selectedLockerName!,
-              mode: OTPPageMode.normal,
             ),
           ),
         );
@@ -407,10 +422,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FillPinPage(
-              lockerId: selectedLocker!,
-              lockerName: selectedLockerName!,
-            ),
+            builder: (context) => OTPPage(from: FromPage.unlock , lockerId: selectedLocker!,)
           ),
         );
         break;

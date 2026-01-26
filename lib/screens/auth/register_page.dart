@@ -8,10 +8,10 @@ class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key, required this.selectedLocker});
 
   @override
-  State<RegisterPage> createState() => _RegisterPage();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPage extends State<RegisterPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
@@ -34,41 +34,27 @@ class _RegisterPage extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: MediaQuery.of(context).size.width > 600
-            ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
-            : EdgeInsets.zero,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.deepPurple.shade400,
-              Colors.deepPurple.shade700,
-              Colors.indigo.shade800,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(child: _buildBody()),
-                ],
-              ),
-              if (_isLoading)
-                Container(
-                  color: Colors.black54,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
+      backgroundColor: Colors.grey.shade50,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: 20),
+                _buildHeader(),
+                Expanded(child: _buildBody()),
+              ],
+            ),
+            if (_isLoading)
+              Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -76,20 +62,29 @@ class _RegisterPage extends State<RegisterPage> {
 
   Widget _buildHeader() {
     return Container(
+      margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
       padding: const EdgeInsets.all(20),
+
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'สมัครสมาชิก',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          Container(
+            decoration: BoxDecoration(
               color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          const SizedBox(width: 16),
+          const Text(
+            'SMART LOCKER',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
             ),
           ),
         ],
@@ -101,104 +96,64 @@ class _RegisterPage extends State<RegisterPage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              _buildInfoCard(),
-              const SizedBox(height: 20),
-              _buildFormCard(),
-              const SizedBox(height: 20),
-              _buildConfirmButton(),
-              const SizedBox(height: 30),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 800), // Set max width here
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
 
-  Widget _buildInfoCard() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.purple.shade400, Colors.purple.shade600],
+                  // Title
+                  const Text(
+                    'สมัครสมาชิก',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    'กรอกข้อมูลเพื่อสมัครใช้งานตู้ประจำ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  _buildFormCard(),
+
+                  const SizedBox(height: 30),
+
+                  _buildConfirmButton(),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ),
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.card_membership_rounded,
-            size: 60,
-            color: Colors.white,
-          ),
-          const SizedBox(height: 15),
-          const Text(
-            'สมัครสมาชิกใช้งานประจำ',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'กรอกข้อมูลเพื่อสมัครใช้งานตู้ประจำ',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
-            ),
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildFormCard() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(25),
+
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.edit_note_rounded, color: Colors.deepPurple, size: 28),
-              SizedBox(width: 12),
-              Text(
-                'ข้อมูลผู้สมัคร',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           _buildStyledTextField(
             controller: _nameController,
             label: 'ชื่อ-นามสกุล',
-            icon: Icons.person_rounded,
+            icon: Icons.badge_rounded,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'กรุณากรอกชื่อ';
@@ -206,7 +161,8 @@ class _RegisterPage extends State<RegisterPage> {
               return null;
             },
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
+
           _buildStyledTextField(
             controller: _telController,
             label: 'เบอร์โทรศัพท์',
@@ -214,7 +170,8 @@ class _RegisterPage extends State<RegisterPage> {
             keyboardType: TextInputType.phone,
             validator: Validators.validateTel,
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
+
           _buildStyledTextField(
             controller: _emailController,
             label: 'อีเมล',
@@ -222,12 +179,13 @@ class _RegisterPage extends State<RegisterPage> {
             keyboardType: TextInputType.emailAddress,
             validator: Validators.validateEmail,
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
+
           _buildStyledTextField(
             controller: _reasonController,
-            label: 'เหตุผลในจอง',
+            label: 'เหตุผลในการจอง',
             icon: Icons.description_rounded,
-            maxLines: 3,
+            maxLines: 4,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'กรุณากรอกเหตุผล';
@@ -249,49 +207,58 @@ class _RegisterPage extends State<RegisterPage> {
     String? Function(String?)? validator,
   }) {
     return TextFormField(
+
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.deepPurple),
+        labelStyle: TextStyle(
+          color: Colors.grey.shade700,
+          fontSize: 16,
+        ),
+        prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 22),
         filled: true,
         fillColor: Colors.grey.shade50,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.deepPurple.shade400, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
         ),
       ),
     );
   }
 
   Widget _buildConfirmButton() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      child: ElevatedButton.icon(
+      constraints: const BoxConstraints(maxWidth: double.infinity),
+      child: ElevatedButton(
         onPressed: () {
           if (_formKey.currentState!.validate()) {
             _handleUnlockMember();
           }
         },
-        icon: const Icon(Icons.how_to_reg_rounded, size: 28),
-        label: const Text(
-          'ส่งคำร้อง',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
           foregroundColor: Colors.white,
@@ -299,7 +266,21 @@ class _RegisterPage extends State<RegisterPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          elevation: 8,
+          elevation: 3,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.check_circle_rounded, size: 24),
+            SizedBox(width: 10),
+            Text(
+              'ส่งคำร้อง',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

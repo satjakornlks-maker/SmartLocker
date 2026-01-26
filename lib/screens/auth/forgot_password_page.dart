@@ -34,8 +34,8 @@ class _ForgotPasswordPage extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        margin: MediaQuery.of(context).size.width > 600
-            ? const EdgeInsets.fromLTRB(300, 0, 300, 0)
+        margin: MediaQuery.of(context).size.width > 940
+            ? const EdgeInsets.fromLTRB(200, 0, 200, 0)
             : EdgeInsets.zero,
         decoration: BoxDecoration(
           gradient: LinearGradient(
