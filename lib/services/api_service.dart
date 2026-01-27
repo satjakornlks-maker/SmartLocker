@@ -7,22 +7,21 @@ class ApiService {
   ApiService() {
 
     const baseUrl = String.fromEnvironment('BASE_URL', defaultValue: 'http://localhost');
-    // const apiKey = String.fromEnvironment('API_KEY', defaultValue: '');
     const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
     _dio = Dio(
       BaseOptions(
         // baseUrl: "http://localhost:44324/",
-        baseUrl: "http://10.3.0.4:8098",
+        // baseUrl: "http://10.3.0.4:8098",
         // use for prod
-        // baseUrl: baseUrl,
+        baseUrl: baseUrl,
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
           'Content-Type': 'application/json',
           //for prod
           // 'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
-          // 'x-app-token': appKey,
-          'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
+          'x-app-token': appKey,
+          // 'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
         },
       ),
     );
@@ -72,7 +71,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> sendOTP(String data,bool isEmail,String lockerId) async {
+  Future<Map<String,dynamic>> sendOTP(String data,bool isEmail,String lockerId,bool isVisitor) async {
     late String type;
     if(isEmail){
      type = 'Email';
@@ -86,7 +85,7 @@ class ApiService {
           data: {
             'LockerUnitID':int.parse(lockerId),
             type: data,
-            "BookedTypeId": 1,
+            "BookedTypeId": isVisitor ? 5 : 1,
           }
 
       );
@@ -188,13 +187,12 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleResetPassword(String oldPIN,String newPIN,String tel) async{
+  Future<Map<String,dynamic>> handleResetPassword(int userId,String newPIN) async{
     try{
       final response = await _dio.post(
           '/reset_password',
           data: {
-            'tel': tel,
-            'oldPIN': oldPIN,
+            'userID': userId,
             'newPIN': newPIN,
             'timestamp' : DateTime.now().toIso8601String(),
           }
@@ -240,7 +238,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleSubmitOTP(String data,String OTP,bool isEmail)async{
+  Future<Map<String,dynamic>> handleSubmitOTP(String data,String otp,bool isEmail)async{
     late String type;
     if(isEmail){
       type = 'email';
@@ -253,7 +251,7 @@ class ApiService {
           '/locker/verify',
           data: {
             type: data,
-            'pin':OTP,
+            'pin':otp,
           }
       );
       return{
@@ -268,13 +266,13 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleFillPIN(String PIN,String lockerId)async{
+  Future<Map<String,dynamic>> handleFillPIN(String pin,String lockerId)async{
     try{
       final responss = await _dio.post(
           '/unlock_locker',
           data: {
             'LockerUnitID': int.parse(lockerId),
-            'pin':PIN,
+            'pin':pin,
             'timestamp' : DateTime.now().toIso8601String(),
           }
       );
@@ -333,7 +331,7 @@ class ApiService {
 
   Future<Map<String,dynamic>> handleCheckLockerStatus(String lockerId)async{
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/locker/status',
           data: {
             'LockerID': 1,
@@ -342,12 +340,33 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
         'success' : false,
         'error' : _handleError(e)
+      };
+    }
+  }
+
+  Future<Map<String,dynamic>> handleCheckOTP(String lockerId,String pin)async{
+    try{
+      final response = await _dio.post(
+        '/verify_pin',
+        data: {
+          'pin' : pin,
+          'LockerUnitID' : lockerId
+        }
+      );
+      return{
+        'success':true,
+        'data':response.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success':false,
+        'error':_handleError(e)
       };
     }
   }

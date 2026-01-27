@@ -6,14 +6,14 @@ import 'package:untitled/services/api_service.dart';
 import '../common/success_page.dart';
 
 class EmailInputPage extends StatefulWidget {
-  final String selectedLocker;
-  final String lockerName;
+  final String? selectedLocker;
+  final String? lockerName;
   final FromPage from;
 
   const EmailInputPage({
     super.key,
-    required this.selectedLocker,
-    required this.lockerName,
+    this.selectedLocker,
+    this.lockerName,
     required this.from,
   });
 
@@ -39,36 +39,78 @@ class _EmailInputPageState extends State<EmailInputPage> {
       setState(() => _isLoading = true);
       String cleanValue = _emailController.text.trim();
       try {
-        final result = await _apiService.sendOTP(
-          cleanValue,
-          true, // isEmail = true
-          widget.selectedLocker,
-        );
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        if (result['success']) {
-
-
-          // Navigate to OTP page with proper parameters
+        // Check forgetPassword FIRST
+        if (widget.from == FromPage.forgetPassword) {
+          print('forgetPassword');
+          final result = await _apiService.handleForgotPassword(
+            cleanValue,
+            true, // isEmail = true
+            widget.selectedLocker,
+          );
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          if (result['success']) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPPage(
+                  from: FromPage.unlock,
+                  lockerName: widget.lockerName,
+                  lockerId: widget.selectedLocker,
+                  telOrEmail: cleanValue,
+                ),
+              ),
+            );
+          } else {
+            _showSnackBar(
+              'อีเมลนี้ไม่ตรงกับอีเมลที่ลงทะเบียนกับตู้นี้',
+              Colors.red,
+            );
+          }
+        }
+        // Then check resetPassword
+        else if (widget.from == FromPage.resetPassword) {
+          print('resetPassword');
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => OTPPage(
-                telOrEmail: _emailController.text,
-                from: widget.from,
+                from: FromPage.resetPassword,
                 lockerId: widget.selectedLocker,
                 lockerName: widget.lockerName,
-                userId: result['data']['userId'],
-                refCode: result['data']['refercode'],
-              )
+                telOrEmail: cleanValue,
+              ),
             ),
           );
-        } else if (result['success'] && widget.from == FromPage.resetPassword){
-          print('resetPassword');
-          Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage()));
-        }else{
-          ScaffoldMessenger.of(context).clearSnackBars();
-          _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
+        }
+        // Default case: instance, normal, visitor, unlock
+        else {
+          final result = await _apiService.sendOTP(
+            cleanValue,
+            true, // isEmail = true
+            widget.selectedLocker!,
+            widget.from == FromPage.visitor ? true : false,
+          );
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          if (result['success']) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPPage(
+                  telOrEmail: _emailController.text,
+                  from: widget.from,
+                  lockerId: widget.selectedLocker,
+                  lockerName: widget.lockerName,
+                  userId: result['data']['userId'],
+                  refCode: result['data']['refercode'],
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).clearSnackBars();
+            _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
+          }
         }
       } catch (e) {
         if (!mounted) return;
@@ -182,7 +224,9 @@ class _EmailInputPageState extends State<EmailInputPage> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black87),
-              onPressed: _isLoading ? null : () => Navigator.pop(context), // Disable when loading
+              onPressed: _isLoading
+                  ? null
+                  : () => Navigator.pop(context), // Disable when loading
             ),
           ),
           const SizedBox(width: 16),
@@ -230,10 +274,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
             ),
             decoration: InputDecoration(
               hintText: 'example@email.com',
-              hintStyle: TextStyle(
-                fontSize: 24,
-                color: Colors.grey.shade400,
-              ),
+              hintStyle: TextStyle(fontSize: 24, color: Colors.grey.shade400),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 20,
@@ -254,9 +295,13 @@ class _EmailInputPageState extends State<EmailInputPage> {
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 300),
       child: ElevatedButton(
-        onPressed: (_isValidEmail && !_isLoading) ? _onConfirm : null, // Disable when loading
+        onPressed: (_isValidEmail && !_isLoading)
+            ? _onConfirm
+            : null, // Disable when loading
         style: ElevatedButton.styleFrom(
-          backgroundColor: (_isValidEmail && !_isLoading) ? Colors.green : Colors.grey.shade300,
+          backgroundColor: (_isValidEmail && !_isLoading)
+              ? Colors.green
+              : Colors.grey.shade300,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
@@ -268,31 +313,35 @@ class _EmailInputPageState extends State<EmailInputPage> {
         ),
         child: _isLoading
             ? const SizedBox(
-          height: 24,
-          width: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.5,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        )
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.check,
-              color: (_isValidEmail && !_isLoading) ? Colors.white : Colors.grey.shade500,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'ยืนยัน',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: (_isValidEmail && !_isLoading) ? Colors.white : Colors.grey.shade500,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check,
+                    color: (_isValidEmail && !_isLoading)
+                        ? Colors.white
+                        : Colors.grey.shade500,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'ยืนยัน',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: (_isValidEmail && !_isLoading)
+                          ? Colors.white
+                          : Colors.grey.shade500,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

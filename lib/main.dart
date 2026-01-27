@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/Deposite%20Type/user_type_page.dart';
+import 'package:untitled/screens/common/otp_page.dart';
+import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
 import 'dart:async';
 import 'screens/locker/locker_selection_page.dart';
-import 'screens/auth/reset_password_page.dart';
 
 
 void main() {
@@ -24,9 +25,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const MyHomePage(title: 'Smart Locker'),
         '/unlock': (context) => const LockerSelectionPage(mode: LockerSelectionMode.unlock),
-        '/reset-password': (context) => const ResetPasswordPage(),
         '/user-type-page' : (context) => const UserTypePage(),
-
+        '/otp-unlock-page' : (context) => const OTPPage(from: FromPage.unlock)
       },
     );
   }
@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     const Text('ยินดีต้อนรับ', style: TextStyle(fontSize: 40)),
                     SizedBox(height: 5),
                     const Text('เลือกรายการที่ท่านต้องการดำเนินการ'),
-                    SizedBox(height: 60),
+                    SizedBox(height: 20),
                     Row(
                       children: [
                         Expanded(
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             icon: Icons.download_outlined,
                             color: Colors.orange,
                             onPressed: () => Navigator.pushNamed(context, '/user-type-page'),
-                            aspectRatio: 1.2,
+                            aspectRatio: 1.4,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             icon : Icons.upload_outlined,
                             color : Colors.blue,
                             onPressed : ()=> Navigator.pushNamed(context, '/unlock'),
-                            aspectRatio: 1.2,
+                            aspectRatio: 1.4,
                           ),
                         ),
                       ],

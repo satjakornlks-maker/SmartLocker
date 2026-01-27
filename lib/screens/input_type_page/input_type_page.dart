@@ -5,7 +5,7 @@ import 'package:untitled/screens/input_type_page/phone_input_page.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
 import '../../services/api_service.dart';
 
-enum FromPage { instance, normal, unlock , resetPassword, visitor}
+enum FromPage { instance, normal, unlock ,forgetPassword, resetPassword, visitor, resetPassword2}
 
 class InputTypePage extends StatefulWidget {
   final FromPage from;
@@ -41,6 +41,7 @@ class _InputTypePageState extends State<InputTypePage> {
 
   @override
   void initState() {
+    print(_lockerName);
     super.initState();
     if (widget.from == FromPage.instance || widget.from == FromPage.visitor) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -184,16 +185,18 @@ class _InputTypePageState extends State<InputTypePage> {
                                         ),
                                       ),
                                     )
-                                        : () => _showSnackBar('กำลังโหลดข้อมูลตู้...', Colors.orange),
-                                  ),
-                                ),
+                                        : () => print("$_lockerId,$_lockerName!,$widget.from,$widget.lockerName"),
+                                      ),
+                                    ),
+
+
                                 const SizedBox(width: 20),
                                 Expanded(
                                   child: HoverMenuCard(
                                     titleTh: 'อีเมล',
                                     icon: Icons.email,
                                     color: Colors.blue,
-                                    onPressed: _lockerId != null && _lockerName != null
+                                    onPressed:  _lockerId != null && _lockerName != null
                                         ? () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -204,9 +207,9 @@ class _InputTypePageState extends State<InputTypePage> {
                                         ),
                                       ),
                                     )
-                                        : () => _showSnackBar('กำลังโหลดข้อมูลตู้...', Colors.orange),
-                                  ),
-                                ),
+                                        : () => _showSnackBar('กำลังโหลดข้อมูลตู้...', Colors.orange)
+                                      ),
+                                    ),
                               ],
                             ),
                             const SizedBox(height: 60),

@@ -53,9 +53,8 @@ class _DepositTypePageState extends State<DepositTypePage> {
                           children: [
                             Expanded(
                               child: _buildSelectionCard(
-                                title: 'ลงทะเบียน',
+                                title: 'เลือกตู้',
                                 icon: Icons.login_rounded,
-                                type: 'login',
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -70,14 +69,13 @@ class _DepositTypePageState extends State<DepositTypePage> {
                             const SizedBox(width: 20),
                             Expanded(
                               child: _buildSelectionCard(
-                                title: 'สมัครสมาชิก',
-                                icon: Icons.person_add_rounded,
-                                type: 'member',
+                                title: 'จองด่วน',
+                                icon: Icons.flash_on_rounded,
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => LockerSelectionPage(
-                                      mode: LockerSelectionMode.memberSelect,
+                                    builder: (context) => InputTypePage(
+                                      from: FromPage.instance,
                                     ),
                                   ),
                                 ),
@@ -85,14 +83,10 @@ class _DepositTypePageState extends State<DepositTypePage> {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 30),
-
                         // Quick registration button
                         _buildQuickRegistrationButton(),
-
                         const SizedBox(height: 60),
-
                         // Secure access text
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +146,6 @@ class _DepositTypePageState extends State<DepositTypePage> {
   Widget _buildSelectionCard({
     required String title,
     required IconData icon,
-    required String type,
     required VoidCallback onTap, // Add onTap callback parameter
   }) {
     return GestureDetector(
@@ -246,7 +239,7 @@ class _DepositTypePageState extends State<DepositTypePage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.yellow.shade700.withValues(alpha: 0.3),
+            color: Colors.blue.shade700.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -258,13 +251,13 @@ class _DepositTypePageState extends State<DepositTypePage> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => InputTypePage(from: FromPage.instance),
+              builder: (context) => LockerSelectionPage(mode: LockerSelectionMode.memberSelect),
             ),
           ),
           borderRadius: BorderRadius.circular(20),
           child: Ink(
             decoration: BoxDecoration(
-              color: Colors.yellow.shade600,
+              color: Colors.blue.shade600,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Padding(
@@ -279,7 +272,7 @@ class _DepositTypePageState extends State<DepositTypePage> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.flash_on_rounded,
+                      Icons.person_add_rounded,
                       color: Colors.black87,
                       size: 28,
                     ),
@@ -289,7 +282,7 @@ class _DepositTypePageState extends State<DepositTypePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'จองด่วน',
+                        'ลงทะเบียนพนักงาน (ใช้งานประจำ)',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

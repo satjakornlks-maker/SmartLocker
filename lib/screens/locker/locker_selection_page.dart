@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import '../common/otp_page.dart';
 import '../auth/register_page.dart';
-import '../unlock/fill_pin_page.dart';
 import '../../services/api_service.dart';
 
 enum LockerSelectionMode { booking, memberSelect, unlock }
@@ -422,7 +421,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OTPPage(from: FromPage.unlock , lockerId: selectedLocker!,)
+            builder: (context) => OTPPage(from: FromPage.unlock , lockerId: selectedLocker!,lockerName: selectedLockerName,)
           ),
         );
         break;

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/screens/auth/reset_password_page.dart';
 import 'package:untitled/screens/common/success_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page.dart';
-import 'dart:math';
-import 'chose_time_page.dart';
-import '../../validators/validator.dart';
 import '../../services/api_service.dart';
 
 class OTPPage extends StatefulWidget {
@@ -31,8 +27,8 @@ class OTPPage extends StatefulWidget {
 
 class _OTPPageState extends State<OTPPage> {
   final ApiService _apiService = ApiService();
+  late int resetPass;
   bool _isLoading = false;
-
   // OTP input controllers - 6 digits
   final List<String> _otpDigits = List.filled(6, '');
   int _currentIndex = 0;
@@ -44,6 +40,7 @@ class _OTPPageState extends State<OTPPage> {
   @override
   void initState() {
     super.initState();
+    resetPass =3;
     // Initialize from passed parameters (OTP already sent by previous page)
     refCode = widget.refCode;
     userId = widget.userId;
@@ -105,8 +102,10 @@ class _OTPPageState extends State<OTPPage> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black87),
-              onPressed: _isLoading
-                  ? null
+              onPressed: resetPass == 1
+                  ? () => setState(() {
+                      resetPass = 3;
+                    })
                   : () => Navigator.pop(context), // Disable when loading
             ),
           ),
@@ -135,15 +134,19 @@ class _OTPPageState extends State<OTPPage> {
             const SizedBox(height: 10),
             if (widget.from != FromPage.unlock) _buildPhoneDisplay(),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 25),
             _buildOTPInputBoxes(),
             const SizedBox(height: 30),
             Row(
               mainAxisAlignment: .center,
               children: [
-                widget.from != FromPage.unlock ? _buildRefCodeAndResend() : SizedBox.shrink() ,
+                resetPass == 1
+                    ? const SizedBox.shrink()
+                    : widget.from != FromPage.unlock
+                    ? _buildRefCodeAndResend()
+                    : _buildForgotPassword(),
                 SizedBox(width: 10),
-                if(widget.from == FromPage.unlock) _buildResetPassword(),
+                if (widget.from == FromPage.unlock && resetPass == 3) _buildResetPassword(),
               ],
             ),
             const SizedBox(height: 50),
@@ -165,9 +168,13 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildTitle() {
-    return const Text(
-      'กรุณากรอกรหัส OTP',
-      style: TextStyle(
+    return Text(
+      resetPass == 2
+          ? 'กรุณากรอกรหัสผ่านใหม่ที่ท่านต้องการเปลี่ยน'
+          : resetPass == 1
+          ? 'เปลี่ยนรหัสผ่าน กรุณากรอก OTP ที่ถูกต้อง'
+          : 'กรุณากรอกรหัส OTP',
+      style: const TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
         color: Colors.black87,
@@ -202,15 +209,11 @@ class _OTPPageState extends State<OTPPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.grey.shade300,
-              width: 2,
-            ),
+            border: Border.all(color: Colors.grey.shade300, width: 2),
           ),
           child: Center(
             child: Text(
-
-              _otpDigits[index].isNotEmpty ? '*':'',
+              _otpDigits[index].isNotEmpty ? '*' : '',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -421,6 +424,7 @@ class _OTPPageState extends State<OTPPage> {
         cleanValue,
         cleanValue.contains('@'),
         widget.lockerId!,
+        widget.from == FromPage.visitor ? true : false,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -465,6 +469,55 @@ class _OTPPageState extends State<OTPPage> {
     try {
       if (widget.from == FromPage.unlock) {
         await _unlockLocker(otpCode);
+      } else if (widget.from == FromPage.resetPassword) {
+        try {
+          final result = await _apiService.handleCheckOTP(
+            widget.lockerId!,
+            otpCode,
+          );
+          setState(() {
+            _isLoading = false;
+          });
+          if (result['success']) {
+            resetPass = 2;
+            userId = result['data']['userID'];
+            _otpDigits.clear();
+          } else {
+            _showSnackBar("PIN ไม่ตรงกับที่ลงทะเบียนไว้", Colors.red);
+          }
+        } catch (e) {
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).clearSnackBars();
+          _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
+        }
+      } else if (resetPass == 2) {
+        //API to reset password
+        try {
+          final result = await _apiService.handleResetPassword(
+            userId!,
+            otpCode,
+          );
+          setState(() {
+            _isLoading = false;
+          });
+          if (!mounted) return;
+          if (result['success']) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPPage(from: FromPage.unlock),
+              ),
+            );
+          } else {
+            print(result['error']);
+          }
+        } catch (e) {
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).clearSnackBars();
+          _showSnackBar('เกิดข้อผิดพลาด: $e', Colors.red);
+        }
       } else {
         String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
         final result = await _apiService.handleSubmitOTP(
@@ -504,12 +557,15 @@ class _OTPPageState extends State<OTPPage> {
         otp,
         now,
         userId,
-        false,
+        widget.from != FromPage.visitor ? false : true,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SuccessPage()),
+        );
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -547,7 +603,10 @@ class _OTPPageState extends State<OTPPage> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SuccessPage()),
+        );
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
         _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
@@ -560,11 +619,37 @@ class _OTPPageState extends State<OTPPage> {
     }
   }
 
-
   Widget _buildResetPassword() {
     return TextButton(
-      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => InputTypePage(from: FromPage.resetPassword))),
-      child: Text('เปลี่ยนรหัสผ่าน(เฉพาะผู้ใช้ประจำ)',style: TextStyle(decoration: TextDecoration.underline),),
+      onPressed: () {
+        setState(() {
+          resetPass = 1;
+        });
+        _otpDigits.clear();
+      },
+      child: Text(
+        'เปลี่ยนรหัสผ่าน(เฉพาะผู้ใช้ประจำ)',
+        style: TextStyle(decoration: TextDecoration.underline),
+      ),
+    );
+  }
+
+  Widget _buildForgotPassword() {
+    return TextButton(
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => InputTypePage(
+            from: FromPage.forgetPassword,
+            selectedLocker: widget.lockerId,
+            lockerName: widget.lockerName,
+          ),
+        ),
+      ),
+      child: Text(
+        'ลืมรหัสผ่าน',
+        style: TextStyle(decoration: TextDecoration.underline),
+      ),
     );
   }
 

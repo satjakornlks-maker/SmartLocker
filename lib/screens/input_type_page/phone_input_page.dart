@@ -5,14 +5,14 @@ import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import 'package:untitled/services/api_service.dart';
 
 class PhoneInputPage extends StatefulWidget {
-  final String selectedLocker;
-  final String lockerName;
+  final String? selectedLocker;
+  final String? lockerName;
   final FromPage from;
 
   const PhoneInputPage({
     super.key,
-    required this.selectedLocker,
-    required this.lockerName,
+    this.selectedLocker,
+    this.lockerName,
     required this.from,
   });
 
@@ -46,36 +46,61 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
     if (phoneNumber.length == maxLength) {
       setState(() => _isLoading = true);
       try {
-        print(phoneNumber);
-        final result = await _apiService.sendOTP(
-          phoneNumber,
-          phoneNumber.contains('@'),
-          widget.selectedLocker,
-        );
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        if (result['success']) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  OTPPage(
-                    telOrEmail: phoneNumber.toString(),
-                    from: widget.from,
-                    lockerId: widget.selectedLocker,
-                    lockerName: widget.lockerName,
-                    userId: result['data']['userId'],
-                    refCode: result['data']['refercode'],
-                  ),
-            ),
+        // Check forgetPassword FIRST
+        if (widget.from == FromPage.forgetPassword) {
+          print('forgetPassword');
+          final result = await _apiService.handleForgotPassword(
+            phoneNumber,
+            false,
+            widget.selectedLocker,
           );
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          if (result['success']) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPPage(
+                  from: FromPage.unlock,  // Keep the same FromPage!
+                  lockerName: widget.lockerName,
+                  lockerId: widget.selectedLocker,
+                  // Add refCode and userId if API returns them
+                ),
+              ),
+            );
+          } else {
+            print(result);
+            _showSnackBar('หมายเลขนี้ไม่ตรงกับหมายเลขที่ลงทะเบียนกับตู้นี้', Colors.red);
+          }
         }
-        else if (result['success'] && widget.from == FromPage.resetPassword){
-          print('resetPassword');
-          Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessPage()));
-        }else{
-          ScaffoldMessenger.of(context).clearSnackBars();
-          _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
+        else {
+          print(phoneNumber);
+          final result = await _apiService.sendOTP(
+            phoneNumber,
+            phoneNumber.contains('@'),
+            widget.selectedLocker!,
+            widget.from == FromPage.visitor ? true : false,
+          );
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          if (result['success']) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPPage(
+                  telOrEmail: phoneNumber.toString(),
+                  from: widget.from,  // Pass the original from value
+                  lockerId: widget.selectedLocker,
+                  lockerName: widget.lockerName,
+                  userId: result['data']['userId'],
+                  refCode: result['data']['refercode'],
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).clearSnackBars();
+            _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
+          }
         }
       } catch (e) {
         if (!mounted) return;
@@ -119,7 +144,7 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
                           constraints: const BoxConstraints(maxWidth: 500),
                           child: Column(
                             children: [
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 25),
 
                               // Title
                               const Text(
@@ -185,7 +210,9 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black87),
-              onPressed: _isLoading ? null : () => Navigator.pop(context), // Disable when loading
+              onPressed: _isLoading
+                  ? null
+                  : () => Navigator.pop(context), // Disable when loading
             ),
           ),
           const SizedBox(width: 16),
@@ -364,9 +391,13 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 300),
       child: ElevatedButton(
-        onPressed: (_isComplete && !_isLoading) ? _onConfirm : null, // Disable when loading
+        onPressed: (_isComplete && !_isLoading)
+            ? _onConfirm
+            : null, // Disable when loading
         style: ElevatedButton.styleFrom(
-          backgroundColor: (_isComplete && !_isLoading) ? Colors.green : Colors.grey.shade300,
+          backgroundColor: (_isComplete && !_isLoading)
+              ? Colors.green
+              : Colors.grey.shade300,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
@@ -378,31 +409,35 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
         ),
         child: _isLoading
             ? const SizedBox(
-          height: 24,
-          width: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.5,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        )
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.check,
-              color: (_isComplete && !_isLoading) ? Colors.white : Colors.grey.shade500,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'ยืนยัน',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: (_isComplete && !_isLoading) ? Colors.white : Colors.grey.shade500,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check,
+                    color: (_isComplete && !_isLoading)
+                        ? Colors.white
+                        : Colors.grey.shade500,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'ยืนยัน',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: (_isComplete && !_isLoading)
+                          ? Colors.white
+                          : Colors.grey.shade500,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
