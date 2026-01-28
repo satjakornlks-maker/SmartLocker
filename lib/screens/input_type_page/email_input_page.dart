@@ -62,6 +62,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
               ),
             );
           } else {
+            print(result);
             _showSnackBar(
               'อีเมลนี้ไม่ตรงกับอีเมลที่ลงทะเบียนกับตู้นี้',
               Colors.red,

@@ -13,7 +13,7 @@ class DepositTypePage extends StatefulWidget {
 
 class _DepositTypePageState extends State<DepositTypePage> {
   String? selectedType; // Track selected type: 'login' or 'member'
-
+  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,15 +56,27 @@ class _DepositTypePageState extends State<DepositTypePage> {
                               child: _buildSelectionCard(
                                 title: 'เลือกตู้',
                                 icon: Icons.login_rounded,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ChoseSizePage(
-                                          mode: LockerSelectionMode.booking,
+                                onTap: () => systemMode == 'B2C'
+                                    ? Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ChoseSizePage(
+                                                mode:
+                                                    LockerSelectionMode.booking,
+                                              ),
                                         ),
-                                  ),
-                                ),
+                                      )
+                                    : Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LockerSelectionPage(
+                                                mode:
+                                                    LockerSelectionMode.booking,
+                                              ),
+                                        ),
+                                      ),
                               ),
                             ),
                             const SizedBox(width: 20),
@@ -72,14 +84,25 @@ class _DepositTypePageState extends State<DepositTypePage> {
                               child: _buildSelectionCard(
                                 title: 'จองด่วน',
                                 icon: Icons.flash_on_rounded,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChoseSizePage(
-                                      from: FromPage.instance,
-                                    ),
-                                  ),
-                                ),
+                                onTap: () => systemMode == 'B2C'
+                                    ? Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ChoseSizePage(
+                                                from: FromPage.instance,
+                                              ),
+                                        ),
+                                      )
+                                    : Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const InputTypePage(
+                                                from: FromPage.instance,
+                                              ),
+                                        ),
+                                      ),
                               ),
                             ),
                           ],
@@ -249,12 +272,22 @@ class _DepositTypePageState extends State<DepositTypePage> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChoseSizePage(mode: LockerSelectionMode.memberSelect),
-            ),
-          ),
+          onTap: () => systemMode == 'B2C'
+              ? Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ChoseSizePage(mode: LockerSelectionMode.memberSelect),
+                  ),
+                )
+              : Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LockerSelectionPage(
+                      mode: LockerSelectionMode.memberSelect,
+                    ),
+                  ),
+                ),
           borderRadius: BorderRadius.circular(20),
           child: Ink(
             decoration: BoxDecoration(

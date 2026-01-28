@@ -4,16 +4,14 @@ import 'package:untitled/screens/common/chose_size_page.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
 import '../input_type_page/input_type_page.dart';
 
-
 class UserTypePage extends StatefulWidget {
-  const UserTypePage({
-    super.key,
-  });
+  const UserTypePage({super.key});
   @override
   State<UserTypePage> createState() => _UserTypePage();
 }
 
 class _UserTypePage extends State<UserTypePage> {
+  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,12 +50,12 @@ class _UserTypePage extends State<UserTypePage> {
                                     titleTh: 'พนักงาน',
                                     icon: Icons.home_work,
                                     color: Colors.blue,
-                                    onPressed:  () => Navigator.push(
+                                    onPressed: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => DepositTypePage(),
                                       ),
-                                    )
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
@@ -66,12 +64,25 @@ class _UserTypePage extends State<UserTypePage> {
                                     titleTh: 'ผู้เยี่ยมชม',
                                     icon: Icons.person,
                                     color: Colors.blue,
-                                    onPressed:() => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ChoseSizePage(from: FromPage.visitor,)
-                                      ),
-                                    )
+                                    onPressed: () => systemMode == 'B2C'
+                                        ? Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChoseSizePage(
+                                                    from: FromPage.visitor,
+                                                  ),
+                                            ),
+                                          )
+                                        : Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  InputTypePage(
+                                                    from: FromPage.visitor,
+                                                  ),
+                                            ),
+                                          ),
                                   ),
                                 ),
                               ],

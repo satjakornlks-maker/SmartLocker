@@ -5,7 +5,15 @@ import 'package:untitled/screens/input_type_page/phone_input_page.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
 import '../../services/api_service.dart';
 
-enum FromPage { instance, normal, unlock ,forgetPassword, resetPassword, visitor, resetPassword2}
+enum FromPage {
+  instance,
+  normal,
+  unlock,
+  forgetPassword,
+  resetPassword,
+  visitor,
+  resetPassword2,
+}
 
 class InputTypePage extends StatefulWidget {
   final FromPage from;
@@ -18,7 +26,7 @@ class InputTypePage extends StatefulWidget {
     required this.from,
     this.selectedLocker,
     this.lockerName,
-    this.size
+    this.size,
   });
 
   @override
@@ -28,6 +36,7 @@ class InputTypePage extends StatefulWidget {
 class _InputTypePageState extends State<InputTypePage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
 
   // For instance mode (random locker selection)
   String? _selectedLockerId;
@@ -36,10 +45,14 @@ class _InputTypePageState extends State<InputTypePage> {
 
   // Get the actual locker ID and name based on mode
   String? get _lockerId =>
-      widget.from == FromPage.instance || widget.from == FromPage.visitor ? _selectedLockerId : widget.selectedLocker;
+      widget.from == FromPage.instance || widget.from == FromPage.visitor
+      ? _selectedLockerId
+      : widget.selectedLocker;
 
   String? get _lockerName =>
-      widget.from == FromPage.instance || widget.from == FromPage.visitor ? _selectedLockerName : widget.lockerName;
+      widget.from == FromPage.instance || widget.from == FromPage.visitor
+      ? _selectedLockerName
+      : widget.lockerName;
 
   @override
   void initState() {
@@ -69,13 +82,17 @@ class _InputTypePageState extends State<InputTypePage> {
           if (first is Map<String, dynamic>) {
             final lockerUnit = first['lockerUnit'];
             if (lockerUnit is List) {
-              units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+              units = lockerUnit
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList();
             }
           }
         } else if (data is Map<String, dynamic>) {
           final lockerUnit = data['lockerUnit'];
           if (lockerUnit is List) {
-            units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
+            units = lockerUnit
+                .map((e) => Map<String, dynamic>.from(e))
+                .toList();
           }
         }
 
@@ -97,20 +114,33 @@ class _InputTypePageState extends State<InputTypePage> {
 
   void _selectRandomAvailableLocker() {
     // Filter available lockers (status: false, enable: false, booktype: 1 for quick registration)
-    final availableLockers = widget.from == FromPage.instance ? _lockerStatus
-        .where((locker) =>
-    locker['status'] == false &&
-        locker['enable'] == false &&
-        locker['locker_booktype'] == 1 &&
-        locker['lockerSize'] == widget.size!)
-        .toList() : _lockerStatus
-        .where((locker) =>
-    locker['status'] == false &&
-        locker['enable'] == false &&
-        locker['locker_booktype'] == 5 &&
-        locker['lockerSize'] == widget.size!)
-        .toList()
-    ;
+    final availableLockers = _lockerStatus.where((locker) {
+      // Base conditions
+      bool baseCondition = locker['status'] == false &&
+          locker['enable'] == false;
+
+      // Book type based on FromPage
+      int bookType;
+      if (widget.from == FromPage.instance) {
+        bookType = 1;
+      } else if (widget.from == FromPage.visitor) {
+        bookType = 5;
+      } else {
+        bookType = 1; // Default fallback
+      }
+
+      bool bookTypeCondition = locker['locker_booktype'] == bookType;
+
+      // Size condition - only check if B2C mode AND size is provided
+      bool sizeCondition;
+      if (systemMode == 'B2C' && widget.size != null) {
+        sizeCondition = locker['lockerSize'] == widget.size;
+      } else {
+        sizeCondition = true; // Skip size filter if not B2C or no size
+      }
+
+      return baseCondition && bookTypeCondition && sizeCondition;
+    }).toList();
 
     if (availableLockers.isEmpty) {
       Navigator.pop(context);
@@ -120,14 +150,16 @@ class _InputTypePageState extends State<InputTypePage> {
 
     Random random = Random();
     Map<String, dynamic> randomLocker =
-    availableLockers[random.nextInt(availableLockers.length)];
+        availableLockers[random.nextInt(availableLockers.length)];
 
     setState(() {
       _selectedLockerId = randomLocker['id'].toString();
       _selectedLockerName = randomLocker['name'];
     });
 
-    print('Random locker selected: $_selectedLockerName (ID: $_selectedLockerId)');
+    print(
+      'Random locker selected: $_selectedLockerName (ID: $_selectedLockerId)',
+    );
   }
 
   void _showSnackBar(String message, Color color) {
@@ -179,21 +211,24 @@ class _InputTypePageState extends State<InputTypePage> {
                                     titleTh: 'เบอร์โทรศัพท์',
                                     icon: Icons.phone_android,
                                     color: Colors.blue,
-                                    onPressed: _lockerId != null && _lockerName != null
+                                    onPressed:
+                                        _lockerId != null && _lockerName != null
                                         ? () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PhoneInputPage(
-                                          selectedLocker: _lockerId!,
-                                          lockerName: _lockerName!,
-                                          from: widget.from,
-                                        ),
-                                      ),
-                                    )
-                                        : () => print("$_lockerId,$_lockerName!,$widget.from,$widget.lockerName"),
-                                      ),
-                                    ),
-
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PhoneInputPage(
+                                                    selectedLocker: _lockerId!,
+                                                    lockerName: _lockerName!,
+                                                    from: widget.from,
+                                                  ),
+                                            ),
+                                          )
+                                        : () => print(
+                                            "$_lockerId,$_lockerName!,$widget.from,$widget.lockerName",
+                                          ),
+                                  ),
+                                ),
 
                                 const SizedBox(width: 20),
                                 Expanded(
@@ -201,20 +236,25 @@ class _InputTypePageState extends State<InputTypePage> {
                                     titleTh: 'อีเมล',
                                     icon: Icons.email,
                                     color: Colors.blue,
-                                    onPressed:  _lockerId != null && _lockerName != null
+                                    onPressed:
+                                        _lockerId != null && _lockerName != null
                                         ? () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EmailInputPage(
-                                          selectedLocker: _lockerId!,
-                                          lockerName: _lockerName!,
-                                          from: widget.from,
-                                        ),
-                                      ),
-                                    )
-                                        : () => _showSnackBar('กำลังโหลดข้อมูลตู้...', Colors.orange)
-                                      ),
-                                    ),
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EmailInputPage(
+                                                    selectedLocker: _lockerId!,
+                                                    lockerName: _lockerName!,
+                                                    from: widget.from,
+                                                  ),
+                                            ),
+                                          )
+                                        : () => _showSnackBar(
+                                            'กำลังโหลดข้อมูลตู้...',
+                                            Colors.orange,
+                                          ),
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 60),
@@ -277,11 +317,7 @@ class _InputTypePageState extends State<InputTypePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.inbox_rounded,
-            color: Colors.white,
-            size: 28,
-          ),
+          const Icon(Icons.inbox_rounded, color: Colors.white, size: 28),
           const SizedBox(width: 12),
           Text(
             'ตู้ที่สุ่มได้: $_lockerName',

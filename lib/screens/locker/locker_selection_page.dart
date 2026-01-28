@@ -22,6 +22,8 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> lockerStatus = [];
   bool _showGrid = false;
+  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
+
 
   @override
   void initState() {
@@ -79,15 +81,15 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
           }
         }
 
-        print('=== ALL UNITS FROM API ===');
+        // print('=== ALL UNITS FROM API ===');
         for (var unit in units) {
-          print('${unit['name']}: lockerSize=${unit['lockerSize']}, locker_booktype=${unit['locker_booktype']}');
+          // print('${unit['name']}: lockerSize=${unit['lockerSize']}, locker_booktype=${unit['locker_booktype']}');
         }
-        print('Total: ${units.length} units');
+        // print('Total: ${units.length} units');
 
         // Check if A10 exists
         final a10 = units.where((u) => u['name'] == 'A10').toList();
-        print('A10 found: ${a10.isNotEmpty ? a10.first : "NOT FOUND"}');
+        // print('A10 found: ${a10.isNotEmpty ? a10.first : "NOT FOUND"}');
 
 
         // Filter by book type if needed
@@ -98,16 +100,18 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
           }).toList();
         }
 
-
-        if (widget.size != null && widget.size!.isNotEmpty) {
-          units = units.where((unit) {
-            final lockerSize = unit['lockerSize']?.toString().toLowerCase();
-            // Map S, M, L to small, medium, large
-            String? targetSize;
-            targetSize = widget.size!.toLowerCase();
-            return lockerSize == targetSize;
-          }).toList();
+        if(systemMode == 'B2C'){
+          if (widget.size != null && widget.size!.isNotEmpty) {
+            units = units.where((unit) {
+              final lockerSize = unit['lockerSize']?.toString().toLowerCase();
+              // Map S, M, L to small, medium, large
+              String? targetSize;
+              targetSize = widget.size!.toLowerCase();
+              return lockerSize == targetSize;
+            }).toList();
+          }
         }
+
 
         if (units.isEmpty) {
           // Show snackbar and pop after a short delay
@@ -123,10 +127,9 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
           _isLoading = false;
         });
 
-        print('lockerStatus count = ${lockerStatus.length}');
-        print('Filtered by bookType: $_bookTypeFilter');
-        print('Filtered by size :'+ widget.size!);
-        print(lockerStatus);
+        // print('lockerStatus count = ${lockerStatus.length}');
+        // print('Filtered by bookType: $_bookTypeFilter');
+        // print(lockerStatus);
       } else {
         setState(() => _isLoading = false);
         _showSnackBar('เกิดข้อผิดพลาด: ${result['error']}', Colors.red);
