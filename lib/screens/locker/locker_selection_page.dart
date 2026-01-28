@@ -8,8 +8,8 @@ enum LockerSelectionMode { booking, memberSelect, unlock }
 
 class LockerSelectionPage extends StatefulWidget {
   final LockerSelectionMode mode;
-
-  const LockerSelectionPage({super.key, required this.mode});
+  final String? size;
+  const LockerSelectionPage({super.key, required this.mode, this.size});
 
   @override
   State<LockerSelectionPage> createState() => _LockerSelectionPageState();
@@ -79,12 +79,43 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
           }
         }
 
+        print('=== ALL UNITS FROM API ===');
+        for (var unit in units) {
+          print('${unit['name']}: lockerSize=${unit['lockerSize']}, locker_booktype=${unit['locker_booktype']}');
+        }
+        print('Total: ${units.length} units');
+
+        // Check if A10 exists
+        final a10 = units.where((u) => u['name'] == 'A10').toList();
+        print('A10 found: ${a10.isNotEmpty ? a10.first : "NOT FOUND"}');
+
+
         // Filter by book type if needed
         if (_bookTypeFilter != null) {
           units = units.where((unit) {
             final lockerBookType = unit['locker_booktype'];
             return lockerBookType == _bookTypeFilter;
           }).toList();
+        }
+
+
+        if (widget.size != null && widget.size!.isNotEmpty) {
+          units = units.where((unit) {
+            final lockerSize = unit['lockerSize']?.toString().toLowerCase();
+            // Map S, M, L to small, medium, large
+            String? targetSize;
+            targetSize = widget.size!.toLowerCase();
+            return lockerSize == targetSize;
+          }).toList();
+        }
+
+        if (units.isEmpty) {
+          // Show snackbar and pop after a short delay
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showSnackBar("ไม่มีตู้ล็อคเกอร์ไซส์นี้", Colors.red);
+            Navigator.pop(context);
+          });
+          return;  // Stop execution here
         }
 
         setState(() {
@@ -94,6 +125,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
 
         print('lockerStatus count = ${lockerStatus.length}');
         print('Filtered by bookType: $_bookTypeFilter');
+        print('Filtered by size :'+ widget.size!);
         print(lockerStatus);
       } else {
         setState(() => _isLoading = false);

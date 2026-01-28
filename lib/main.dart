@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/Deposite%20Type/user_type_page.dart';
+import 'package:untitled/screens/common/chose_size_page.dart';
 import 'package:untitled/screens/common/otp_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Smart Locker'),
         '/unlock': (context) => const LockerSelectionPage(mode: LockerSelectionMode.unlock),
         '/user-type-page' : (context) => const UserTypePage(),
-        '/otp-unlock-page' : (context) => const OTPPage(from: FromPage.unlock)
+        '/otp-unlock-page' : (context) => const OTPPage(from: FromPage.unlock),
       },
     );
   }
@@ -146,89 +147,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
   // Small cards for the row (2 cards side by side)
-
-  // Full-width cards
-  Widget _buildMenuCard(
-    String titleTh,
-    String titleEn,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(20),
-          child: Ink(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.white.withValues(alpha: 0.95)],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Icon(icon, size: 40, color: color),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          titleTh,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          titleEn,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: Colors.grey.shade400,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-
 
   @override
   void dispose() {

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/screens/Deposite%20Type/deposit_type_page.dart';
-import 'package:untitled/screens/common/chose_size_page.dart';
-import 'package:untitled/widgets/grid/HoverMenuCard.dart';
-import '../input_type_page/input_type_page.dart';
+import 'package:untitled/screens/input_type_page/input_type_page.dart';
+import 'package:untitled/screens/locker/locker_selection_page.dart';
 
+import '../../widgets/grid/HoverMenuCard.dart';
 
-class UserTypePage extends StatefulWidget {
-  const UserTypePage({
-    super.key,
-  });
+class ChoseSizePage extends StatefulWidget {
+  final LockerSelectionMode? mode;
+  final FromPage? from;
+  const ChoseSizePage({super.key, this.mode, this.from});
+
   @override
-  State<UserTypePage> createState() => _UserTypePage();
+  State<ChoseSizePage> createState() => _ChoseSizePage();
 }
 
-class _UserTypePage extends State<UserTypePage> {
+class _ChoseSizePage extends State<ChoseSizePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +38,7 @@ class _UserTypePage extends State<UserTypePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'เลือกประเภทของผู้ใช้',
+                              'เลือกขนาดของล็อคเกอร์',
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
@@ -49,29 +49,73 @@ class _UserTypePage extends State<UserTypePage> {
                               children: [
                                 Expanded(
                                   child: HoverMenuCard(
-                                    titleTh: 'พนักงาน',
+                                    titleTh: 'S',
                                     icon: Icons.home_work,
                                     color: Colors.blue,
-                                    onPressed:  () => Navigator.push(
+                                    onPressed: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DepositTypePage(),
+                                        builder: (context) =>
+                                            widget.mode != null
+                                            ? LockerSelectionPage(
+                                                mode: widget.mode!,
+                                                size: 'small',
+                                              )
+                                            : InputTypePage(
+                                                from: widget.from!,
+                                                size: 'small',
+                                              ),
                                       ),
-                                    )
+                                    ),
+                                    haveIcon: false,
                                   ),
                                 ),
                                 const SizedBox(width: 20),
                                 Expanded(
                                   child: HoverMenuCard(
-                                    titleTh: 'ผู้เยี่ยมชม',
+                                    titleTh: 'M',
                                     icon: Icons.person,
                                     color: Colors.blue,
-                                    onPressed:() => Navigator.push(
+                                    onPressed: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ChoseSizePage(from: FromPage.visitor,)
+                                        builder: (context) =>
+                                            widget.mode != null
+                                            ? LockerSelectionPage(
+                                                mode: widget.mode!,
+                                                size: 'medium',
+                                              )
+                                            : InputTypePage(
+                                                from: widget.from!,
+                                                size: 'medium',
+                                              ),
                                       ),
-                                    )
+                                    ),
+                                    haveIcon: false,
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: HoverMenuCard(
+                                    titleTh: 'L',
+                                    icon: Icons.person,
+                                    color: Colors.blue,
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            widget.mode != null
+                                            ? LockerSelectionPage(
+                                                mode: widget.mode!,
+                                                size: 'large',
+                                              )
+                                            : InputTypePage(
+                                                from: widget.from!,
+                                                size: 'large',
+                                              ),
+                                      ),
+                                    ),
+                                    haveIcon: false,
                                   ),
                                 ),
                               ],

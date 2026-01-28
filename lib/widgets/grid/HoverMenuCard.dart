@@ -8,6 +8,7 @@ class HoverMenuCard extends StatefulWidget {
   final VoidCallback onPressed;
   final double aspectRatio;
   final Color hoverColor;
+  final bool? haveIcon;
 
   const HoverMenuCard({
     super.key,
@@ -18,6 +19,7 @@ class HoverMenuCard extends StatefulWidget {
     required this.onPressed,
     this.aspectRatio = 1.4,
     this.hoverColor = const Color(0xFFF9A825),
+    this.haveIcon = true
   });
 
   @override
@@ -60,10 +62,10 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: widget.haveIcon! ? MainAxisAlignment.spaceBetween : .center,
                   children: [
                     // Icon at the top
-                    Align(
+                    widget.haveIcon! ? Align(
                       alignment: Alignment.topRight,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
@@ -80,13 +82,13 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
                           color: _isHovered ? widget.hoverColor : Colors.grey.shade700,
                         ),
                       ),
-                    ),
+                    ) : SizedBox.shrink(),
 
                     // Text at the bottom
                     Align(
-                      alignment: Alignment.bottomLeft,
+                      alignment: widget.haveIcon! ? Alignment.bottomLeft : Alignment.center,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AnimatedDefaultTextStyle(
@@ -96,7 +98,10 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
                               fontWeight: FontWeight.bold,
                               color: _isHovered ? widget.hoverColor : Colors.black87,
                             ),
-                            child: Text(widget.titleTh),
+                            child: Text(
+                              widget.titleTh,
+                              textAlign: widget.haveIcon! ? TextAlign.left : TextAlign.center,
+                            ),
                           ),
                           if (widget.titleEn != null && widget.titleEn!.isNotEmpty) ...[
                             const SizedBox(height: 4),
@@ -106,7 +111,10 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
                                 fontSize: 14,
                                 color: _isHovered ? widget.hoverColor : Colors.grey.shade600,
                               ),
-                              child: Text(widget.titleEn!),
+                              child: Text(
+                                widget.titleEn!,
+                                textAlign: widget.haveIcon! ? TextAlign.left : TextAlign.center,
+                              ),
                             ),
                           ],
                         ],

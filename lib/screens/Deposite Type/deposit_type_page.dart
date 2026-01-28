@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/common/chose_size_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page.dart';
 import 'package:untitled/screens/locker/locker_selection_page.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
@@ -59,7 +60,7 @@ class _DepositTypePageState extends State<DepositTypePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const LockerSelectionPage(
+                                        const ChoseSizePage(
                                           mode: LockerSelectionMode.booking,
                                         ),
                                   ),
@@ -74,7 +75,7 @@ class _DepositTypePageState extends State<DepositTypePage> {
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => InputTypePage(
+                                    builder: (context) => ChoseSizePage(
                                       from: FromPage.instance,
                                     ),
                                   ),
@@ -251,7 +252,7 @@ class _DepositTypePageState extends State<DepositTypePage> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => LockerSelectionPage(mode: LockerSelectionMode.memberSelect),
+              builder: (context) => ChoseSizePage(mode: LockerSelectionMode.memberSelect),
             ),
           ),
           borderRadius: BorderRadius.circular(20),

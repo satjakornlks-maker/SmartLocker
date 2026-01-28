@@ -11,12 +11,14 @@ class InputTypePage extends StatefulWidget {
   final FromPage from;
   final String? selectedLocker;
   final String? lockerName;
+  final String? size;
 
   const InputTypePage({
     super.key,
     required this.from,
     this.selectedLocker,
     this.lockerName,
+    this.size
   });
 
   @override
@@ -99,16 +101,19 @@ class _InputTypePageState extends State<InputTypePage> {
         .where((locker) =>
     locker['status'] == false &&
         locker['enable'] == false &&
-        locker['locker_booktype'] == 1)
+        locker['locker_booktype'] == 1 &&
+        locker['lockerSize'] == widget.size!)
         .toList() : _lockerStatus
         .where((locker) =>
     locker['status'] == false &&
         locker['enable'] == false &&
-        locker['locker_booktype'] == 5)
+        locker['locker_booktype'] == 5 &&
+        locker['lockerSize'] == widget.size!)
         .toList()
     ;
 
     if (availableLockers.isEmpty) {
+      Navigator.pop(context);
       _showSnackBar('ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง', Colors.orange);
       return;
     }
