@@ -10,8 +10,8 @@ class ApiService {
     const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
     _dio = Dio(
       BaseOptions(
-        baseUrl: "http://localhost:44324/",
-        // baseUrl: "http://10.3.0.4:8098",
+        // baseUrl: "http://localhost:44324/",
+        baseUrl: "http://10.3.0.4:8098",
         // use for prod
         // baseUrl: baseUrl,
         connectTimeout: Duration(seconds: 20),
@@ -19,9 +19,9 @@ class ApiService {
         headers: {
           'Content-Type': 'application/json',
           //for prod
-          'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
+          // 'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
           // 'x-app-token': appKey,
-          // 'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
+          'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
         },
       ),
     );
