@@ -11,29 +11,20 @@ class ApiService {
     _dio = Dio(
       BaseOptions(
         // baseUrl: "http://localhost:44324/",
-        baseUrl: "http://10.3.0.4:8098",
+        // baseUrl: "http://10.3.0.4:8098",
         // use for prod
-        // baseUrl: baseUrl,
+        baseUrl: baseUrl,
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
           'Content-Type': 'application/json',
           //for prod
           // 'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
-          // 'x-app-token': appKey,
-          'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
+          'x-app-token': appKey,
+          // 'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
         },
       ),
     );
-
-    // _dio.httpClientAdapter = IOHttpClientAdapter(
-    //   createHttpClient: () {
-    //     final client = HttpClient();
-    //     client.badCertificateCallback =
-    //         (X509Certificate cert, String host, int port) => true;
-    //     return client;
-    //   },
-    // );
   }
 
 
@@ -157,15 +148,22 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> getLocker()async{
-    try{
-      final response = await _dio.get('/init/get_locker');
-      return{
-        'success':true,
-        'data':response.data
+  Future<Map<String, dynamic>> getLocker() async {
+
+    // List<int> lockerIds = [1];
+    const lockerIdString = String.fromEnvironment('LOCKER_ID', defaultValue: '1');
+    final lockerIds = lockerIdString.split(',').map((e) => int.parse(e.trim())).toList();
+    try {
+      final response = await _dio.post(
+        '/init/get_locker',
+        data: lockerIds,
+      );
+      return {
+        'success': true,
+        'data': response.data
       };
-    }on DioException catch (e){
-      return{
+    } on DioException catch (e) {
+      return {
         'success': false,
         'error': _handleError(e)
       };

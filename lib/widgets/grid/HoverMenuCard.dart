@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HoverMenuCard extends StatefulWidget {
-  final String titleTh;
+  final Widget titleTh;
   final String? titleEn;
   final IconData icon;
   final Color color;
@@ -98,10 +98,7 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
                               fontWeight: FontWeight.bold,
                               color: _isHovered ? widget.hoverColor : Colors.black87,
                             ),
-                            child: Text(
-                              widget.titleTh,
-                              textAlign: widget.haveIcon! ? TextAlign.left : TextAlign.center,
-                            ),
+                            child: widget.titleTh
                           ),
                           if (widget.titleEn != null && widget.titleEn!.isNotEmpty) ...[
                             const SizedBox(height: 4),
