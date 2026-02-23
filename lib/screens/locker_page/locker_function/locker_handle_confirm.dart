@@ -12,6 +12,7 @@ class LockerNavigationService {
     required LockerSelectionMode mode,
     required String? selectedLocker,
     String? selectedLockerName,
+    List<Map<String, dynamic>> lockerData = const [],
     VoidCallback? onError,
   }) {
     // Validate selection
@@ -27,6 +28,7 @@ class LockerNavigationService {
           context,
           selectedLocker,
           selectedLockerName!,
+          lockerData,
         );
         break;
 
@@ -39,6 +41,7 @@ class LockerNavigationService {
           context,
           selectedLocker,
           selectedLockerName,
+          lockerData,
         );
         break;
     }
@@ -49,6 +52,7 @@ class LockerNavigationService {
       BuildContext context,
       String lockerId,
       String lockerName,
+      List<Map<String, dynamic>> lockerData,
       ) {
     Navigator.push(
       context,
@@ -57,6 +61,7 @@ class LockerNavigationService {
           from: FromPage.normal,
           selectedLocker: lockerId,
           lockerName: lockerName,
+          lockerData: lockerData,
         ),
       ),
     );
@@ -80,6 +85,7 @@ class LockerNavigationService {
       BuildContext context,
       String lockerId,
       String? lockerName,
+      List<Map<String, dynamic>> lockerData,
       ) {
     Navigator.push(
       context,
@@ -88,6 +94,7 @@ class LockerNavigationService {
           from: FromPage.unlock,
           lockerId: lockerId,
           lockerName: lockerName,
+          lockerData: lockerData,
         ),
       ),
     );

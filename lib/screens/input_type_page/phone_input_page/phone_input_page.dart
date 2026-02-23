@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/common/otp_page/otp_page.dart';
+import 'package:untitled/screens/common/success_page/success_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_confirm_button.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_display.dart';
@@ -14,12 +15,14 @@ class PhoneInputPage extends StatefulWidget {
   final String? selectedLocker;
   final String? lockerName;
   final FromPage from;
+  final List<Map<String, dynamic>> lockerData;
 
   const PhoneInputPage({
     super.key,
     this.selectedLocker,
     this.lockerName,
     required this.from,
+    this.lockerData = const [],
   });
 
   @override
@@ -66,10 +69,10 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => OTPPage(
-                  from: FromPage.unlock, // Keep the same FromPage!
+                  from: FromPage.unlock,
                   lockerName: widget.lockerName,
                   lockerId: widget.selectedLocker,
-                  // Add refCode and userId if API returns them
+                  lockerData: widget.lockerData,
                 ),
               ),
             );
@@ -81,7 +84,7 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
           }
         } else {
           // print(phoneNumber);
-          final result = await _apiService.sendOTP(
+          final result = await _apiService.sendLink(
             phoneNumber,
             phoneNumber.contains('@'),
             widget.selectedLocker!,
@@ -89,17 +92,21 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
           );
           if (!mounted) return;
           setState(() => _isLoading = false);
+          // if(result['success']){
+          //   Navigator.push(context, MaterialPageRoute(builder: (context)=>SuccessPage()));
+          // }else{
           if (result['success']) {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => OTPPage(
                   telOrEmail: phoneNumber.toString(),
-                  from: widget.from, // Pass the original from value
+                  from: widget.from,
                   lockerId: widget.selectedLocker,
                   lockerName: widget.lockerName,
                   userId: result['data']['userId'],
                   refCode: result['data']['refercode'],
+                  lockerData: widget.lockerData,
                 ),
               ),
             );
@@ -121,6 +128,7 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.lockerData);
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(

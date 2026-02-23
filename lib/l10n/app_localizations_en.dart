@@ -164,4 +164,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get occupied => 'Are currently occupied';
+
+  @override
+  String get noAvailable =>
+      'No Available Locker(All locker has been open or the entire locker are disable)';
 }

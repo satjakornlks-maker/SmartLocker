@@ -12,6 +12,7 @@ class LockerResponsiveBody extends StatelessWidget {
   final String? selectedLockerName;
   final Widget buttonText; // Changed from String to Widget
   final Widget Function(double width, double height) gridBuilder;
+  final List<Map<String, dynamic>> lockerData;
 
   const LockerResponsiveBody({
     super.key,
@@ -20,6 +21,7 @@ class LockerResponsiveBody extends StatelessWidget {
     required this.selectedLockerName,
     required this.buttonText,
     required this.gridBuilder,
+    required this.lockerData,
   });
 
   @override
@@ -82,7 +84,8 @@ class LockerResponsiveBody extends StatelessWidget {
                       mode: mode,
                       selectedLocker: selectedLocker,
                       selectedLockerName: selectedLockerName,
-                      buttonText: buttonText, // Pass the widget
+                      buttonText: buttonText,
+                      lockerData: lockerData,
                     ),
                     const SizedBox(height: 40),
                   ],

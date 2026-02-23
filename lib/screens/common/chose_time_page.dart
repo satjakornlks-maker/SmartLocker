@@ -34,17 +34,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.deepPurple.shade400,
-              Colors.deepPurple.shade700,
-              Colors.indigo.shade800,
-            ],
-          ),
-        ),
+
         child: SafeArea(
           bottom: false,
           child: Stack(

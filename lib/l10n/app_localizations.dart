@@ -409,6 +409,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are currently occupied'**
   String get occupied;
+
+  /// No description provided for @noAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Available Locker(All locker has been open or the entire locker are disable)'**
+  String get noAvailable;
 }
 
 class _AppLocalizationsDelegate

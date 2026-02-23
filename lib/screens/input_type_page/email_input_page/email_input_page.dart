@@ -8,17 +8,20 @@ import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 
 import '../../../main.dart';
+import '../../common/success_page/success_page.dart';
 
 class EmailInputPage extends StatefulWidget {
   final String? selectedLocker;
   final String? lockerName;
   final FromPage from;
+  final List<Map<String, dynamic>> lockerData;
 
   const EmailInputPage({
     super.key,
     this.selectedLocker,
     this.lockerName,
     required this.from,
+    this.lockerData = const [],
   });
 
   @override
@@ -53,6 +56,9 @@ class _EmailInputPageState extends State<EmailInputPage> {
           );
           if (!mounted) return;
           setState(() => _isLoading = false);
+          // if(result['success']){
+          //   Navigator.push(context, MaterialPageRoute(builder: (context)=>SuccessPage()));
+          // }else{
           if (result['success']) {
             Navigator.push(
               context,
@@ -62,6 +68,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
                   lockerName: widget.lockerName,
                   lockerId: widget.selectedLocker,
                   telOrEmail: cleanValue,
+                  lockerData: widget.lockerData,
                 ),
               ),
             );
@@ -81,6 +88,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
                 lockerId: widget.selectedLocker,
                 lockerName: widget.lockerName,
                 telOrEmail: cleanValue,
+                lockerData: widget.lockerData,
               ),
             ),
           );
@@ -106,6 +114,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
                   lockerName: widget.lockerName,
                   userId: result['data']['userId'],
                   refCode: result['data']['refercode'],
+                  lockerData: widget.lockerData,
                 ),
               ),
             );

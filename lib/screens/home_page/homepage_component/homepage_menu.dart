@@ -12,7 +12,7 @@ class HomepageMenu extends StatelessWidget{
       children: [
         Expanded(
           child: HoverMenuCard(
-            titleTh: Text(AppLocalizations.of(context)!.receive),
+            titleTh: Text(AppLocalizations.of(context)!.deposit),
             icon: Icons.download_outlined,
             color: Colors.orange,
             onPressed: () => Navigator.pushNamed(context, '/user-type-page'),
@@ -22,7 +22,7 @@ class HomepageMenu extends StatelessWidget{
         const SizedBox(width: 16),
         Expanded(
           child: HoverMenuCard(
-            titleTh :Text(AppLocalizations.of(context)!.deposit),
+            titleTh :Text(AppLocalizations.of(context)!.receive),
             icon : Icons.upload_outlined,
             color : Colors.blue,
             onPressed : ()=> Navigator.pushNamed(context, '/unlock'),

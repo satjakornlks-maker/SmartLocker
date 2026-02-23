@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/common/chose_time_page.dart';
+import 'package:untitled/screens/common/overtime_page.dart';
 import 'package:untitled/screens/locker_page/locker_selection_page.dart';
 import 'package:untitled/screens/user_type_page/user_type_page.dart';
 import 'package:untitled/screens/common/otp_page/otp_page.dart';
@@ -55,6 +57,7 @@ class _MyAppState extends State<MyApp> {
         '/unlock': (context) => const LockerSelectionPage(mode: LockerSelectionMode.unlock),
         '/user-type-page' : (context) => const UserTypePage(),
         '/otp-unlock-page' : (context) => const OTPPage(from: FromPage.unlock),
+        '/test-page' : (context)  => const OvertimePage(second: '', day: '', hour: '', minute: '', lockerId: '')
       },
     );
   }

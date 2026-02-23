@@ -13,6 +13,7 @@ class LockerService {
       final result = await _apiService.getLocker();
 
       if (result['success'] != true) {
+        print(result);
         return LockerResult.error(result['error'] ?? 'Unknown error');
       }
 
@@ -20,6 +21,7 @@ class LockerService {
       List<Map<String, dynamic>> units = _extractUnits(data);
 
       if (units.isEmpty) {
+        print(result);
         return LockerResult.error('No locker units found');
       }
 

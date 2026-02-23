@@ -66,7 +66,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
     if (!mounted) return;
 
     if (result.isEmpty) {
-      context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
+      context.showErrorSnackBar(AppLocalizations.of(context)!.noAvailable);
       Navigator.pop(context);
       return;
     }
@@ -120,6 +120,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
                   ),
                 ),
                 gridBuilder: _buildResponsiveLockerGrid,
+                lockerData: lockerStatus,
               )
             : const SizedBox.shrink(),
       ),

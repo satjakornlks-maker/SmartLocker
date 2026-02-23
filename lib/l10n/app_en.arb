@@ -52,5 +52,6 @@
   "wrongPhone":"This number doesn't match the registered number.",
   "locker":"Locker",
   "empty":"Empty",
-  "occupied":"Are currently occupied"
+  "occupied":"Are currently occupied",
+  "noAvailable":"No Available Locker(All locker has been open or the entire locker are disable)"
 }

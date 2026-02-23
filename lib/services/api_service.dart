@@ -93,6 +93,37 @@ class ApiService {
     }
   }
 
+  Future<Map<String,dynamic>> sendLink(String data,bool isEmail,String lockerId,bool isVisitor) async {
+    late String type;
+    if(isEmail){
+      type = 'Email';
+    }else{
+      type = 'PhoneNumber';
+    }
+
+    try{
+      final responss = await _dio.post(
+          '/send-link',
+          data: {
+            'LockerUnitID':int.parse(lockerId),
+            type: data,
+            "BookedTypeId": isVisitor ? 5 : 1,
+          }
+
+      );
+      print(responss);
+      return{
+        'success':true,
+        'data':responss.data,
+      };
+    }on DioException catch (e){
+      return{
+        'success' : false,
+        'error' : _handleError(e)
+      };
+    }
+  }
+
   Future<Map<String,dynamic>> bookLocker(bool isEmail,String telOrEmail,String lockerId ,String pin,DateTime? toDateTime,int userId, bool isVisitor) async {
     late String type;
     if(isEmail){

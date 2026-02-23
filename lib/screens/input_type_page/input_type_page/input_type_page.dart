@@ -24,6 +24,7 @@ class InputTypePage extends StatefulWidget {
   final String? selectedLocker;
   final String? lockerName;
   final String? size;
+  final List<Map<String, dynamic>> lockerData;
 
   const InputTypePage({
     super.key,
@@ -31,6 +32,7 @@ class InputTypePage extends StatefulWidget {
     this.selectedLocker,
     this.lockerName,
     this.size,
+    this.lockerData = const [],
   });
 
   @override
@@ -58,8 +60,12 @@ class _InputTypePageState extends State<InputTypePage> {
       ? _selectedLockerName
       : widget.lockerName;
 
+  List<Map<String, dynamic>> get _effectiveLockerData =>
+      widget.lockerData.isNotEmpty ? widget.lockerData : _lockerStatus;
+
   @override
   void initState() {
+    print('input page locker value : ${widget.lockerData}');
     // print(_lockerName);
     super.initState();
     if (widget.from == FromPage.instance || widget.from == FromPage.visitor) {
@@ -121,7 +127,7 @@ class _InputTypePageState extends State<InputTypePage> {
     final availableLockers = _lockerStatus.where((locker) {
       // Base conditions
       bool baseCondition = locker['status'] == false &&
-          locker['enable'] == false;
+          locker['enable'] == false && locker['locker_status']=="close";
 
       // Book type based on FromPage
       int bookType;
@@ -216,6 +222,7 @@ class _InputTypePageState extends State<InputTypePage> {
                                                     selectedLocker: _lockerId!,
                                                     lockerName: _lockerName!,
                                                     from: widget.from,
+                                                    lockerData: _effectiveLockerData,
                                                   ),
                                             ),
                                           )
@@ -241,6 +248,7 @@ class _InputTypePageState extends State<InputTypePage> {
                                                     selectedLocker: _lockerId!,
                                                     lockerName: _lockerName!,
                                                     from: widget.from,
+                                                    lockerData: _effectiveLockerData,
                                                   ),
                                             ),
                                           )

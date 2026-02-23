@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(if exist \"c:\\\\Users\\\\satjakornl\\\\AndroidStudioProjects\\\\untitled\\\\lib\\\\constants\\\\app_colors.dart\" del \"c:\\\\Users\\\\satjakornl\\\\AndroidStudioProjects\\\\untitled\\\\lib\\\\constants\\\\app_colors.dart\")",
-      "Bash(if exist \"c:\\\\Users\\\\satjakornl\\\\AndroidStudioProjects\\\\untitled\\\\lib\\\\constants\" rmdir \"c:\\\\Users\\\\satjakornl\\\\AndroidStudioProjects\\\\untitled\\\\lib\\\\constants\")"
+      "Bash(if exist \"c:\\\\Users\\\\satjakornl\\\\AndroidStudioProjects\\\\untitled\\\\lib\\\\constants\" rmdir \"c:\\\\Users\\\\satjakornl\\\\AndroidStudioProjects\\\\untitled\\\\lib\\\\constants\")",
+      "Bash(flutter analyze:*)"
     ]
   }
 }

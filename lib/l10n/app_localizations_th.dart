@@ -15,10 +15,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get welcome => 'ยินดีต้อนรับ';
 
   @override
-  String get receive => 'ฝากของ';
+  String get receive => 'รับของ';
 
   @override
-  String get deposit => 'รับของ';
+  String get deposit => 'ฝากของ';
 
   @override
   String get chose => 'เลือกรายการที่ท่านต้องการดำเนินการ';
@@ -105,7 +105,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendTo => 'ส่งไปยัง';
 
   @override
-  String get forLocker => 'For locker';
+  String get forLocker => 'สำหรับตู้';
 
   @override
   String get resetPass => 'เปลี่ยนรหัสผ่าน กรุณากรอก OTP ที่ถูกต้อง';
@@ -163,4 +163,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get occupied => 'ไม่ว่าง';
+
+  @override
+  String get noAvailable =>
+      'ไม่มีตู้ที่ใช้งานได้ในตอนนี้(ตู้ทั้งหมดถูกเปิดอยู่หรือตู้ล็อคเกอร์ถูกปิดการใช้งาน)';
 }

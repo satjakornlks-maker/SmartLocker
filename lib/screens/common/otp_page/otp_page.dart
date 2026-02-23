@@ -3,6 +3,7 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/screens/common/otp_page/otp_page_component/keypad_row.dart';
 import 'package:untitled/screens/common/otp_page/otp_page_component/otp_confirm_button.dart';
 import 'package:untitled/screens/common/otp_page/otp_page_component/otp_input_box.dart';
+import 'package:untitled/screens/common/otp_page/otp_page_component/locker_mini_map.dart';
 import 'package:untitled/screens/common/otp_page/otp_page_component/otp_title.dart';
 import 'package:untitled/screens/common/otp_page/otp_page_component/phone_display.dart';
 import 'package:untitled/screens/common/otp_page/otp_page_component/refcode_and_resend.dart';
@@ -18,8 +19,9 @@ class OTPPage extends StatefulWidget {
   final String? lockerId;
   final String? lockerName;
   final String? telOrEmail;
-  final String? refCode; // Passed from previous page
-  final int? userId; // Passed from previous page
+  final String? refCode;
+  final int? userId;
+  final List<Map<String, dynamic>> lockerData;
 
   const OTPPage({
     super.key,
@@ -29,6 +31,7 @@ class OTPPage extends StatefulWidget {
     this.telOrEmail,
     this.refCode,
     this.userId,
+    this.lockerData = const [],
   });
 
   @override
@@ -40,7 +43,7 @@ class _OTPPageState extends State<OTPPage> {
   late int resetPass;
   bool _isLoading = false;
   // OTP input controllers - 6 digits
-  final List<String> _otpDigits = List.filled(6, '');
+  final List<String> _otpDigits = List.filled(6, '', growable: true);
   int _currentIndex = 0;
 
   // State variables
@@ -92,55 +95,86 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            OtpTitle(resetPass: resetPass),
-            const SizedBox(height: 10),
-            if (widget.from != FromPage.unlock)
-              PhoneDisplay(
-                telOrEmail: widget.telOrEmail,
-                lockerName: widget.lockerName,
-              ),
+    final hasLockerData = widget.lockerData.isNotEmpty;
 
-            const SizedBox(height: 25),
-            OtpInputBox(otpDigits: _otpDigits),
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: .center,
+    if (hasLockerData) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Left side: Locker mini map
+          Expanded(
+            flex: 5,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20.0, right: 10.0),
+                child: LockerMiniMap(
+                  lockerData: widget.lockerData,
+                  selectedLockerId: widget.lockerId,
+                  selectedLockerName: widget.lockerName,
+                ),
+              ),
+            ),
+          ),
+          // Right side: OTP content
+          Expanded(
+            flex: 6,
+            child: _buildOtpContent(),
+          ),
+        ],
+      );
+    }
+
+    return _buildOtpContent();
+  }
+
+  Widget _buildOtpContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        children: [
+          const SizedBox(height: 75),
+          OtpTitle(resetPass: resetPass),
+          const SizedBox(height: 6),
+          if (widget.from != FromPage.unlock)
+            PhoneDisplay(
+              telOrEmail: widget.telOrEmail,
+              lockerName: widget.lockerName,
+            ),
+          const SizedBox(height: 10),
+          OtpInputBox(otpDigits: _otpDigits),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              resetPass != 3
+                  ? const SizedBox.shrink()
+                  : widget.from != FromPage.unlock
+                  ? RefcodeAndResend(refCode: refCode, handleResendOTP: _handleResendOTP)
+                  : _buildForgotPassword(),
+              SizedBox(width: 10),
+              if (widget.from == FromPage.unlock && resetPass == 3)
+                _buildResetPassword(),
+            ],
+          ),
+          const SizedBox(height: 25,),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 350),
+            child: Column(
               children: [
-                resetPass == 1
-                    ? const SizedBox.shrink()
-                    : widget.from != FromPage.unlock
-                    ? RefcodeAndResend(refCode: refCode, handleResendOTP: _handleResendOTP)
-                    : _buildForgotPassword(),
-                SizedBox(width: 10),
-                if (widget.from == FromPage.unlock && resetPass == 3)
-                  _buildResetPassword(),
+                _buildNumericKeypad(),
+                const SizedBox(height: 25),
+                OtpConfirmButton(otpDigits: _otpDigits, handleSubmitOTP: _handleSubmitOTP),
+                const SizedBox(height: 15),
               ],
             ),
-            const SizedBox(height: 50),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 350),
-              child: Column(
-                children: [
-                  _buildNumericKeypad(),
-                  const SizedBox(height: 30),
-                  OtpConfirmButton(otpDigits: _otpDigits, handleSubmitOTP: _handleSubmitOTP),
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildNumericKeypad() {
+    print(resetPass);
     return Column(
       children: [
         KeypadRow( keys: ['1', '2', '3'], handleDelete: _handleDelete, handleNumberTap: _handleNumberTap,),
@@ -227,9 +261,9 @@ class _OTPPageState extends State<OTPPage> {
     setState(() => _isLoading = true);
 
     try {
-      if (widget.from == FromPage.unlock) {
+      if (widget.from == FromPage.unlock && resetPass == 3) {
         await _unlockLocker(otpCode);
-      } else if (widget.from == FromPage.resetPassword) {
+      } else if (resetPass == 1) {
         try {
           final result = await _apiService.handleCheckOTP(
             widget.lockerId!,
@@ -241,7 +275,8 @@ class _OTPPageState extends State<OTPPage> {
           if (result['success']) {
             resetPass = 2;
             userId = result['data']['userID'];
-            _otpDigits.clear();
+            _otpDigits.fillRange(0, 6, '');
+            _currentIndex = 0;
           } else {
             if(!mounted) {
               return;
@@ -256,6 +291,7 @@ class _OTPPageState extends State<OTPPage> {
         }
       } else if (resetPass == 2) {
         try {
+          print('user Id:$userId');
           final result = await _apiService.handleResetPassword(
             userId!,
             otpCode,
@@ -265,12 +301,9 @@ class _OTPPageState extends State<OTPPage> {
           });
           if (!mounted) return;
           if (result['success']) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OTPPage(from: FromPage.unlock),
-              ),
-            );
+            resetPass = 3;
+            _otpDigits.fillRange(0, 6, '');
+            _currentIndex = 0;
           } else {
             // print(result['error']);
           }
@@ -366,7 +399,8 @@ class _OTPPageState extends State<OTPPage> {
         setState(() {
           resetPass = 1;
         });
-        _otpDigits.clear();
+        _otpDigits.fillRange(0, 6, '');
+        _currentIndex = 0;
       },
       child: Text(
         AppLocalizations.of(context)!.resetPassOption,
@@ -384,6 +418,7 @@ class _OTPPageState extends State<OTPPage> {
             from: FromPage.forgetPassword,
             selectedLocker: widget.lockerId,
             lockerName: widget.lockerName,
+            lockerData: widget.lockerData,
           ),
         ),
       ),
@@ -391,6 +426,7 @@ class _OTPPageState extends State<OTPPage> {
         AppLocalizations.of(context)!.forgotPass,
         style: TextStyle(decoration: TextDecoration.underline),
       ),
+
     );
   }
 

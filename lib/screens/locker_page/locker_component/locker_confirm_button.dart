@@ -6,7 +6,8 @@ class LockerConfirmButton extends StatelessWidget {
   final LockerSelectionMode mode;
   final String? selectedLocker;
   final String? selectedLockerName;
-  final Widget buttonText; // Changed from String to Widget
+  final Widget buttonText;
+  final List<Map<String, dynamic>> lockerData;
 
   const LockerConfirmButton({
     super.key,
@@ -14,6 +15,7 @@ class LockerConfirmButton extends StatelessWidget {
     required this.selectedLocker,
     required this.selectedLockerName,
     required this.buttonText,
+    required this.lockerData,
   });
 
   @override
@@ -44,6 +46,7 @@ class LockerConfirmButton extends StatelessWidget {
       mode: mode,
       selectedLocker: selectedLocker,
       selectedLockerName: selectedLockerName,
+      lockerData: lockerData,
     );
   }
 }
