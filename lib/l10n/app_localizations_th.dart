@@ -69,9 +69,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get selectLocker => 'เลือกตู้ล็อคเกอร์ที่ต้องการ';
 
   @override
-  String get empty => 'ว่างอยู่';
-
-  @override
   String get occupiedLegend => 'ไม่ว่าง';
 
   @override
@@ -108,7 +105,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get forLocker => 'สำหรับตู้';
 
   @override
-  String get resetPass => 'เปลี่ยนรหัสผ่าน กรุณากรอก OTP ที่ถูกต้อง';
+  String get resetPass => 'กรุณากรอกรหัสผ่าน (OTP) ที่ถูกต้อง';
 
   @override
   String get changePass => 'กรุณากรอกรหัสผ่านใหม่ที่ท่านต้องการเปลี่ยน';
@@ -117,10 +114,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get otpInstruct => 'กรุณากรอกรหัส OTP';
 
   @override
-  String get resetPassOption => 'เปลี่ยนรหัสผ่าน(สำหรับจองประจำ)';
+  String get resetPassOption => 'เปลี่ยนรหัสผ่าน (สำหรับจองประจำ)';
 
   @override
-  String get forgotPass => 'ลืมรหัสผ่าน';
+  String get forgotPass => 'รับ OTP ใหม่';
 
   @override
   String get successTitle => 'ตู้ได้ถูกเปิดออกแล้ว';
@@ -138,7 +135,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get noLocker => 'ไม่มีล็อคเกอร์ที่ว่างอยู่';
 
   @override
-  String get optSuccess => 'ส่ง OTP เสร็จสิ้น';
+  String get otpSuccess => 'ส่ง OTP เสร็จสิ้น';
 
   @override
   String get otpWarning => 'กรุณากรอก OTP ให้ครบ 6 หลัก';
@@ -162,9 +159,155 @@ class AppLocalizationsTh extends AppLocalizations {
   String get locker => 'ตู้';
 
   @override
+  String get empty => 'ว่างอยู่';
+
+  @override
   String get occupied => 'ไม่ว่าง';
 
   @override
   String get noAvailable =>
-      'ไม่มีตู้ที่ใช้งานได้ในตอนนี้(ตู้ทั้งหมดถูกเปิดอยู่หรือตู้ล็อคเกอร์ถูกปิดการใช้งาน)';
+      'ไม่มีตู้ที่ใช้งานได้ในตอนนี้ (ตู้ทั้งหมดถูกเปิดอยู่หรือตู้ล็อคเกอร์ถูกปิดการใช้งาน)';
+
+  @override
+  String get cardReaderInstruct => 'หรือใช้ card reader';
+
+  @override
+  String get addMoreItem => 'เปิดตู้เพื่อใส่ของเพิ่ม';
+
+  @override
+  String get endOfUse => 'เปิดเพื่อจบการใช้งานตู้นี้ (คืนตู้)';
+
+  @override
+  String get bookingTypeTitle => 'ประเภทการจอง\n(วันหรือชั่วโมง)';
+
+  @override
+  String get bookByDay => 'จองรายวัน';
+
+  @override
+  String get bookByHour => 'จองรายชั่วโมง';
+
+  @override
+  String get day => 'วัน';
+
+  @override
+  String get hour => 'ชั่วโมง';
+
+  @override
+  String get dayType => 'รายวัน';
+
+  @override
+  String get hourType => 'รายชั่วโมง';
+
+  @override
+  String get amount => 'จำนวน';
+
+  @override
+  String get priceDetails => 'รายละเอียดราคาและโปรโมชั่นต่าง ๆ';
+
+  @override
+  String get price => 'ราคา';
+
+  @override
+  String get baht => 'บาท';
+
+  @override
+  String get totalAmount => 'ยอดรวมทั้งหมด';
+
+  @override
+  String get promoCode => 'โค้ดโปรโมชั่น';
+
+  @override
+  String get enterPromoCode => 'กรอกโค้ดโปรโมชั่น';
+
+  @override
+  String get applyCode => 'ใช้โค้ด';
+
+  @override
+  String get invalidPromoCode => 'โค้ดโปรโมชั่นไม่ถูกต้อง';
+
+  @override
+  String get pleaseEnterPromoCode => 'โปรดกรอกโค้ดโปรโมชั่น';
+
+  @override
+  String get proceedBooking => 'ดำเนินการจอง';
+
+  @override
+  String get lockerOpenedSuccess => 'เปิดใช้ตู้สำเร็จ';
+
+  @override
+  String get pleaseSpecifyAmount => 'โปรดระบุจำนวน';
+
+  @override
+  String get discountCode => 'ส่วนลดโค้ด';
+
+  @override
+  String get promoApplied => 'ใช้โค้ดสำเร็จ!';
+
+  @override
+  String get availablePromotions => 'โปรโมชั่นที่มีอยู่';
+
+  @override
+  String get paymentSubtitle => 'ชำระเงินเพื่อจบขั้นตอนการจองล็อคเกอร์';
+
+  @override
+  String get paymentChannels => 'รายการช่องทางการชำระเงิน';
+
+  @override
+  String get scanToPayPromptPay => 'สแกนเพื่อชำระผ่านพร้อมเพย์';
+
+  @override
+  String get totalDuration => 'ระยะเวลาทั้งหมด';
+
+  @override
+  String get amountDue => 'จำนวนเงินที่ต้องชำระ';
+
+  @override
+  String get discountDetails => 'รายละเอียดส่วนลด';
+
+  @override
+  String get payNow => 'ชำระเงินเลย';
+
+  @override
+  String get qrPayment => 'ชำระผ่าน QR';
+
+  @override
+  String get qrPaymentSubtitle => 'รองรับแอปธนาคารชั้นนำ';
+
+  @override
+  String get creditCard => 'บัตรเครดิต / บัตรเดบิต';
+
+  @override
+  String get creditCardSubtitle => 'รับ Visa และ Mastercard';
+
+  @override
+  String get aliPaySubtitle => 'สแกนด้วยอาลีเพย์';
+
+  @override
+  String get linePaySubtitle => 'สแกนด้วย LINE Pay';
+
+  @override
+  String get supportedApps => 'แอปที่รองรับ';
+
+  @override
+  String get scanWithBankApp => 'สแกนด้วยแอปธนาคาร';
+
+  @override
+  String get overtimeWarning =>
+      'ท่านได้ใช้งานเกินเวลาที่จองไว้\nกรุณาชำระเงินค่าปรับเพื่อเปิดตู้';
+
+  @override
+  String get overtimeExceeded => 'ใช้เวลาเกินที่จอง';
+
+  @override
+  String get overtimeFine => 'ค่าปรับที่ต้องชำระ';
+
+  @override
+  String get overtimePaymentTitle => 'หน้าเลือกวิธีการจ่ายเงิน';
+
+  @override
+  String get autoOpenNote =>
+      'หลังชำระเงินกรุณารอสักครู่ ระบบจะทำการเปิดตู้โดยอัตโนมัติ';
+
+  @override
+  String get dropBox => 'ฝากพัสดุ';
 }

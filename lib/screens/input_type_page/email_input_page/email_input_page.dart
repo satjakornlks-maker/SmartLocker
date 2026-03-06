@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
-import 'package:untitled/screens/common/otp_page/otp_page.dart';
 import 'package:untitled/screens/input_type_page/email_input_page/email_component/email_body.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/services/api_service.dart';
@@ -8,7 +7,7 @@ import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 
 import '../../../main.dart';
-import '../../common/success_page/success_page.dart';
+import '../../otp_page/otp_page.dart';
 
 class EmailInputPage extends StatefulWidget {
   final String? selectedLocker;

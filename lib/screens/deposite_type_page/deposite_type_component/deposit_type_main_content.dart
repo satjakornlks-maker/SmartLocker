@@ -10,6 +10,7 @@ class DepositTypeMainContent extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    print(systemMode);
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -30,7 +31,8 @@ class DepositTypeMainContent extends StatelessWidget{
             TopSelectionCard(systemMode: systemMode),
             const SizedBox(height: 30),
             // Quick registration button
-            BottomSelectionCard(systemMode: systemMode),
+
+            systemMode != 'B2C' ? BottomSelectionCard(systemMode: systemMode) : SizedBox.shrink(),
             const SizedBox(height: 60),
             // Secure access text
             const DepositTypeBottom(),

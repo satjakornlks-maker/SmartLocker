@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/screens/deposite_type_page/deposite_type_component/selection_card.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../common/chose_size_page/chose_size_page.dart';
+import '../../chose_size_page/chose_size_page.dart';
 import '../../input_type_page/input_type_page/input_type_page.dart';
 import '../../locker_page/locker_selection_page.dart';
 

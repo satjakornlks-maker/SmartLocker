@@ -1,30 +1,43 @@
 import 'package:dio/dio.dart';
+import 'package:untitled/services/device_config_service.dart';
 
 
 class ApiService {
   late final Dio _dio;
 
   ApiService() {
-
-    const baseUrl = String.fromEnvironment('BASE_URL', defaultValue: 'http://localhost');
-    const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
     _dio = Dio(
       BaseOptions(
-        // baseUrl: "http://localhost:44324/",
+        // baseUrl: DeviceConfigService.baseUrl,
         // baseUrl: "http://10.3.0.4:8098",
-        // use for prod
-        baseUrl: baseUrl,
-        connectTimeout: Duration(seconds: 20),
-        receiveTimeout: Duration(seconds: 20),
+        baseUrl: "http://localhost:44324/",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
         headers: {
           'Content-Type': 'application/json',
-          //for prod
-          // 'X-API-Key': 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=',
-          'x-app-token': appKey,
-          // 'x-app-token': "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo="
+          // 'x-app-token': DeviceConfigService.appKey,
+          // 'x-app-token':"tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo=",
+          'x-api-key':"X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=",
         },
       ),
     );
+  }
+
+  /// Registers the device on first launch, or fetches its current config on
+  /// subsequent launches. The backend should handle both cases (upsert).
+  ///
+  /// Expected response:
+  /// { "base_url": "http://...", "locker_ids": [1, 2, 3] }
+  Future<Map<String, dynamic>> syncDeviceConfig(String deviceId) async {
+    try {
+      final response = await _dio.post(
+        '/device/register',
+        data: {'device_id': deviceId},
+      );
+      return {'success': true, 'data': response.data};
+    } on DioException catch (e) {
+      return {'success': false, 'error': _handleError(e)};
+    }
   }
 
 
@@ -180,10 +193,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getLocker() async {
-
-    // List<int> lockerIds = [1];
-    const lockerIdString = String.fromEnvironment('LOCKER_ID', defaultValue: '1');
-    final lockerIds = lockerIdString.split(',').map((e) => int.parse(e.trim())).toList();
+    final lockerIds = DeviceConfigService.lockerIds;
     try {
       final response = await _dio.post(
         '/init/get_locker',
@@ -295,24 +305,29 @@ class ApiService {
     }
   }
 
-  Future<Map<String,dynamic>> handleFillPIN(String pin,String lockerId)async{
-    try{
-      final responss = await _dio.post(
-          '/unlock_locker',
-          data: {
-            'LockerUnitID': int.parse(lockerId),
-            'pin':pin,
-            'timestamp' : DateTime.now().toIso8601String(),
-          }
+  Future<Map<String, dynamic>> handleFillPIN({
+    required String pin,
+    required String lockerId,
+    bool stillUse = true,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/unlock_locker',
+        data: {
+          'LockerUnitID': int.parse(lockerId),
+          'pin': pin,
+          'stillUse': stillUse,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
       );
-      return{
-        'success':true,
-        'data':responss.data,
+      return {
+        'success': true,
+        'data': response.data,
       };
-    }on DioException catch (e){
-      return{
-        'success' : false,
-        'error' : _handleError(e)
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'error': _handleError(e)
       };
     }
   }

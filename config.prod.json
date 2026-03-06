@@ -1,4 +1,5 @@
 {
+  "BOOTSTRAP_URL": "http://10.3.0.4:8098",
   "BASE_URL": "http://10.3.0.4:8098/",
   "APP_KEY": "tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo=",
   "TYPE": "B2B",

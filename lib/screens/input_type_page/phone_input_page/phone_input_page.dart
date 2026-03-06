@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/screens/common/otp_page/otp_page.dart';
-import 'package:untitled/screens/common/success_page/success_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_confirm_button.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_display.dart';
@@ -10,6 +8,7 @@ import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../main.dart';
+import '../../otp_page/otp_page.dart';
 
 class PhoneInputPage extends StatefulWidget {
   final String? selectedLocker;
@@ -84,7 +83,7 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
           }
         } else {
           // print(phoneNumber);
-          final result = await _apiService.sendLink(
+          final result = await _apiService.sendOTP(
             phoneNumber,
             phoneNumber.contains('@'),
             widget.selectedLocker!,

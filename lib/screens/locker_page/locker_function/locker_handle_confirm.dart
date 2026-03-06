@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../auth/register_page/register_page.dart';
-import '../../common/otp_page/otp_page.dart';
 import '../../input_type_page/input_type_page/input_type_page.dart';
+import '../../otp_page/otp_page.dart';
+import '../../register_page/register_page.dart';
 import '../locker_selection_page.dart';
 
 class LockerNavigationService {

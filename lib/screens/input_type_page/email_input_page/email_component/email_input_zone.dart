@@ -47,7 +47,7 @@ class EmailInputZone extends StatelessWidget{
               ),
             ),
             onChanged: (value) {
-              onChanged?.call(); // Rebuild to update button state
+              onChanged.call(); // Rebuild to update button state
             },
           ),
         ),
