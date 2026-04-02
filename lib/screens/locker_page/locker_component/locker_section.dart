@@ -4,6 +4,7 @@ import 'locker_cell.dart';
 
 class LockerSection extends StatelessWidget {
   final int lockerId;
+  final String? lockerName;
   final List<Map<String, dynamic>> units;
   final double availableWidth;
   final double availableHeight;
@@ -14,6 +15,7 @@ class LockerSection extends StatelessWidget {
   const LockerSection({
     super.key,
     required this.lockerId,
+    this.lockerName,
     required this.units,
     required this.availableWidth,
     required this.availableHeight,
@@ -33,10 +35,10 @@ class LockerSection extends StatelessWidget {
     }
 
     const double gap = 8.0;
-    const double headerHeight = 30.0;
+    const double topSpacing = 10.0;
 
-    // Adjust available height for header
-    final double gridAvailableHeight = availableHeight - headerHeight - 10;
+    // Adjust available height for the top spacer
+    final double gridAvailableHeight = availableHeight - topSpacing;
 
     // Calculate cell size
     final double maxCellByWidth =

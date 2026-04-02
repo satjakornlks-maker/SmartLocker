@@ -3,6 +3,7 @@ import 'package:untitled/l10n/app_localizations.dart';
 
 import '../../chose_size_page/chose_size_page.dart';
 import '../../locker_page/locker_selection_page.dart';
+import '../../register_page/register_page.dart';
 
 class BottomSelectionCard extends StatelessWidget{
   final String systemMode;
@@ -26,22 +27,12 @@ class BottomSelectionCard extends StatelessWidget{
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => systemMode == 'B2C'
-              ? Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ChoseSizePage(mode: LockerSelectionMode.memberSelect),
-            ),
-          )
-              : Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LockerSelectionPage(
-                mode: LockerSelectionMode.memberSelect,
-              ),
-            ),
-          ),
+          onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegisterPage(),
+                  ),
+                ),
           borderRadius: BorderRadius.circular(20),
           child: Ink(
             decoration: BoxDecoration(

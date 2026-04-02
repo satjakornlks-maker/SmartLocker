@@ -35,6 +35,8 @@ class InputTypePage extends StatefulWidget {
 }
 
 class _InputTypePageState extends State<InputTypePage> {
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);
@@ -42,29 +44,43 @@ class _InputTypePageState extends State<InputTypePage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                Header(
-                  currentLocale: currentLocale,
-                  onLanguageSwitch: () {
-                    appState?.toggleLocale();
-                  },
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Header(
+                      currentLocale: currentLocale,
+                      onLanguageSwitch: () {
+                        appState?.toggleLocale();
+                      },
+                    ),
+                    const SizedBox(height: 60),
+                    InputTypeMainContent(
+                      from: widget.from,
+                      selectedLocker: widget.selectedLocker,
+                      lockerName: widget.lockerName,
+                      size: widget.size,
+                      lockerData: widget.lockerData,
+                      onLoadingChanged: (v) => setState(() => _isLoading = v),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 60),
-                InputTypeMainContent(
-                  from: widget.from,
-                  selectedLocker: widget.selectedLocker,
-                  lockerName: widget.lockerName,
-                  size: widget.size,
-                  lockerData: widget.lockerData,
-                ),
-              ],
+              ),
             ),
-          ),
+            if (_isLoading)
+              Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/screens/locker_page/locker_component/locker_responsive_body.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../services/api_service.dart';
+import '../../services/device_config_service.dart';
 import 'locker_component/locker_grid.dart';
 import 'locker_function/locker_service.dart';
 
@@ -24,10 +25,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> lockerStatus = [];
   bool _showGrid = false;
-  static const String systemMode = String.fromEnvironment(
-    'TYPE',
-    defaultValue: 'B2C',
-  );
+  String get systemMode => DeviceConfigService.systemMode;
   late final LockerService _lockerService;
 
   @override
@@ -79,7 +77,6 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
 
     setState(() {
       lockerStatus = result.data!;
-      print(lockerStatus);
       _isLoading = false;
     });
   }

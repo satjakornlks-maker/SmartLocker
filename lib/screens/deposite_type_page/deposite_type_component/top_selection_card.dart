@@ -17,8 +17,7 @@ class TopSelectionCard extends StatelessWidget{
           child: SelectionCard(
             title: Text(AppLocalizations.of(context)!.choseLocker),
             icon: Icons.login_rounded,
-            onTap: () => systemMode == 'B2C'
-                ? Navigator.push(
+            onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>
@@ -28,16 +27,6 @@ class TopSelectionCard extends StatelessWidget{
                 ),
               ),
             )
-                : Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                const LockerSelectionPage(
-                  mode:
-                  LockerSelectionMode.booking,
-                ),
-              ),
-            ),
           ),
         ),
         const SizedBox(width: 20),
@@ -45,8 +34,7 @@ class TopSelectionCard extends StatelessWidget{
           child: SelectionCard(
             title: Text(AppLocalizations.of(context)!.randomLocker),
             icon: Icons.flash_on_rounded,
-            onTap: () => systemMode == 'B2C'
-                ? Navigator.push(
+            onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>
@@ -55,15 +43,6 @@ class TopSelectionCard extends StatelessWidget{
                 ),
               ),
             )
-                : Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                const InputTypePage(
-                  from: FromPage.instance,
-                ),
-              ),
-            ),
           ),
         ),
       ],

@@ -41,10 +41,15 @@ class LockerGrid extends StatelessWidget {
         final units = entry.value;
         final isLast = entry.key == groupedLockers.keys.last;
 
+        final lockerName = units.isNotEmpty
+            ? (units.first['lockerName'] as String?)
+            : null;
+
         return Row(
           children: [
             LockerSection(
               lockerId: lockerId,
+              lockerName: lockerName,
               units: units,
               availableWidth: availableWidthPerSection,
               availableHeight: availableHeight,

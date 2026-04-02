@@ -123,7 +123,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get successTitle => 'ตู้ได้ถูกเปิดออกแล้ว';
 
   @override
-  String get successSupTitle => 'ขอบคุณที่ใช้บริการ';
+  String get successSupTitle =>
+      'มองหาตู้ที่ไฟกระพริบและกดตู้นั้นเพื่อเปิดออก ขอบคุณที่ใช้บริการ';
 
   @override
   String get registerSuccess => 'สมัครสมาชิกเสร็จสิ้น';

@@ -38,7 +38,7 @@
   "resetPassOption":"Change password (employee only).",
   "forgotPass":"Get new OTP",
   "successTitle":"Locker has been opened",
-  "successSupTitle":"Thank you for using Smart Locker",
+  "successSupTitle":"Look for the locker that have flashing light and push that locker to open also, Thank you for using Smart Locker",
   "registerSuccess":"Register successful.",
   "errorOccur":"An error has occurred.",
   "noLocker":"No locker available.",

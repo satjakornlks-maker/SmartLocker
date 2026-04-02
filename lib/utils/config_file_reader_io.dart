@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 /// Reads config.json from the same directory as the executable.
-/// Only BOOTSTRAP_URL should be placed here — never sensitive keys like APP_KEY.
+/// Used for runtime overrides (e.g. BOOTSTRAP_URL). APP_KEY is baked in at build time.
 /// Returns an empty map if the file doesn't exist or can't be parsed.
 Future<Map<String, dynamic>> readConfigFile() async {
   try {

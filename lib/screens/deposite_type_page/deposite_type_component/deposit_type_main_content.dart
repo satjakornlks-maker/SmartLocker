@@ -10,7 +10,6 @@ class DepositTypeMainContent extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    print(systemMode);
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),

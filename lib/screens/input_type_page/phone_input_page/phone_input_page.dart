@@ -82,7 +82,11 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
             );
           }
         } else {
-          // print(phoneNumber);
+          if (widget.selectedLocker == null) {
+            setState(() => _isLoading = false);
+            if (mounted) context.showErrorSnackBar(AppLocalizations.of(context)!.noLocker);
+            return;
+          }
           final result = await _apiService.sendOTP(
             phoneNumber,
             phoneNumber.contains('@'),
@@ -127,7 +131,6 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.lockerData);
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(

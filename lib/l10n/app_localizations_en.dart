@@ -123,7 +123,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get successTitle => 'Locker has been opened';
 
   @override
-  String get successSupTitle => 'Thank you for using Smart Locker';
+  String get successSupTitle =>
+      'Look for the locker that have flashing light and push that locker to open also, Thank you for using Smart Locker';
 
   @override
   String get registerSuccess => 'Register successful.';

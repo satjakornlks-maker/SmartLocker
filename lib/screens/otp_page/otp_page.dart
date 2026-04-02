@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/screens/confirmation_page/confirmation_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/widgets/header/header.dart';
@@ -50,10 +51,7 @@ class _OTPPageState extends State<OTPPage> {
   // State variables
   String? refCode;
   int? userId;
-  static const String systemMode = String.fromEnvironment(
-    'TYPE',
-    defaultValue: 'B2C',
-  );
+  String get systemMode => DeviceConfigService.systemMode;
   @override
   void initState() {
     super.initState();
@@ -185,7 +183,6 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildNumericKeypad() {
-    print(resetPass);
     return Column(
       children: [
         KeypadRow(
@@ -307,12 +304,11 @@ class _OTPPageState extends State<OTPPage> {
                   ConfirmationPage(lockerId: widget.lockerId!, otp: otpCode),
             ),
           );
-        }else{
-          if(!mounted) {
-            return;
-          }
-            context.showErrorSnackBar(AppLocalizations.of(context)!.wrongOtp);
+        } else {
+          if (!mounted) return;
+          context.showErrorSnackBar(AppLocalizations.of(context)!.wrongOtp);
         }
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
         });
@@ -326,10 +322,12 @@ class _OTPPageState extends State<OTPPage> {
             _isLoading = false;
           });
           if (result['success']) {
-            resetPass = 2;
-            userId = result['data']['userID'];
-            _otpDigits.fillRange(0, 6, '');
-            _currentIndex = 0;
+            setState(() {
+              resetPass = 2;
+              userId = result['data']['userID'];
+              _otpDigits.fillRange(0, 6, '');
+              _currentIndex = 0;
+            });
           } else {
             if (!mounted) {
               return;
@@ -346,7 +344,6 @@ class _OTPPageState extends State<OTPPage> {
         }
       } else if (resetPass == 2) {
         try {
-          print('user Id:$userId');
           final result = await _apiService.handleResetPassword(
             userId!,
             otpCode,
@@ -356,11 +353,11 @@ class _OTPPageState extends State<OTPPage> {
           });
           if (!mounted) return;
           if (result['success']) {
-            resetPass = 3;
-            _otpDigits.fillRange(0, 6, '');
-            _currentIndex = 0;
-          } else {
-            // print(result['error']);
+            setState(() {
+              resetPass = 3;
+              _otpDigits.fillRange(0, 6, '');
+              _currentIndex = 0;
+            });
           }
         } catch (e) {
           if (!mounted) return;

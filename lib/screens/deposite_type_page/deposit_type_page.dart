@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/widgets/header/header.dart';
 
 import 'deposite_type_component/deposit_type_main_content.dart';
@@ -13,7 +14,7 @@ class DepositTypePage extends StatefulWidget {
 
 class _DepositTypePageState extends State<DepositTypePage> {
   String? selectedType; // Track selected type: 'login' or 'member'
-  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
+  String get systemMode => DeviceConfigService.systemMode;
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);

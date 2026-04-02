@@ -5,6 +5,7 @@ import '../../../widgets/grid/HoverMenuCard.dart';
 import '../../chose_size_page/chose_size_page.dart';
 import '../../deposite_type_page/deposit_type_page.dart';
 import '../../input_type_page/input_type_page/input_type_page.dart';
+import '../../register_page/register_page.dart';
 
 class UserTypeMenu extends StatelessWidget{
   final String systemMode;
@@ -36,23 +37,32 @@ class UserTypeMenu extends StatelessWidget{
                 titleTh: Text(l10n.visitor),
                 icon: Icons.person,
                 color: Colors.blue,
-                onPressed: () => systemMode == 'B2C'
-                    ? Navigator.push(
+                onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChoseSizePage(from: FromPage.visitor),
                   ),
                 )
-                    : Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InputTypePage(from: FromPage.visitor),
-                  ),
-                ),
               ),
             ),
           ],
         ),
+        const SizedBox(height: 20),
+        // Periodic Register button — goes directly to RegisterPage, no locker selection needed
+        // SizedBox(
+        //   width: double.infinity,
+        //   child: HoverMenuCard(
+        //     titleTh: Text(l10n.register),
+        //     icon: Icons.app_registration,
+        //     color: Colors.deepPurple,
+        //     onPressed: () => Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => const RegisterPage(),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         const SizedBox(height: 20),
         // Drop Box button
         Container(

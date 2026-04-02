@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../input_type_page.dart';
@@ -12,6 +13,7 @@ class InputTypeMainContent extends StatefulWidget {
   final String? lockerName;
   final String? size;
   final List<Map<String, dynamic>> lockerData;
+  final ValueChanged<bool>? onLoadingChanged;
 
   const InputTypeMainContent({
     super.key,
@@ -20,6 +22,7 @@ class InputTypeMainContent extends StatefulWidget {
     this.lockerName,
     this.size,
     this.lockerData = const [],
+    this.onLoadingChanged,
   });
 
   @override
@@ -29,7 +32,7 @@ class InputTypeMainContent extends StatefulWidget {
 class _InputTypeMainContentState extends State<InputTypeMainContent> {
   final LockerService _lockerService = LockerService();
   bool _isLoading = false;
-  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
+  String get systemMode => DeviceConfigService.systemMode;
 
   String? _selectedLockerId;
   String? _selectedLockerName;
@@ -60,12 +63,14 @@ class _InputTypeMainContentState extends State<InputTypeMainContent> {
 
   Future<void> _loadLocker() async {
     setState(() => _isLoading = true);
+    widget.onLoadingChanged?.call(true);
 
     final result = await _lockerService.fetchLockerUnits();
     if (!mounted) return;
 
     if (result['success'] != true) {
       setState(() => _isLoading = false);
+      widget.onLoadingChanged?.call(false);
       context.showErrorSnackBar(
           '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
       return;
@@ -96,48 +101,36 @@ class _InputTypeMainContentState extends State<InputTypeMainContent> {
       _selectedLockerName = selected['name'];
       _isLoading = false;
     });
+    widget.onLoadingChanged?.call(false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1000),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.choseInput,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                InputTypeSelectionCards(
-                  from: widget.from,
-                  lockerId: _lockerId,
-                  lockerName: _lockerName,
-                  lockerData: _effectiveLockerData,
-                ),
-                const SizedBox(height: 60),
-                const InputTypeBottom(),
-              ],
-            ),
-          ),
-        ),
-        if (_isLoading)
-          Container(
-            color: Colors.black54,
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1000),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.choseInput,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-      ],
+            const SizedBox(height: 40),
+            InputTypeSelectionCards(
+              from: widget.from,
+              lockerId: _lockerId,
+              lockerName: _lockerName,
+              lockerData: _effectiveLockerData,
+            ),
+            const SizedBox(height: 60),
+            const InputTypeBottom(),
+          ],
+        ),
+      ),
     );
   }
 }

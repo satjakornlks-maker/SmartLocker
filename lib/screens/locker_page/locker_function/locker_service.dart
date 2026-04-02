@@ -1,5 +1,7 @@
+import '../../../services/api_service.dart';
+
 class LockerService {
-  final dynamic _apiService; // Replace with your actual API service type
+  final ApiService _apiService;
 
   LockerService(this._apiService);
 
@@ -13,7 +15,6 @@ class LockerService {
       final result = await _apiService.getLocker();
 
       if (result['success'] != true) {
-        print(result);
         return LockerResult.error(result['error'] ?? 'Unknown error');
       }
 
@@ -21,7 +22,6 @@ class LockerService {
       List<Map<String, dynamic>> units = _extractUnits(data);
 
       if (units.isEmpty) {
-        print(result);
         return LockerResult.error('No locker units found');
       }
 
@@ -49,20 +49,23 @@ class LockerService {
     }
   }
 
-  /// Extract units from API response
+  /// Extract units from API response — supports lockerUnit / locker_unit / LockerUnit
   List<Map<String, dynamic>> _extractUnits(dynamic data) {
     List<Map<String, dynamic>> units = [];
+
+    dynamic getUnits(Map<String, dynamic> map) =>
+        map['lockerUnit'] ?? map['locker_unit'] ?? map['LockerUnit'];
 
     if (data is List && data.isNotEmpty) {
       final first = data.first;
       if (first is Map<String, dynamic>) {
-        final lockerUnit = first['lockerUnit'];
+        final lockerUnit = getUnits(first);
         if (lockerUnit is List) {
           units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
         }
       }
     } else if (data is Map<String, dynamic>) {
-      final lockerUnit = data['lockerUnit'];
+      final lockerUnit = getUnits(data);
       if (lockerUnit is List) {
         units = lockerUnit.map((e) => Map<String, dynamic>.from(e)).toList();
       }
@@ -80,23 +83,29 @@ class LockerService {
   }) {
     List<Map<String, dynamic>> filtered = List.from(units);
 
-    filtered = filtered.where((unit){
-      final lockerStatus = unit['locker_status'];
+    filtered = filtered.where((unit) {
+      // support locker_status || lockerStatus || LockerStatus
+      final lockerStatus = unit['locker_status'] ?? unit['lockerStatus'] ?? unit['LockerStatus'];
       return lockerStatus == "close";
     }).toList();
 
     // Filter by book type
     if (bookTypeFilter != null) {
       filtered = filtered.where((unit) {
-        final lockerBookType = unit['locker_booktype'];
+        // support locker_booktype || lockerBooktype || lockerBookType || LockerBooktype
+        final lockerBookType = unit['locker_booktype'] ?? unit['lockerBooktype'] ?? unit['lockerBookType'] ?? unit['LockerBooktype'];
         return lockerBookType == bookTypeFilter;
       }).toList();
     }
 
-    // Filter by size (only for B2C mode)
-    if (systemMode == 'B2C' && sizeFilter != null && sizeFilter.isNotEmpty) {
+    // Filter by size
+    if (sizeFilter != null && sizeFilter.isNotEmpty) {
       filtered = filtered.where((unit) {
-        final lockerSize = unit['lockerSize']?.toString().toLowerCase();
+        // support lockerSize || locker_size || LockerSize
+        final raw = unit['lockerSize'] ?? unit['locker_size'] ?? unit['LockerSize'];
+        // null/unassigned size → treat as matching any size selection
+        if (raw == null) return true;
+        final lockerSize = raw.toString().toLowerCase();
         final targetSize = sizeFilter.toLowerCase();
         return lockerSize == targetSize;
       }).toList();

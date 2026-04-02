@@ -1,33 +1,155 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/services/device_config_service.dart';
+import 'package:untitled/services/pin_cache_service.dart';
+import 'package:untitled/services/locker_command_service.dart';
+import 'package:untitled/services/offline_status_queue.dart';
 
+// OAuth2 client credentials — client_id is fixed, client_secret comes from
+// --dart-define=APP_KEY baked in at build time (or falls back for local dev).
+const _clientId = 'flutter-app';
 
 class ApiService {
   late final Dio _dio;
 
+  String? _token;
+  DateTime? _tokenExpiry;
+  String? _refreshToken;
+  DateTime? _refreshTokenExpiry;
+  bool _tokensLoaded = false;
+
+  static const _kToken = 'auth_access_token';
+  static const _kTokenExp = 'auth_access_expiry';
+  static const _kRefresh = 'auth_refresh_token';
+  static const _kRefreshExp = 'auth_refresh_expiry';
+
   ApiService() {
     _dio = Dio(
       BaseOptions(
-        // baseUrl: DeviceConfigService.baseUrl,
-        // baseUrl: "http://10.3.0.4:8098",
-        baseUrl: "http://localhost:44324/",
+        baseUrl: DeviceConfigService.baseUrl.isNotEmpty
+            ? DeviceConfigService.baseUrl
+            : "http://localhost:5183",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
-        headers: {
-          'Content-Type': 'application/json',
-          // 'x-app-token': DeviceConfigService.appKey,
-          // 'x-app-token':"tz+6qg0XHbu2LUm4ni3ukmmTQqep/RxX/akO8PRMBCo=",
-          'x-api-key':"X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=",
-        },
+        headers: {'Content-Type': 'application/json'},
       ),
     );
+
+    // Interceptor: attach Bearer token to every request, refresh on 401
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Keep base URL in sync with runtime config changes
+        if (DeviceConfigService.baseUrl.isNotEmpty) {
+          _dio.options.baseUrl = DeviceConfigService.baseUrl;
+        }
+        options.headers['Authorization'] = 'Bearer ${await _getToken()}';
+        handler.next(options);
+      },
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 401) {
+          // Token expired — clear cache and retry once with a fresh token
+          _token = null;
+          _tokenExpiry = null;
+          _refreshToken = null;
+          _refreshTokenExpiry = null;
+          try {
+            final opts = error.requestOptions;
+            opts.headers['Authorization'] = 'Bearer ${await _getToken()}';
+            final response = await _dio.fetch(opts);
+            handler.resolve(response);
+            return;
+          } catch (_) {}
+        }
+        handler.next(error);
+      },
+    ));
+  }
+
+  Future<void> _loadPersistedTokens() async {
+    if (_tokensLoaded) return;
+    _tokensLoaded = true;
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString(_kToken);
+    final tokenExpMs = prefs.getInt(_kTokenExp);
+    if (tokenExpMs != null) _tokenExpiry = DateTime.fromMillisecondsSinceEpoch(tokenExpMs);
+    _refreshToken = prefs.getString(_kRefresh);
+    final refreshExpMs = prefs.getInt(_kRefreshExp);
+    if (refreshExpMs != null) _refreshTokenExpiry = DateTime.fromMillisecondsSinceEpoch(refreshExpMs);
+  }
+
+  Future<void> _saveTokens(String accessToken, int expiresIn, String refreshToken, int refreshExpiresIn) async {
+    _token = accessToken;
+    _tokenExpiry = DateTime.now().add(Duration(seconds: expiresIn - 60));
+    _refreshToken = refreshToken;
+    _refreshTokenExpiry = DateTime.now().add(Duration(seconds: refreshExpiresIn - 300));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kToken, _token!);
+    await prefs.setInt(_kTokenExp, _tokenExpiry!.millisecondsSinceEpoch);
+    await prefs.setString(_kRefresh, _refreshToken!);
+    await prefs.setInt(_kRefreshExp, _refreshTokenExpiry!.millisecondsSinceEpoch);
+  }
+
+  Future<String> _getToken() async {
+    await _loadPersistedTokens();
+
+    // 1. Access token still valid
+    if (_token != null && _tokenExpiry != null && DateTime.now().isBefore(_tokenExpiry!)) {
+      return _token!;
+    }
+
+    // 2. Refresh token still valid — use it to get a new pair
+    if (_refreshToken != null && _refreshTokenExpiry != null && DateTime.now().isBefore(_refreshTokenExpiry!)) {
+      try {
+        final resp = await Dio().post(
+          '${_dio.options.baseUrl}/auth/refresh',
+          data: {'refresh_token': _refreshToken},
+          options: Options(headers: {'Content-Type': 'application/json'}),
+        );
+        await _saveTokens(
+          resp.data['access_token'] as String,
+          resp.data['expires_in'] as int? ?? 900,
+          resp.data['refresh_token'] as String,
+          resp.data['refresh_expires_in'] as int? ?? 604800,
+        );
+        print('[ApiService] Token refreshed via refresh_token');
+        return _token!;
+      } catch (e) {
+        print('[ApiService] Refresh failed, falling back to full auth: $e');
+        _refreshToken = null;
+        _refreshTokenExpiry = null;
+      }
+    }
+
+    // 3. Full re-auth with client secret
+    final clientSecret = DeviceConfigService.appKey.isNotEmpty
+        ? DeviceConfigService.appKey
+        : 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ='; // dev fallback (matches APP_KEY)
+    try {
+      final resp = await Dio().post(
+        '${_dio.options.baseUrl}/auth/token',
+        data: {'client_id': _clientId, 'client_secret': clientSecret},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      await _saveTokens(
+        resp.data['access_token'] as String,
+        resp.data['expires_in'] as int? ?? 900,
+        resp.data['refresh_token'] as String,
+        resp.data['refresh_expires_in'] as int? ?? 604800,
+      );
+      print('[ApiService] Token acquired via client credentials');
+      return _token!;
+    } catch (e) {
+      print('[ApiService] Token fetch failed: $e');
+      return '';
+    }
   }
 
   /// Registers the device on first launch, or fetches its current config on
   /// subsequent launches. The backend should handle both cases (upsert).
   ///
   /// Expected response:
-  /// { "base_url": "http://...", "locker_ids": [1, 2, 3] }
+  /// { "base_url": "http://...", "locker_ids": [1, 2, 3], "assigned_locker": 1 }
   Future<Map<String, dynamic>> syncDeviceConfig(String deviceId) async {
     try {
       final response = await _dio.post(
@@ -40,16 +162,107 @@ class ApiService {
     }
   }
 
+  /// Fetches SHA-256 hashed PINs (regular + bypass) for all assigned lockers and caches them locally.
+  /// Silently fails if offline — existing cache is used.
+  Future<void> syncPinCache() async {
+    try {
+      final response = await _dio.post(
+        '/init/get_locker_pins',
+        data: {'locker_ids': DeviceConfigService.lockerIds},
+      );
+      print('[ApiService] Raw PIN cache response: ${response.data}');
+      final responseMap = response.data as Map;
 
-  Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason,String lockerId) async {
+      // Support both old flat format { lockerId: hash } and new { pins: {}, bypass_pins: {} }
+      if (responseMap.containsKey('pins')) {
+        final pins = Map<String, String>.from(
+          (responseMap['pins'] as Map).map((k, v) => MapEntry(k.toString(), v.toString())),
+        );
+        await PinCacheService.update(pins);
+
+        final bypassPins = responseMap['bypass_pins'] as Map? ?? {};
+        final bypass = Map<String, String>.from(
+          bypassPins.map((k, v) => MapEntry(k.toString(), v.toString())),
+        );
+        await PinCacheService.updateBypass(bypass);
+      } else {
+        // Legacy flat format
+        final data = Map<String, String>.from(
+          responseMap.map((k, v) => MapEntry(k.toString(), v.toString())),
+        );
+        await PinCacheService.update(data);
+      }
+    } catch (e) {
+      print('[ApiService] PIN cache sync failed (using cached): $e');
+    }
+  }
+
+  /// Replays /unlock_locker calls that were queued while the backend was offline.
+  /// On success the backend clears the booking, so the locker UI turns green.
+  Future<void> flushOfflineQueue() async {
+    await OfflineStatusQueue.flush((lockerUnitId, pin, stillUse, timestamp) async {
+      try {
+        final response = await _dio.post('/unlock_locker', data: {
+          'LockerUnitID': lockerUnitId,
+          'pin':          pin,
+          'stillUse':     stillUse,
+          'timestamp':    timestamp,
+          'skipHardware': true, // locker already physically unlocked offline
+        });
+        return response.statusCode == 200;
+      } catch (_) {
+        return false;
+      }
+    });
+  }
+
+  /// Marks the device as offline in the backend. Call on app shutdown.
+  Future<Map<String, dynamic>> setDeviceOffline(String deviceId) async {
+    try {
+      final response = await _dio.post(
+        '/device/offline',
+        data: {'device_id': deviceId},
+      );
+      return {'success': true, 'data': response.data};
+    } on DioException catch (e) {
+      return {'success': false, 'error': _handleError(e)};
+    }
+  }
+
+  /// Fetches available locker sizes with bilingual labels from the backend.
+  Future<List<Map<String, dynamic>>> getSizes() async {
+    final response = await _dio.get('/init/get_sizes');
+    final data = response.data;
+    if (data is List) {
+      return List<Map<String, dynamic>>.from(data);
+    }
+    return [];
+  }
+
+  /// Sends a health ping to the backend so it knows this device is still alive.
+  /// Returns the response data (includes locker_ids, assigned_locker, system_mode)
+  /// so the caller can sync config, or null if the ping failed.
+  /// Called periodically by DeviceHeartbeatService.
+  Future<Map<String, dynamic>?> pingHealth(String deviceId) async {
+    try {
+      final response = await _dio.post(
+        '/app_device/ping',
+        data: {'DeviceId': deviceId},
+      );
+      return response.data as Map<String, dynamic>?;
+    } catch (_) {
+      return null;
+    }
+  }
+
+
+  Future<Map<String,dynamic>> regisAccount(String name,String tel,String email,String reason) async {
     List<String> stringList = name.split(RegExp(r' '));
 
     try{
       final responss = await _dio.post(
           '/locker/periodic_request',
           data: {
-            'LockerUnitID':int.parse(lockerId),
-            // 'Name': stringList,
             'PhoneNumber':tel,
             'Email':email,
             'Reason':reason,
@@ -59,7 +272,6 @@ class ApiService {
             'Name':stringList[0],
             if(stringList.length > 1)
             'Lastname':stringList[1]
-
           }
       );
       return{
@@ -160,6 +372,7 @@ class ApiService {
 
         }
       );
+      Future.delayed(const Duration(seconds: 3), () => syncPinCache().ignore());
       return{
         'success':true,
         'data':responss.data,
@@ -192,6 +405,8 @@ class ApiService {
     }
   }
 
+  static const _lockerCacheKey = 'locker_cache';
+
   Future<Map<String, dynamic>> getLocker() async {
     final lockerIds = DeviceConfigService.lockerIds;
     try {
@@ -199,11 +414,23 @@ class ApiService {
         '/init/get_locker',
         data: lockerIds,
       );
+      // Persist for offline use
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_lockerCacheKey, jsonEncode(response.data));
       return {
         'success': true,
         'data': response.data
       };
     } on DioException catch (e) {
+      if (_isOffline(e)) {
+        final prefs = await SharedPreferences.getInstance();
+        final cached = prefs.getString(_lockerCacheKey);
+        if (cached != null) {
+          print('[ApiService] Offline — returning cached locker data');
+          return {'success': true, 'data': jsonDecode(cached), 'offline': true};
+        }
+        return {'success': false, 'offline': true};
+      }
       return {
         'success': false,
         'error': _handleError(e)
@@ -265,6 +492,8 @@ class ApiService {
             'LockerUnitId' : int.parse(lockerId)
           }
       );
+      // Delay 10s to let backend finish setting the new PIN before caching
+      Future.delayed(const Duration(seconds: 3), () => syncPinCache().ignore());
       return{
         'success':true,
         'data':responss.data,
@@ -320,11 +549,26 @@ class ApiService {
           'timestamp': DateTime.now().toIso8601String(),
         },
       );
+      Future.delayed(const Duration(seconds: 3), () => syncPinCache().ignore());
       return {
         'success': true,
         'data': response.data,
       };
     } on DioException catch (e) {
+      if (_isOffline(e)) {
+        // Offline: send unlock command directly to the HF converter via TCP
+        final ok = await LockerCommandService.unlockImmediate(lockerId);
+        print('[ApiService] Offline unlock locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
+        if (ok) {
+          // Queue the /unlock_locker call so the locker turns green when backend returns.
+          OfflineStatusQueue.add(
+            lockerId: lockerId,
+            pin:      pin,
+            stillUse: stillUse,
+          ).ignore();
+        }
+        return {'success': ok, 'offline': true, 'data': {}};
+      }
       return {
         'success': false,
         'error': _handleError(e)
@@ -378,7 +622,7 @@ class ApiService {
       final response = await _dio.post(
           '/locker/status',
           data: {
-            'LockerID': 1,
+            'LockerID': DeviceConfigService.assignedLocker,
             'LockerUnitID': int.parse(lockerId),
           }
       );
@@ -408,11 +652,28 @@ class ApiService {
         'data':response.data,
       };
     }on DioException catch (e){
+      if (_isOffline(e)) {
+        final ok = PinCacheService.verify(lockerId, pin) ||
+                   PinCacheService.verifyBypass(lockerId, pin);
+        print('[ApiService] Offline PIN verify locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
+        return {'success': ok, 'offline': true, 'data': {}};
+      }
       return{
         'success':false,
         'error':_handleError(e)
       };
     }
+  }
+
+  /// Returns true when the error means the backend is unreachable —
+  /// either no connection, a timeout, or the proxy returning 503.
+  static bool _isOffline(DioException e) {
+    if (e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) return true;
+    if (e.type == DioExceptionType.badResponse &&
+        e.response?.statusCode == 503) return true;
+    return false;
   }
 
   String _handleError(DioException e) {

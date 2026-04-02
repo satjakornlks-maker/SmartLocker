@@ -2,34 +2,42 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DeviceConfigService {
-  static const _keyDeviceId = 'device_id';
-  static const _keyBaseUrl = 'base_url';
-  static const _keyLockerIds = 'locker_ids';
+  static const _keyDeviceId      = 'device_id';
+  static const _keyLockerIds      = 'locker_ids';
+  static const _keyAssignedLocker = 'assigned_locker';
+  static const _keySystemMode     = 'system_mode';
+  static const _keyLastConfigUrl  = 'last_config_url';
 
-  static String _deviceId = '';
-  static String _baseUrl = '';
-  static String _appKey = '';
-  static List<int> _lockerIds = [];
+  static String _deviceId      = '';
+  static String _baseUrl       = '';
+  static String _appKey        = '';
+  static List<int> _lockerIds  = [];
+  static int _assignedLocker   = 0;
+  static String _systemMode    = 'B2C'; // default until synced from server
 
-  static String get deviceId => _deviceId;
-  static String get baseUrl => _baseUrl;
-  static String get appKey => _appKey;
-  static List<int> get lockerIds => _lockerIds;
+  static String get deviceId      => _deviceId;
+  static String get baseUrl       => _baseUrl;
+  static String get appKey        => _appKey;
+  static List<int> get lockerIds  => _lockerIds;
+  static int get assignedLocker   => _assignedLocker;
+  static String get systemMode    => _systemMode;
 
   static bool get hasLockers => _lockerIds.isNotEmpty;
 
   /// Call once in main() before runApp.
-  /// [bootstrapUrl] is the initial URL used to reach the API (from compile-time env).
-  /// [appKey] is the static proxy auth token (from compile-time env).
+  /// [configUrl] is always read from config.json on disk — no caching of the URL.
+  /// Changing config.json and restarting the app always picks up the new URL.
   static Future<void> init({
-    required String bootstrapUrl,
+    required String configUrl,
     required String appKey,
   }) async {
     _appKey = appKey;
+    // URL is always taken from config.json — never from a cached value.
+    _baseUrl = configUrl;
 
     final prefs = await SharedPreferences.getInstance();
 
-    // Generate device ID on first run, then persist it forever
+    // Generate device ID on first run, then persist it forever.
     String? storedId = prefs.getString(_keyDeviceId);
     if (storedId == null || storedId.isEmpty) {
       storedId = _generateUuid();
@@ -37,10 +45,21 @@ class DeviceConfigService {
     }
     _deviceId = storedId;
 
-    // Use stored base URL if available, otherwise fall back to bootstrap URL
-    _baseUrl = prefs.getString(_keyBaseUrl) ?? bootstrapUrl;
+    // If config.json URL changed since last run, wipe all server-specific cache
+    // (auth tokens, locker list, mode) so stale data is not shown.
+    final lastUrl = prefs.getString(_keyLastConfigUrl) ?? '';
+    if (lastUrl != configUrl) {
+      await prefs.remove('auth_access_token');
+      await prefs.remove('auth_access_expiry');
+      await prefs.remove('auth_refresh_token');
+      await prefs.remove('auth_refresh_expiry');
+      await prefs.remove(_keyLockerIds);
+      await prefs.remove(_keyAssignedLocker);
+      await prefs.remove(_keySystemMode);
+      await prefs.setString(_keyLastConfigUrl, configUrl);
+    }
 
-    // Load cached locker IDs (used when network is unavailable)
+    // Load cached locker IDs (used when network is unavailable).
     final storedLockers = prefs.getString(_keyLockerIds);
     if (storedLockers != null && storedLockers.isNotEmpty) {
       _lockerIds = storedLockers
@@ -49,23 +68,48 @@ class DeviceConfigService {
           .whereType<int>()
           .toList();
     }
+
+    // Load cached assigned locker (the locker cabinet this device belongs to).
+    _assignedLocker = prefs.getInt(_keyAssignedLocker) ?? 0;
+
+    // Load cached system mode (falls back to default 'B2C' if never synced).
+    _systemMode = prefs.getString(_keySystemMode) ?? 'B2C';
   }
 
-  /// Call after a successful API response to persist the latest server config.
+  /// Call after a successful API sync to persist the latest server config.
+  /// Note: base URL is NOT updated here — it is always sourced from config.json.
   static Future<void> updateFromServer({
-    String? baseUrl,
     List<int>? lockerIds,
+    int? assignedLocker,
+    String? systemMode,
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
-    if (baseUrl != null && baseUrl.isNotEmpty) {
-      await prefs.setString(_keyBaseUrl, baseUrl);
-      _baseUrl = baseUrl;
-    }
-
     if (lockerIds != null) {
+      final prev = List<int>.from(_lockerIds);
       await prefs.setString(_keyLockerIds, lockerIds.join(','));
       _lockerIds = lockerIds;
+      if (prev.toString() != lockerIds.toString()) {
+        print('[DeviceConfig] locker_ids changed: $prev → $lockerIds');
+      }
+    }
+
+    if (assignedLocker != null && assignedLocker > 0) {
+      final prev = _assignedLocker;
+      await prefs.setInt(_keyAssignedLocker, assignedLocker);
+      _assignedLocker = assignedLocker;
+      if (prev != assignedLocker) {
+        print('[DeviceConfig] assigned_locker changed: $prev → $assignedLocker');
+      }
+    }
+
+    if (systemMode != null && systemMode.isNotEmpty) {
+      final prev = _systemMode;
+      await prefs.setString(_keySystemMode, systemMode);
+      _systemMode = systemMode;
+      if (prev != systemMode) {
+        print('[DeviceConfig] system_mode changed: $prev → $systemMode');
+      }
     }
   }
 

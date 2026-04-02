@@ -78,7 +78,8 @@ class _EmailInputPageState extends State<EmailInputPage> {
         }
         // Then check resetPassword
         else if (widget.from == FromPage.resetPassword) {
-          // print('resetPassword');
+          setState(() => _isLoading = false);
+          if (!mounted) return;
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -94,6 +95,11 @@ class _EmailInputPageState extends State<EmailInputPage> {
         }
         // Default case: instance, normal, visitor, unlock
         else {
+          if (widget.selectedLocker == null) {
+            setState(() => _isLoading = false);
+            if (mounted) context.showErrorSnackBar(AppLocalizations.of(context)!.noLocker);
+            return;
+          }
           final result = await _apiService.sendOTP(
             cleanValue,
             true, // isEmail = true

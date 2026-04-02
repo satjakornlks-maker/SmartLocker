@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/screens/user_type_page/user_type_component/user_type_main_content.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/main.dart';
@@ -10,7 +11,7 @@ class UserTypePage extends StatefulWidget {
 }
 
 class _UserTypePage extends State<UserTypePage> {
-  static const String systemMode = String.fromEnvironment('TYPE', defaultValue: 'B2C');
+  String get systemMode => DeviceConfigService.systemMode;
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);
@@ -32,7 +33,7 @@ class _UserTypePage extends State<UserTypePage> {
                     const SizedBox(height: 60),
 
                     // Center content
-                    const UserTypeMainContent(systemMode: systemMode)
+                    UserTypeMainContent(systemMode: systemMode)
                   ],
                 ),
               ),

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:untitled/services/device_config_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/api_service.dart';
 import '../../../../widgets/grid/HoverMenuCard.dart';
@@ -22,6 +23,40 @@ class ChoseSizeMainContent extends StatefulWidget {
 }
 
 class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
+  List<Map<String, dynamic>> _sizes = [];
+  bool _sizesReady = false;
+  bool _sizesError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Defer until after first frame so parent setState (loading overlay) doesn't
+    // fire during the parent's own build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadSizes();
+    });
+  }
+
+  Future<void> _loadSizes() async {
+    widget.onLoadingChanged?.call(true);
+    try {
+      final sizes = await ApiService().getSizes();
+      if (!mounted) return;
+      setState(() {
+        _sizes = sizes;
+        _sizesReady = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _sizesError = true;
+        _sizesReady = true;
+      });
+    } finally {
+      if (mounted) widget.onLoadingChanged?.call(false);
+    }
+  }
+
   Future<void> _onDropBoxSizeSelected(String size) async {
     widget.onLoadingChanged?.call(true);
 
@@ -31,7 +66,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
     final result = await lockerService.loadLocker(
       bookTypeFilter: 1,
       sizeFilter: size,
-      systemMode: 'B2C',
+      systemMode: DeviceConfigService.systemMode,
     );
 
     if (!mounted) return;
@@ -80,59 +115,55 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
     );
   }
 
+  String _label(Map<String, dynamic> size) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final fallback = (size['key'] ?? size['Key'] ?? size['size_key'] ?? '').toString();
+    return locale == 'th'
+        ? ((size['name_th'] ?? size['nameTh']) as String? ?? fallback)
+        : ((size['name_en'] ?? size['nameEn']) as String? ?? fallback);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1000),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.choseLockerType,
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 40),
-                Row(
-                  children: [
-                    Expanded(
-                      child: HoverMenuCard(
-                        titleTh: Text(l10n.small, textAlign: TextAlign.center),
-                        icon: Icons.home_work,
-                        color: Colors.blue,
-                        onPressed: () => _onSizeSelected('small'),
-                        haveIcon: false,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: HoverMenuCard(
-                        titleTh: Text(l10n.medium, textAlign: TextAlign.center),
-                        icon: Icons.person,
-                        color: Colors.blue,
-                        onPressed: () => _onSizeSelected('medium'),
-                        haveIcon: false,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: HoverMenuCard(
-                        titleTh: Text(l10n.large, textAlign: TextAlign.center),
-                        icon: Icons.person,
-                        color: Colors.blue,
-                        onPressed: () => _onSizeSelected('large'),
-                        haveIcon: false,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 60),
-                const ChoseSizeBottom(),
-              ],
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1000),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.choseLockerType,
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
-          ),
-        );
-
+            const SizedBox(height: 40),
+            if (!_sizesReady)
+              const SizedBox.shrink()
+            else if (_sizesError || _sizes.isEmpty)
+              Center(child: Text(l10n.noAvailableLocker))
+            else
+              Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                children: _sizes.map((size) {
+                  final key = (size['key'] ?? size['Key'] ?? size['size_key'] ?? '').toString();
+                  return SizedBox(
+                    width: (MediaQuery.of(context).size.width - 80) / _sizes.length,
+                    child: HoverMenuCard(
+                      titleTh: Text(_label(size), textAlign: TextAlign.center),
+                      icon: Icons.home_work,
+                      color: Colors.blue,
+                      onPressed: () => _onSizeSelected(key),
+                      haveIcon: false,
+                    ),
+                  );
+                }).toList(),
+              ),
+            const SizedBox(height: 60),
+            const ChoseSizeBottom(),
+          ],
+        ),
+      ),
+    );
   }
 }

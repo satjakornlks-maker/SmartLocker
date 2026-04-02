@@ -329,7 +329,7 @@ abstract class AppLocalizations {
   /// No description provided for @successSupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Thank you for using Smart Locker'**
+  /// **'Look for the locker that have flashing light and push that locker to open also, Thank you for using Smart Locker'**
   String get successSupTitle;
 
   /// No description provided for @registerSuccess.

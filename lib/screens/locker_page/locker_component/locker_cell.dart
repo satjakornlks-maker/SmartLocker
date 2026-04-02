@@ -45,7 +45,7 @@ class LockerCell extends StatelessWidget {
     // Determine availability based on mode
     final isAvailable = mode == LockerSelectionMode.unlock
         ? status // For unlock mode, select occupied (status: true)
-        : !status && !isEnable; // For booking mode, select available
+        : !(status && isEnable); // For booking mode: red only when BOTH booked AND disabled
 
     final isSelected = selectedLocker == lockerId;
 
@@ -53,6 +53,7 @@ class LockerCell extends StatelessWidget {
     final Color buttonColor = _getButtonColor(
       isFiltered: isFiltered,
       isSelected: isSelected,
+      isEnable: isEnable,
       status: status,
       isAvailable: isAvailable,
     );
@@ -61,6 +62,8 @@ class LockerCell extends StatelessWidget {
     // Calculate responsive font and icon sizes based on cell size
     final double baseFontSize = (cellWidth * 0.18).clamp(10.0, 16.0);
     final double iconSize = (cellWidth * 0.3).clamp(16.0, 32.0);
+
+    final String? groupTag = entry['lockerName'] as String?;
 
     return Positioned(
       left: left,
@@ -89,11 +92,14 @@ class LockerCell extends StatelessWidget {
             ),
           ],
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Material(
+              color: Colors.transparent,
+              child: InkWell(
             borderRadius: BorderRadius.circular(10),
-            onTap: isFiltered
+            onTap: isFiltered && isEnable
                 ? () => onTap(lockerId, isAvailable, lockerName)
                 : null,
             child: Container(
@@ -140,7 +146,31 @@ class LockerCell extends StatelessWidget {
                 ],
               ),
             ),
+            ),
+            ),
           ),
+          // Group tag badge
+          if (groupTag != null && groupTag.isNotEmpty)
+            Positioned(
+              top: 4,
+              left: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade700,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  groupTag,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -149,10 +179,13 @@ class LockerCell extends StatelessWidget {
   Color _getButtonColor({
     required bool isFiltered,
     required bool isSelected,
+    required bool isEnable,
     required bool status,
     required bool isAvailable,
   }) {
-    if (!isFiltered) {
+    if (!isEnable) {
+      return Colors.grey.shade300; // Disabled unit — always grey
+    } else if (!isFiltered) {
       return Colors.grey.shade300;
     } else if (isSelected) {
       return Colors.yellow.shade700;
