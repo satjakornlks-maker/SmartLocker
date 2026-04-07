@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
-class HomepageBottom extends StatelessWidget{
+import 'package:untitled/services/app_settings.dart';
+
+class HomepageBottom extends StatelessWidget {
   const HomepageBottom({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "©LANNACOM 2026",
-          style: TextStyle(color: Colors.grey),
-        ),
-        const Text(
-          "SECURE ACCESS",
-          style: TextStyle(color: Colors.grey),
-        ),
-      ],
+    return AnimatedBuilder(
+      animation: AppSettings.instance,
+      builder: (context, _) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppSettings.instance.footerLeft,
+              style: const TextStyle(color: Colors.grey),
+            ),
+            Flexible(
+              child: Text(
+                AppSettings.instance.contactInfo,
+                textAlign: TextAlign.right,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

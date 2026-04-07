@@ -4,8 +4,8 @@ import 'package:untitled/screens/home_page/homepage_component/homepage_menu.dart
 
 import '../../../l10n/app_localizations.dart';
 
-class HomepageMianContent extends StatelessWidget{
-  const HomepageMianContent({super.key});
+class HomepageMainContent extends StatelessWidget{
+  const HomepageMainContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class HomepageMianContent extends StatelessWidget{
           const SizedBox(height: 5),
           Text(AppLocalizations.of(context)!.chose),
           const SizedBox(height: 20),
-          const HomepageMenu(),
+          const HomePageMenu(),
           const SizedBox(height: 30),
           const HomepageBottom(),
           // TextButton(onPressed: (){Navigator.pushNamed(context,'/test-page');}, child: Text("TestPage"))

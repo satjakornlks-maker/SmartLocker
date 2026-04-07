@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/services/device_config_service.dart';
@@ -42,21 +43,22 @@ class OTPPage extends StatefulWidget {
 
 class _OTPPageState extends State<OTPPage> {
   final ApiService _apiService = ApiService();
+
   late int resetPass;
   bool _isLoading = false;
-  // OTP input controllers - 6 digits
+
   final List<String> _otpDigits = List.filled(6, '', growable: true);
   int _currentIndex = 0;
 
-  // State variables
   String? refCode;
   int? userId;
+
   String get systemMode => DeviceConfigService.systemMode;
+
   @override
   void initState() {
     super.initState();
     resetPass = 3;
-    // Initialize from passed parameters (OTP already sent by previous page)
     refCode = widget.refCode;
     userId = widget.userId;
   }
@@ -65,115 +67,235 @@ class _OTPPageState extends State<OTPPage> {
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
+    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      body: SafeArea(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? const [
+                    Color(0xFF08111F),
+                    Color(0xFF0D1B2A),
+                    Color(0xFF132238),
+                  ]
+                : const [
+                    Color(0xFFF7FAFF),
+                    Color(0xFFEFF4FB),
+                    Color(0xFFE4EDF8),
+                  ],
+          ),
+        ),
         child: Stack(
           children: [
-            Column(
-              children: [
-                const SizedBox(height: 20),
-                Header(
-                  currentLocale: currentLocale,
-                  onLanguageSwitch: () {
-                    appState?.toggleLocale();
-                  },
-                  onBackPressed: _handleBackPressed,
-                ),
-                Expanded(child: _buildBody()),
-              ],
+            _BackgroundGlow(
+              top: -120,
+              left: -80,
+              size: 260,
+              color: isDark
+                  ? Colors.cyanAccent.withOpacity(0.08)
+                  : Colors.blue.withOpacity(0.16),
             ),
-            if (_isLoading)
-              Container(
-                color: Colors.black54,
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.deepPurple,
-                    ),
+            _BackgroundGlow(
+              top: 100,
+              right: -90,
+              size: 220,
+              color: isDark
+                  ? Colors.blueAccent.withOpacity(0.08)
+                  : Colors.indigo.withOpacity(0.12),
+            ),
+            _BackgroundGlow(
+              bottom: -120,
+              left: 30,
+              size: 280,
+              color: isDark
+                  ? Colors.tealAccent.withOpacity(0.06)
+                  : Colors.cyan.withOpacity(0.10),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: _GlassShell(
+                  isDark: isDark,
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                            child: Header(
+                              currentLocale: currentLocale,
+                              onLanguageSwitch: () {
+                                appState?.toggleLocale();
+                              },
+                              onBackPressed: _handleBackPressed,
+                            ),
+                          ),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.fromLTRB(20, 6, 20, 20),
+                              child: _buildBody(isDark),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (_isLoading)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.45),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool isDark) {
     final hasLockerData = widget.lockerData.isNotEmpty;
+    final isNarrow = MediaQuery.of(context).size.width < 980;
 
-    if (hasLockerData) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Left side: Locker mini map
-          Expanded(
-            flex: 5,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 10.0),
-                child: LockerMiniMap(
-                  lockerData: widget.lockerData,
-                  selectedLockerId: widget.lockerId,
-                  selectedLockerName: widget.lockerName,
+    if (hasLockerData && !isNarrow) {
+      return ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: isDark
+                        ? Colors.white.withOpacity(0.04)
+                        : Colors.white.withOpacity(0.35),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : Colors.black.withOpacity(0.05),
+                    ),
+                  ),
+                  child: LockerMiniMap(
+                    lockerData: widget.lockerData,
+                    selectedLockerId: widget.lockerId,
+                    selectedLockerName: widget.lockerName,
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 18),
+              Expanded(flex: 6, child: _buildOtpContent(isDark)),
+            ],
           ),
-          // Right side: OTP content
-          Expanded(flex: 6, child: _buildOtpContent()),
-        ],
+        ),
       );
     }
 
-    return _buildOtpContent();
-  }
-
-  Widget _buildOtpContent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 720),
       child: Column(
         children: [
-          const SizedBox(height: 75),
+          if (hasLockerData) ...[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: isDark
+                    ? Colors.white.withOpacity(0.04)
+                    : Colors.white.withOpacity(0.35),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.08)
+                      : Colors.black.withOpacity(0.05),
+                ),
+              ),
+              child: LockerMiniMap(
+                lockerData: widget.lockerData,
+                selectedLockerId: widget.lockerId,
+                selectedLockerName: widget.lockerName,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          _buildOtpContent(isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOtpContent(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: isDark
+            ? Colors.white.withOpacity(0.04)
+            : Colors.white.withOpacity(0.35),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withOpacity(0.08)
+              : Colors.black.withOpacity(0.05),
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 4),
           OtpTitle(resetPass: resetPass),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           if (widget.from != FromPage.unlock)
             PhoneDisplay(
               telOrEmail: widget.telOrEmail,
               lockerName: widget.lockerName,
             ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           OtpInputBox(otpDigits: _otpDigits),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          const SizedBox(height: 12),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
             children: [
-              resetPass != 3
-                  ? const SizedBox.shrink()
-                  : widget.from != FromPage.unlock
-                  ? RefcodeAndResend(
-                      refCode: refCode,
-                      handleResendOTP: _handleResendOTP,
-                    )
-                  : _buildForgotPassword(),
-              SizedBox(width: 10),
-              if (widget.from == FromPage.unlock && resetPass == 3)
-                systemMode != "B2C" ? _buildResetPassword() : SizedBox.shrink(),
+              if (resetPass == 3)
+                widget.from != FromPage.unlock
+                    ? RefcodeAndResend(
+                        refCode: refCode,
+                        handleResendOTP: _handleResendOTP,
+                      )
+                    : _buildForgotPassword(),
+              if (widget.from == FromPage.unlock &&
+                  resetPass == 3 &&
+                  systemMode != "B2C")
+                _buildResetPassword(),
             ],
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 20),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 350),
+            constraints: const BoxConstraints(maxWidth: 360),
             child: Column(
               children: [
                 _buildNumericKeypad(),
-                const SizedBox(height: 25),
+                const SizedBox(height: 20),
                 OtpConfirmButton(
                   otpDigits: _otpDigits,
                   handleSubmitOTP: _handleSubmitOTP,
                 ),
-                const SizedBox(height: 15),
               ],
             ),
           ),
@@ -190,19 +312,19 @@ class _OTPPageState extends State<OTPPage> {
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
         KeypadRow(
           keys: ['4', '5', '6'],
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
         KeypadRow(
           keys: ['7', '8', '9'],
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
         KeypadRow(
           keys: ['0', 'delete'],
           handleDelete: _handleDelete,
@@ -236,13 +358,13 @@ class _OTPPageState extends State<OTPPage> {
       return;
     }
     setState(() => _isLoading = true);
-    String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
+    final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
     try {
       final result = await _apiService.sendOTP(
         cleanValue,
         cleanValue.contains('@'),
         widget.lockerId!,
-        widget.from == FromPage.visitor ? true : false,
+        widget.from == FromPage.visitor,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -251,7 +373,7 @@ class _OTPPageState extends State<OTPPage> {
         context.showSuccessSnackBar(AppLocalizations.of(context)!.otpSuccess);
         setState(() {
           refCode = result['data']['refercode'] ?? '';
-          userId = result['data']['userId'] ?? '';
+          userId = result['data']['userId'];
         });
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -270,7 +392,6 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Future<void> _handleResendOTP() async {
-    // Clear current OTP input
     setState(() {
       _otpDigits.fillRange(0, 6, '');
       _currentIndex = 0;
@@ -279,7 +400,7 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Future<void> _handleSubmitOTP() async {
-    String otpCode = _otpDigits.join('');
+    final otpCode = _otpDigits.join('');
     if (otpCode.length != 6) {
       context.showWarningSnackBar(AppLocalizations.of(context)!.otpWarning);
       return;
@@ -293,10 +414,8 @@ class _OTPPageState extends State<OTPPage> {
           widget.lockerId!,
           otpCode,
         );
-        if(result['success']){
-          if(!mounted) {
-            return;
-          }
+        if (result['success']) {
+          if (!mounted) return;
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -329,9 +448,7 @@ class _OTPPageState extends State<OTPPage> {
               _currentIndex = 0;
             });
           } else {
-            if (!mounted) {
-              return;
-            }
+            if (!mounted) return;
             context.showErrorSnackBar(AppLocalizations.of(context)!.wrongOtp);
           }
         } catch (e) {
@@ -368,7 +485,7 @@ class _OTPPageState extends State<OTPPage> {
           );
         }
       } else {
-        String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
+        final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
         final result = await _apiService.handleSubmitOTP(
           cleanValue,
           otpCode,
@@ -398,8 +515,8 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Future<void> _bookLocker(int userId, String otp) async {
-    DateTime now = DateTime.now();
-    String cleanValue = widget.telOrEmail!.replaceAll(' ', '');
+    final now = DateTime.now();
+    final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
     try {
       final result = await _apiService.bookLocker(
         cleanValue.contains('@'),
@@ -408,7 +525,7 @@ class _OTPPageState extends State<OTPPage> {
         otp,
         now,
         userId,
-        widget.from != FromPage.visitor ? false : true,
+        widget.from == FromPage.visitor,
       );
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -471,7 +588,7 @@ class _OTPPageState extends State<OTPPage> {
       },
       child: Text(
         AppLocalizations.of(context)!.resetPassOption,
-        style: TextStyle(decoration: TextDecoration.underline),
+        style: const TextStyle(decoration: TextDecoration.underline),
       ),
     );
   }
@@ -491,21 +608,19 @@ class _OTPPageState extends State<OTPPage> {
       ),
       child: Text(
         AppLocalizations.of(context)!.forgotPass,
-        style: TextStyle(decoration: TextDecoration.underline),
+        style: const TextStyle(decoration: TextDecoration.underline),
       ),
     );
   }
 
   void _handleBackPressed() {
     if (resetPass != 3) {
-      // Reset to initial state
       setState(() {
         resetPass = 3;
-        _otpDigits.fillRange(0, 6, ''); // Clear OTP
+        _otpDigits.fillRange(0, 6, '');
         _currentIndex = 0;
       });
     } else {
-      // Normal back navigation
       Navigator.pop(context);
     }
   }
@@ -513,5 +628,83 @@ class _OTPPageState extends State<OTPPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+}
+
+class _GlassShell extends StatelessWidget {
+  final Widget child;
+  final bool isDark;
+
+  const _GlassShell({required this.child, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.white.withOpacity(0.30),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withOpacity(0.10)
+                  : Colors.white.withOpacity(0.55),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withOpacity(0.28)
+                    : Colors.black.withOpacity(0.08),
+                blurRadius: 30,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _BackgroundGlow extends StatelessWidget {
+  final double size;
+  final double? top;
+  final double? left;
+  final double? right;
+  final double? bottom;
+  final Color color;
+
+  const _BackgroundGlow({
+    required this.size,
+    required this.color,
+    this.top,
+    this.left,
+    this.right,
+    this.bottom,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom,
+      child: IgnorePointer(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        ),
+      ),
+    );
   }
 }

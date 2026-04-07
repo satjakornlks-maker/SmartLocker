@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 
-import '../../chose_size_page/chose_size_page.dart';
-import '../../locker_page/locker_selection_page.dart';
 import '../../register_page/register_page.dart';
 
 class BottomSelectionCard extends StatelessWidget{

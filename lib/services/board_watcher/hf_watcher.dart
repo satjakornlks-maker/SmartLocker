@@ -296,7 +296,7 @@ class HfWatcher {
               alertMessage: 'HF converter ${connection.ip}:${connection.port} connection lost: $e');
         }
       } finally {
-        await sock?.close();
+        await sock.close();
       }
 
       if (!stopped) await Future.delayed(reconnectDelay);
