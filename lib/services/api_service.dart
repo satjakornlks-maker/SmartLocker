@@ -18,6 +18,7 @@ class ApiService {
   String? _refreshToken;
   DateTime? _refreshTokenExpiry;
   bool _tokensLoaded = false;
+  String _lastAuthUrl = '';
 
   static const _kToken = 'auth_access_token';
   static const _kTokenExp = 'auth_access_expiry';
@@ -29,7 +30,7 @@ class ApiService {
       BaseOptions(
         baseUrl: DeviceConfigService.baseUrl.isNotEmpty
             ? DeviceConfigService.baseUrl
-            : "http://localhost:5183",
+            : "http://192.168.22.50:5183",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {'Content-Type': 'application/json'},
@@ -91,6 +92,17 @@ class ApiService {
   }
 
   Future<String> _getToken() async {
+    // If URL changed since last auth, clear stale in-memory tokens
+    final currentUrl = _dio.options.baseUrl;
+    if (_lastAuthUrl.isNotEmpty && _lastAuthUrl != currentUrl) {
+      _token = null;
+      _tokenExpiry = null;
+      _refreshToken = null;
+      _refreshTokenExpiry = null;
+      _tokensLoaded = false;
+    }
+    _lastAuthUrl = currentUrl;
+
     await _loadPersistedTokens();
 
     // 1. Access token still valid

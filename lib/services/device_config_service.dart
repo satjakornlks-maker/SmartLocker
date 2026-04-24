@@ -76,6 +76,26 @@ class DeviceConfigService {
     _systemMode = prefs.getString(_keySystemMode) ?? 'B2C';
   }
 
+  /// Update the base URL at runtime (e.g. from Settings page) without restarting.
+  /// Clears all auth tokens and cached server data so the app re-authenticates.
+  static Future<void> updateBaseUrl(String newUrl) async {
+    newUrl = newUrl.trim();
+    if (newUrl.isEmpty || newUrl == _baseUrl) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_access_token');
+    await prefs.remove('auth_access_expiry');
+    await prefs.remove('auth_refresh_token');
+    await prefs.remove('auth_refresh_expiry');
+    await prefs.remove(_keyLockerIds);
+    await prefs.remove(_keyAssignedLocker);
+    await prefs.remove(_keySystemMode);
+    await prefs.setString(_keyLastConfigUrl, newUrl);
+    _baseUrl = newUrl;
+    _lockerIds = [];
+    _assignedLocker = 0;
+    _systemMode = 'B2C';
+  }
+
   /// Call after a successful API sync to persist the latest server config.
   /// Note: base URL is NOT updated here — it is always sourced from config.json.
   static Future<void> updateFromServer({

@@ -35,7 +35,7 @@ void main() async {
   const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
   const envBootstrapUrl = String.fromEnvironment(
     'BOOTSTRAP_URL',
-    defaultValue: 'http://10.3.0.4:5183',
+    defaultValue: 'http://192.168.22.50:5183',
   );
 
   final fileConfig = await readConfigFile();
@@ -43,8 +43,8 @@ void main() async {
   final rawBootstrapFromFile = ((fileConfig['BOOTSTRAP_URL'] as String?) ?? '')
       .trim();
 
-  final bootstrapUrl = AppSettings.instance.bootstrapUrl.isNotEmpty
-      ? AppSettings.instance.bootstrapUrl
+  final bootstrapUrl = AppSettings.instance.apiBaseUrl.isNotEmpty
+      ? AppSettings.instance.apiBaseUrl
       : (rawBootstrapFromFile.isNotEmpty
             ? rawBootstrapFromFile
             : envBootstrapUrl);

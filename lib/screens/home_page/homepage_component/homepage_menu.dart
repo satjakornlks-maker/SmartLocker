@@ -55,7 +55,7 @@ class HomePageMenu extends StatelessWidget {
             icon: Icons.inventory_2_rounded,
             accentColor: const Color(0xFF0F9D58),
             onTap: () {
-              Navigator.pushNamed(context, '/otp-unlock-page');
+              Navigator.pushNamed(context, '/unlock');
             },
           ),
         ),

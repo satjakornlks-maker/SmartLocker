@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:untitled/services/app_settings.dart';
+import 'package:untitled/services/device_config_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -85,6 +86,8 @@ class _SettingsPageState extends State<SettingsPage> {
       pollSec: double.tryParse(_pollSecController.text) ?? 0.3,
       sockTimeout: double.tryParse(_sockTimeoutController.text) ?? 2.0,
     );
+
+    await DeviceConfigService.updateBaseUrl(_apiBaseUrlController.text);
 
     await AppSettings.instance.updateSettingsPassword(
       _settingsPasswordController.text,
