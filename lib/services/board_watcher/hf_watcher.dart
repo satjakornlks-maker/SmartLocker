@@ -1,5 +1,6 @@
 // lib/services/board_watcher/hf_watcher.dart
 // Per-HF-converter polling loop: initial IR check + persistent status polling.
+import 'package:flutter/foundation.dart';
 
 import 'dart:async';
 
@@ -48,9 +49,9 @@ class HfWatcher {
 
   Future<void> _printAllBoardsStatus(HfSocket sock) async {
     final cus = connection.cuAddresses;
-    print('\n[${_ts()}] ${'=' * 50}');
-    print('[${_ts()}] ALL BOARDS IR STATUS CHECK');
-    print('[${_ts()}] ${'=' * 50}');
+    debugPrint('\n[${_ts()}] ${'=' * 50}');
+    debugPrint('[${_ts()}] ALL BOARDS IR STATUS CHECK');
+    debugPrint('[${_ts()}] ${'=' * 50}');
     for (final cuAddr in cus) {
       final hex      = '0x${cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase()}';
       final status   = await _checkIrEachChannel(sock, cuAddr);
@@ -58,38 +59,38 @@ class HfWatcher {
       final noData   = status.entries.where((e) => e.value == 'NO_DATA').length;
       final empty    = status.entries.where((e) => e.value == 'EMPTY').length;
       if (noData == 16) {
-        print('[${_ts()}] CU $hex: ✗ NO DATA (board offline?)');
+        debugPrint('[${_ts()}] CU $hex: ✗ NO DATA (board offline?)');
       } else {
-        print('[${_ts()}] CU $hex: DETECTED=${detected.isEmpty ? 'none' : detected} | EMPTY=$empty channels');
+        debugPrint('[${_ts()}] CU $hex: DETECTED=${detected.isEmpty ? 'none' : detected} | EMPTY=$empty channels');
       }
     }
-    print('[${_ts()}] ${'=' * 50}\n');
+    debugPrint('[${_ts()}] ${'=' * 50}\n');
   }
 
   Future<bool> _initialIrCheck(HfSocket sock) async {
     final cus = connection.cuAddresses;
-    print('\n[${_ts()}] Initial IR Sensor Check (CU16C Protocol 0x70)');
-    print('=' * 50);
+    debugPrint('\n[${_ts()}] Initial IR Sensor Check (CU16C Protocol 0x70)');
+    debugPrint('=' * 50);
     var anyConnected = false;
     for (final cuAddr in cus) {
       final hex    = '0x${cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase()}';
       final status = await _checkIrEachChannel(sock, cuAddr);
-      print('\nCU $hex:');
+      debugPrint('\nCU $hex:');
       var hasData = false;
       for (var ch = 1; ch <= 16; ch++) {
         final val  = status[ch]!;
         final icon = val == 'NO_DATA' ? '✗' : val == 'DETECTED' ? '✓' : '○';
-        print('  CH${ch.toString().padLeft(2, '0')}: $icon $val');
+        debugPrint('  CH${ch.toString().padLeft(2, '0')}: $icon $val');
         if (val != 'NO_DATA') hasData = true;
       }
       if (hasData) {
         anyConnected = true;
-        print('  >>> Board $hex: ONLINE');
+        debugPrint('  >>> Board $hex: ONLINE');
       } else {
-        print('  >>> Board $hex: OFFLINE or NO RESPONSE');
+        debugPrint('  >>> Board $hex: OFFLINE or NO RESPONSE');
       }
     }
-    print('=' * 50);
+    debugPrint('=' * 50);
     return anyConnected;
   }
 
@@ -112,7 +113,7 @@ class HfWatcher {
       if (initSock == null) throw Exception('cannot connect');
       final boardsOk = await _initialIrCheck(initSock);
       if (!boardsOk) {
-        print('\n[${_ts()}] $label ERROR: No boards responding. Notifying API...');
+        debugPrint('\n[${_ts()}] $label ERROR: No boards responding. Notifying API...');
         for (final cuAddr in cus) {
           await api.notifyBoardOffline(allLockerMaps[cuAddr] ?? {}, cuAddr,
               alertType: 'cu_offline',
@@ -122,9 +123,9 @@ class HfWatcher {
         }
         return;
       }
-      print('\n[${_ts()}] $label IR check passed. Continuing...\n');
+      debugPrint('\n[${_ts()}] $label IR check passed. Continuing...\n');
     } catch (e) {
-      print('[${_ts()}] $label Connection failed: $e');
+      debugPrint('[${_ts()}] $label Connection failed: $e');
       for (final cuAddr in cus) {
         await api.notifyBoardOffline(allLockerMaps[cuAddr] ?? {}, cuAddr,
             alertType: 'hf_offline',
@@ -152,9 +153,9 @@ class HfWatcher {
       try {
         sock = await HfSocket.connect(connection.ip, connection.port);
         if (sock == null) throw Exception('cannot connect');
-        print('[${_ts()}] $label Polling socket connected');
+        debugPrint('[${_ts()}] $label Polling socket connected');
       } catch (e) {
-        print('[${_ts()}] $label Polling connection failed: $e — retrying in 5s');
+        debugPrint('[${_ts()}] $label Polling connection failed: $e — retrying in 5s');
         for (final cuAddr in cus) {
           await api.notifyBoardOffline(allLockerMaps[cuAddr] ?? {}, cuAddr,
               alertType: 'hf_offline',
@@ -171,15 +172,15 @@ class HfWatcher {
           if (state.initialized) continue;
           final st = await queryStatus(sock, cuAddr, sockTimeout);
           if (st == null) {
-            print('[${_ts()}] $label WARN: No reply from CU 0x${cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase()}');
+            debugPrint('[${_ts()}] $label WARN: No reply from CU 0x${cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase()}');
             continue;
           }
           state.prevIr   = Map.from(st['ir']   as Map<int, int>);
           state.prevLock = Map.from(st['lock'] as Map<int, int>);
           state.initialized = true;
           final hex = cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase();
-          print('[${_ts()}] $label CU 0x$hex START IR=   ${List.generate(16, (i) => '${i + 1}:${state.prevIr[i + 1]}').join(', ')}');
-          print('[${_ts()}] $label CU 0x$hex START LOCK= ${List.generate(16, (i) => '${i + 1}:${state.prevLock[i + 1]}').join(', ')}');
+          debugPrint('[${_ts()}] $label CU 0x$hex START IR=   ${List.generate(16, (i) => '${i + 1}:${state.prevIr[i + 1]}').join(', ')}');
+          debugPrint('[${_ts()}] $label CU 0x$hex START LOCK= ${List.generate(16, (i) => '${i + 1}:${state.prevLock[i + 1]}').join(', ')}');
           final lockerMap = allLockerMaps[cuAddr] ?? {};
           for (var ch = 1; ch <= 16; ch++) {
             if (lockerMap.containsKey(ch)) {
@@ -188,7 +189,7 @@ class HfWatcher {
           }
           await Future.delayed(const Duration(milliseconds: 100));
         }
-        print('');
+        debugPrint('');
 
         // Polling loop
         while (!stopped) {
@@ -202,7 +203,7 @@ class HfWatcher {
               final hex      = cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase();
               final locked   = state.prevLock.entries.where((e) => e.value == 1).map((e) => e.key).toList();
               final occupied = state.prevIr.entries.where((e) => e.value == 1).map((e) => e.key).toList();
-              print('[${_ts()}] $label ♥ CU 0x$hex ALIVE | locked=$locked | occupied=$occupied');
+              debugPrint('[${_ts()}] $label ♥ CU 0x$hex ALIVE | locked=$locked | occupied=$occupied');
             }
             lastHeartbeat = now;
           }
@@ -210,7 +211,7 @@ class HfWatcher {
           // Retry locker map for CUs with no data
           final missing = cus.where((a) => (allLockerMaps[a] ?? {}).isEmpty).toList();
           if (missing.isNotEmpty && now.difference(lastApiRetry).inSeconds >= apiRetrySec) {
-            print('[${_ts()}] $label Retrying locker map for ${missing.map((a) => '0x${a.toRadixString(16).padLeft(2, '0').toUpperCase()}').toList()}...');
+            debugPrint('[${_ts()}] $label Retrying locker map for ${missing.map((a) => '0x${a.toRadixString(16).padLeft(2, '0').toUpperCase()}').toList()}...');
             final apiData = await api.fetchLockerData();
             if (apiData != null) {
               final newMaps = LockerApiClient.buildLockerMapForAllCus(apiData, missing);
@@ -242,7 +243,7 @@ class HfWatcher {
             if (st2 == null) {
               failCounts[cuAddr] = failCounts[cuAddr]! + 1;
               final hex = cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase();
-              print('[${_ts()}] $label WARN: CU 0x$hex timeout (fail ${failCounts[cuAddr]}/$failThreshold)');
+              debugPrint('[${_ts()}] $label WARN: CU 0x$hex timeout (fail ${failCounts[cuAddr]}/$failThreshold)');
               if (failCounts[cuAddr]! >= failThreshold && !reportedOffline[cuAddr]!) {
                 await api.notifyBoardOffline(allLockerMaps[cuAddr] ?? {}, cuAddr,
                     alertType: 'cu_offline',
@@ -254,7 +255,7 @@ class HfWatcher {
 
             if (failCounts[cuAddr]! > 0 || reportedOffline[cuAddr]!) {
               final hex = cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase();
-              if (reportedOffline[cuAddr]!) print('[${_ts()}] $label CU 0x$hex is back ONLINE');
+              if (reportedOffline[cuAddr]!) debugPrint('[${_ts()}] $label CU 0x$hex is back ONLINE');
               failCounts[cuAddr]      = 0;
               reportedOffline[cuAddr] = false;
             }
@@ -269,15 +270,15 @@ class HfWatcher {
             if (irChg.isNotEmpty || lockChg.isNotEmpty) {
               for (final c in irChg) {
                 final ch = c[0], pv = c[1], cv = c[2];
-                print('[${_ts()}] $label CU 0x$hex IR   CH${ch.toString().padLeft(2, '0')}: $pv -> $cv   (${labelIr(cv)})');
+                debugPrint('[${_ts()}] $label CU 0x$hex IR   CH${ch.toString().padLeft(2, '0')}: $pv -> $cv   (${labelIr(cv)})');
                 if (lockerMap.isNotEmpty) await api.syncStatusToApi(lockerMap, cuAddr, ch, cv, curLock[ch]!);
               }
               for (final c in lockChg) {
                 final ch = c[0], pv = c[1], cv = c[2];
-                print('[${_ts()}] $label CU 0x$hex LOCK CH${ch.toString().padLeft(2, '0')}: $pv -> $cv   (${labelLock(cv)})');
+                debugPrint('[${_ts()}] $label CU 0x$hex LOCK CH${ch.toString().padLeft(2, '0')}: $pv -> $cv   (${labelLock(cv)})');
                 if (lockerMap.isNotEmpty) await api.syncStatusToApi(lockerMap, cuAddr, ch, curIr[ch]!, cv);
               }
-              print('[${_ts()}] $label CU 0x$hex RAW  ${hexDump(st2['raw'] as List<int>)}');
+              debugPrint('[${_ts()}] $label CU 0x$hex RAW  ${hexDump(st2['raw'] as List<int>)}');
               await _printAllBoardsStatus(sock);
             }
 
@@ -289,7 +290,7 @@ class HfWatcher {
           await Future.delayed(Duration(milliseconds: (pollSec * 1000).toInt()));
         }
       } catch (e) {
-        print('[${_ts()}] $label Connection lost: $e — reconnecting in 5s');
+        debugPrint('[${_ts()}] $label Connection lost: $e — reconnecting in 5s');
         for (final cuAddr in cus) {
           await api.notifyBoardOffline(allLockerMaps[cuAddr] ?? {}, cuAddr,
               alertType: 'hf_offline',
@@ -301,6 +302,6 @@ class HfWatcher {
 
       if (!stopped) await Future.delayed(reconnectDelay);
     }
-    print('[${_ts()}] $label Watcher stopped.');
+    debugPrint('[${_ts()}] $label Watcher stopped.');
   }
 }

@@ -24,6 +24,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get chose => 'เลือกรายการที่ท่านต้องการดำเนินการ';
 
   @override
+  String get chooseService => 'เลือกรายการที่ท่านต้องการดำเนินการ';
+
+  @override
   String get employee => 'พนักงาน';
 
   @override
@@ -87,10 +90,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get unlock => 'ปลดล็อค';
 
   @override
-  String get phoneInstruct => 'กรุณากรอกเบอร์โทรศัพท์';
+  String get phoneInstruct => 'กรอกเบอร์โทรศัพท์ — ระบบจะส่งรหัส OTP ให้';
 
   @override
-  String get emailInstruct => 'กรุณากรอกอีเมล';
+  String get emailInstruct => 'กรอกอีเมล — ระบบจะส่งรหัส OTP ให้';
 
   @override
   String get resend => 'ส่งรหัสใหม่';
@@ -124,28 +127,29 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get successSupTitle =>
-      'มองหาตู้ที่ไฟกระพริบและกดตู้นั้นเพื่อเปิดออก ขอบคุณที่ใช้บริการ';
+      'มองหาตู้ที่ไฟกระพริบและกดตู้นั้นเพื่อเปิด ขอบคุณที่ใช้บริการ';
 
   @override
   String get registerSuccess => 'สมัครสมาชิกเสร็จสิ้น';
 
   @override
-  String get errorOccur => 'เกิดข้อผิดพลาด';
+  String get errorOccur => 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
 
   @override
   String get noLocker => 'ไม่มีล็อคเกอร์ที่ว่างอยู่';
 
   @override
-  String get otpSuccess => 'ส่ง OTP เสร็จสิ้น';
+  String get otpSuccess => 'ส่ง OTP เรียบร้อยแล้ว';
 
   @override
   String get otpWarning => 'กรุณากรอก OTP ให้ครบ 6 หลัก';
 
   @override
-  String get wrongOtp => 'PIN ไม่ตรงกับที่ลงทะเบียนไว้';
+  String get wrongOtp => 'รหัส OTP ไม่ถูกต้อง กรุณาตรวจสอบแล้วลองใหม่อีกครั้ง';
 
   @override
-  String get wrongEmail => 'อีเมลนี้ไม่ตรงกับอีเมลที่ลงทะเบียนกับตู้นี้';
+  String get wrongEmail =>
+      'อีเมลนี้ไม่ได้ลงทะเบียนไว้ กรุณาตรวจสอบแล้วลองใหม่อีกครั้ง';
 
   @override
   String get noAvailableLocker => 'ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง';
@@ -154,7 +158,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get loading => 'กำลังโหลดข้อมูลตู้...';
 
   @override
-  String get wrongPhone => 'หมายเลขนี้ไม่ตรงกับหมายเลขที่ลงทะเบียนกับตู้นี้';
+  String get wrongPhone =>
+      'หมายเลขนี้ไม่ได้ลงทะเบียนไว้ กรุณาตรวจสอบแล้วลองใหม่อีกครั้ง';
 
   @override
   String get locker => 'ตู้';
@@ -177,6 +182,48 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get endOfUse => 'เปิดเพื่อจบการใช้งานตู้นี้ (คืนตู้)';
+
+  @override
+  String get whatWouldYouLikeToDo => 'คุณต้องการทำอะไรต่อไป?';
+
+  @override
+  String get registrationComplete => 'ลงทะเบียนสำเร็จ!';
+
+  @override
+  String get awaitingApproval => 'รอการตอบกลับจากผู้ดูแล';
+
+  @override
+  String get backToHome => 'กลับสู่หน้าหลัก';
+
+  @override
+  String get choosePreferredMethod => 'เลือกช่องทางที่ต้องการ';
+
+  @override
+  String get registerTitle => 'สมัครสมาชิก';
+
+  @override
+  String get registerSubtitle => 'กรอกข้อมูลเพื่อสมัครใช้งานตู้ประจำ';
+
+  @override
+  String get fullName => 'ชื่อ-นามสกุล';
+
+  @override
+  String get reason => 'เหตุผล';
+
+  @override
+  String get pleaseEnterName => 'กรุณากรอกชื่อ';
+
+  @override
+  String get pleaseEnterReason => 'กรุณากรอกเหตุผล';
+
+  @override
+  String get reasonForBooking => 'เหตุผลในการจอง';
+
+  @override
+  String get phoneNumber => 'เบอร์โทรศัพท์';
+
+  @override
+  String get submitRequest => 'ส่งคำร้อง';
 
   @override
   String get bookingTypeTitle => 'ประเภทการจอง\n(วันหรือชั่วโมง)';
@@ -303,7 +350,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get overtimeFine => 'ค่าปรับที่ต้องชำระ';
 
   @override
-  String get overtimePaymentTitle => 'หน้าเลือกวิธีการจ่ายเงิน';
+  String get overtimePaymentTitle => 'เลือกวิธีชำระเงิน';
 
   @override
   String get autoOpenNote =>
@@ -311,4 +358,71 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get dropBox => 'ฝากพัสดุ';
+
+  @override
+  String get appTitle => 'SMART LOCKER';
+
+  @override
+  String get scanQrTitle => 'สแกน QR เพื่อลงทะเบียน';
+
+  @override
+  String get scanQrSubtitle => 'ลงทะเบียนผ่านมือถือของคุณ\nโดยสแกน QR code นี้';
+
+  @override
+  String get tryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get cancel => 'ยกเลิก';
+
+  @override
+  String get back => 'ย้อนกลับ';
+
+  @override
+  String get sessionTimeoutTitle => 'หมดเวลาใช้งาน';
+
+  @override
+  String get sessionTimeoutMessage => 'ไม่มีการใช้งาน กำลังกลับสู่หน้าหลัก';
+
+  @override
+  String get deleteDigit => 'ลบตัวเลขล่าสุด';
+
+  @override
+  String get goBack => 'ย้อนกลับ';
+
+  @override
+  String get languageSwitch => 'เปลี่ยนภาษา';
+
+  @override
+  String get loadingGeneric => 'กำลังโหลด...';
+
+  @override
+  String get pleaseWait => 'กรุณารอสักครู่';
+
+  @override
+  String get errorEnterEmailOrPhone => 'กรุณากรอกเบอร์โทรศัพท์หรืออีเมล';
+
+  @override
+  String get errorInvalidEmailFormat => 'รูปแบบอีเมลไม่ถูกต้อง';
+
+  @override
+  String get errorPhoneMustBe10Digits => 'เบอร์โทรศัพท์ต้องเป็น 10 หลัก';
+
+  @override
+  String get errorEnterValidEmailOrPhone =>
+      'กรุณากรอกอีเมลหรือเบอร์โทรศัพท์ที่ถูกต้อง';
+
+  @override
+  String get errorEnterOtp => 'กรุณากรอก OTP';
+
+  @override
+  String get errorOtpInvalid => 'กรุณากรอก OTP 6 หลักให้ถูกต้อง';
+
+  @override
+  String get errorEnterPhone => 'กรุณากรอกเบอร์โทรศัพท์';
+
+  @override
+  String get errorEnterEmail => 'กรุณากรอกอีเมล';
+
+  @override
+  String get errorInvalidEmail => 'รูปแบบอีเมลไม่ถูกต้อง';
 }

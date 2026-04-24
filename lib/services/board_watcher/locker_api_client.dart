@@ -3,6 +3,7 @@
 //   - HF config resolution (API fetch / env override)
 //   - Locker data fetch and mapping
 //   - Locker status update / offline notify / sync
+import 'package:flutter/foundation.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -56,7 +57,7 @@ class LockerApiClient {
           return {'_text': text};
         }
       }
-      print('[${_ts()}] HTTP POST $url → ${res.statusCode}');
+      debugPrint('[${_ts()}] HTTP POST $url → ${res.statusCode}');
       return null;
     } catch (e) {
       rethrow;
@@ -76,7 +77,7 @@ class LockerApiClient {
       final res = await req.close().timeout(const Duration(seconds: 5));
       final text = await res.transform(utf8.decoder).join();
       if (res.statusCode == 200) return jsonDecode(text);
-      print('[${_ts()}] HTTP GET $url → ${res.statusCode}');
+      debugPrint('[${_ts()}] HTTP GET $url → ${res.statusCode}');
       return null;
     } catch (e) {
       rethrow;
@@ -89,7 +90,7 @@ class LockerApiClient {
 
   Future<List<HFConnection>> _fetchHfConfig() async {
     if (assignedLocker <= 0) {
-      print('[${_ts()}] WARN: assignedLocker not set (value=$assignedLocker) — no HF connections');
+      debugPrint('[${_ts()}] WARN: assignedLocker not set (value=$assignedLocker) — no HF connections');
       return [];
     }
     try {
@@ -99,12 +100,12 @@ class LockerApiClient {
         final port  = (data['hf_port'] as num).toInt();
         final addrs = (data['cu_addresses'] as List).cast<String>().join(',');
         final conn  = HFConnection(ip, port, parseCuAddresses(addrs));
-        print('[${_ts()}] Loaded HF config from API: $conn');
+        debugPrint('[${_ts()}] Loaded HF config from API: $conn');
         return [conn];
       }
-      print('[${_ts()}] WARN: HF config API returned no data — no HF connections');
+      debugPrint('[${_ts()}] WARN: HF config API returned no data — no HF connections');
     } catch (e) {
-      print('[${_ts()}] WARN: Could not fetch HF config ($e) — no HF connections');
+      debugPrint('[${_ts()}] WARN: Could not fetch HF config ($e) — no HF connections');
     }
     return [];
   }
@@ -117,7 +118,7 @@ class LockerApiClient {
         if (e.isEmpty) continue;
         final parts = e.split(':');
         if (parts.length < 3) {
-          print('WARN: Invalid HF_CONNECTIONS entry: "$e"');
+          debugPrint('WARN: Invalid HF_CONNECTIONS entry: "$e"');
           continue;
         }
         list.add(HFConnection(
@@ -136,10 +137,10 @@ class LockerApiClient {
   Future<dynamic> fetchLockerData() async {
     try {
       final data = await httpGet('$apiBaseUrl/init/get_all_locker_unit');
-      print('[${_ts()}] API GET locker data: OK');
+      debugPrint('[${_ts()}] API GET locker data: OK');
       return data;
     } catch (e) {
-      print('[${_ts()}] API GET locker data error: $e');
+      debugPrint('[${_ts()}] API GET locker data error: $e');
       return null;
     }
   }
@@ -162,7 +163,7 @@ class LockerApiClient {
         }
       }
       result[cuAddr] = map;
-      print('[${DateTime.now()}] Loaded ${map.length} lockers for CU $cuCode');
+      debugPrint('[${DateTime.now()}] Loaded ${map.length} lockers for CU $cuCode');
     }
     return result;
   }
@@ -191,7 +192,7 @@ class LockerApiClient {
       });
       return result != null;
     } catch (e) {
-      print('[${_ts()}] updateLockerStatus error: $e');
+      debugPrint('[${_ts()}] updateLockerStatus error: $e');
       return false;
     }
   }
@@ -204,7 +205,7 @@ class LockerApiClient {
   }) async {
     final hex = '0x${cuAddr.toRadixString(16).padLeft(2, '0').toUpperCase()}';
     if (lockerMap.isEmpty) {
-      print('[${_ts()}] WARN: No locker map for CU $hex, cannot notify offline');
+      debugPrint('[${_ts()}] WARN: No locker map for CU $hex, cannot notify offline');
       return;
     }
     for (final entry in lockerMap.entries) {
@@ -222,9 +223,9 @@ class LockerApiClient {
           'message':      alertMessage,
           'is_read':      false,
         });
-        print('[${_ts()}] API: $lockerName (ID:$lockerUId) reported OFFLINE');
+        debugPrint('[${_ts()}] API: $lockerName (ID:$lockerUId) reported OFFLINE');
       } catch (e) {
-        print('[${_ts()}] API offline report error for $lockerName: $e');
+        debugPrint('[${_ts()}] API offline report error for $lockerName: $e');
       }
     }
   }
@@ -248,7 +249,7 @@ class LockerApiClient {
     if (newStatus != dbStatus) {
       final ok = await updateLockerStatus(lockerUId, newStatus, occupied, cuCode: hex);
       if (ok) {
-        print('[${_ts()}] API: $name (ID:$lockerUId) -> $newStatus, has_item=$occupied');
+        debugPrint('[${_ts()}] API: $name (ID:$lockerUId) -> $newStatus, has_item=$occupied');
         locker['_synced_status'] = newStatus;
       }
     }

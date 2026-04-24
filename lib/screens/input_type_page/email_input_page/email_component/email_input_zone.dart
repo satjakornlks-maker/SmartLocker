@@ -1,54 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/theme/theme.dart';
 
-class EmailInputZone extends StatelessWidget{
+class EmailInputZone extends StatelessWidget {
   final bool isLoading;
   final FocusNode focusNode;
   final TextEditingController emailController;
   final VoidCallback onChanged;
-  const EmailInputZone({super.key, required this.isLoading, required this.emailController, required this.focusNode, required this.onChanged});
+  const EmailInputZone({
+    super.key,
+    required this.isLoading,
+    required this.emailController,
+    required this.focusNode,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      absorbing: isLoading, // Disable input when loading
+      absorbing: isLoading,
       child: Opacity(
-        opacity: isLoading ? 0.5 : 1.0, // Reduce opacity when loading
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 500),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.grey.shade300),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: emailController,
-            focusNode: focusNode,
-            keyboardType: TextInputType.emailAddress,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
+        opacity: isLoading ? 0.5 : 1.0,
+        child: Semantics(
+          label: 'Email address',
+          textField: true,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadius.lgRadius,
+              border: Border.all(color: AppColors.border),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.shadow,
+                  blurRadius: 5,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-            decoration: InputDecoration(
-              hintText: 'example@email.com',
-              hintStyle: TextStyle(fontSize: 24, color: Colors.grey.shade400),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 20,
-                horizontal: 30,
+            child: TextField(
+              controller: emailController,
+              focusNode: focusNode,
+              keyboardType: TextInputType.emailAddress,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: AppText.family,
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
               ),
+              decoration: const InputDecoration(
+                hintText: 'example@email.com',
+                hintStyle: TextStyle(
+                  fontFamily: AppText.family,
+                  fontSize: 22,
+                  color: AppColors.textDisabled,
+                ),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: AppSpacing.xl,
+                  horizontal: AppSpacing.xxxl,
+                ),
+              ),
+              onChanged: (value) {
+                onChanged.call();
+              },
             ),
-            onChanged: (value) {
-              onChanged.call(); // Rebuild to update button state
-            },
           ),
         ),
       ),

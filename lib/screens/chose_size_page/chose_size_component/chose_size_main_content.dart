@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:untitled/services/device_config_service.dart';
+import 'package:untitled/theme/theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/api_service.dart';
 import '../../../../widgets/grid/HoverMenuCard.dart';
@@ -16,7 +17,12 @@ class ChoseSizeMainContent extends StatefulWidget {
   final LockerSelectionMode? mode;
   final FromPage? from;
   final ValueChanged<bool>? onLoadingChanged;
-  const ChoseSizeMainContent({super.key, this.mode, this.from, this.onLoadingChanged});
+  const ChoseSizeMainContent({
+    super.key,
+    this.mode,
+    this.from,
+    this.onLoadingChanged,
+  });
 
   @override
   State<ChoseSizeMainContent> createState() => _ChoseSizeMainContentState();
@@ -30,8 +36,6 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
   @override
   void initState() {
     super.initState();
-    // Defer until after first frame so parent setState (loading overlay) doesn't
-    // fire during the parent's own build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _loadSizes();
     });
@@ -77,7 +81,8 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
       return;
     }
 
-    final available = result.data!.where((u) => u['_isFiltered'] == true).toList();
+    final available =
+        result.data!.where((u) => u['_isFiltered'] == true).toList();
     if (available.isEmpty) {
       context.showErrorSnackBar(AppLocalizations.of(context)!.noAvailableLocker);
       return;
@@ -117,7 +122,8 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
 
   String _label(Map<String, dynamic> size) {
     final locale = Localizations.localeOf(context).languageCode;
-    final fallback = (size['key'] ?? size['Key'] ?? size['size_key'] ?? '').toString();
+    final fallback =
+        (size['key'] ?? size['Key'] ?? size['size_key'] ?? '').toString();
     return locale == 'th'
         ? ((size['name_th'] ?? size['nameTh']) as String? ?? fallback)
         : ((size['name_en'] ?? size['nameEn']) as String? ?? fallback);
@@ -125,7 +131,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -133,33 +139,53 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.choseLockerType,
-              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              l.choseLockerType,
+              style: AppText.displayMediumR(context),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: AppSpacing.xl),
             if (!_sizesReady)
-              const SizedBox.shrink()
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(AppSpacing.xxl),
+                  child: CircularProgressIndicator(),
+                ),
+              )
             else if (_sizesError || _sizes.isEmpty)
-              Center(child: Text(l10n.noAvailableLocker))
+              Center(
+                child: Text(
+                  l.noAvailableLocker,
+                  style: AppText.bodyLarge.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              )
             else
               Wrap(
-                spacing: 20,
-                runSpacing: 20,
+                spacing: AppSpacing.xl,
+                runSpacing: AppSpacing.xl,
                 children: _sizes.map((size) {
-                  final key = (size['key'] ?? size['Key'] ?? size['size_key'] ?? '').toString();
+                  final key = (size['key'] ??
+                          size['Key'] ??
+                          size['size_key'] ??
+                          '')
+                      .toString();
+                  final label = _label(size);
                   return SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / _sizes.length,
+                    width: (MediaQuery.of(context).size.width -
+                            (AppSpacing.xl * 2)) /
+                        _sizes.length,
                     child: HoverMenuCard(
-                      titleTh: Text(_label(size), textAlign: TextAlign.center),
+                      titleTh: Text(label, textAlign: TextAlign.center),
+                      semanticLabel: '$label. Tap to pick this size.',
                       icon: Icons.home_work,
-                      color: Colors.blue,
+                      color: AppColors.primary,
                       onPressed: () => _onSizeSelected(key),
                       haveIcon: false,
                     ),
                   );
                 }).toList(),
               ),
-            const SizedBox(height: 60),
+            const SizedBox(height: AppSpacing.xxxl),
             const ChoseSizeBottom(),
           ],
         ),

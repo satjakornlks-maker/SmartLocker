@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
 class ChoseTimeLeftPanel extends StatelessWidget {
   final String bookingType;
@@ -27,80 +29,86 @@ class ChoseTimeLeftPanel extends StatelessWidget {
 
     return Container(
       decoration: _cardDecoration(),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             l10n.bookingTypeTitle,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            style: AppText.titleLargeR(context).copyWith(
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           _TypeCard(
             type: 'day',
             selectedType: bookingType,
             icon: Icons.calendar_today_rounded,
             label: l10n.bookByDay,
             price: '$dailyRate ${l10n.baht} / ${l10n.day}',
-            iconColor: const Color(0xFF4A90D9),
+            iconColor: AppColors.primary,
             onTap: () => onTypeChanged('day'),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           _TypeCard(
             type: 'hour',
             selectedType: bookingType,
             icon: Icons.access_time_rounded,
             label: l10n.bookByHour,
             price: '$hourlyRate ${l10n.baht} / ${l10n.hour}',
-            iconColor: Colors.blueGrey,
+            iconColor: AppColors.accent,
             onTap: () => onTypeChanged('hour'),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           Text(
             '${l10n.amount} ($unitLabel)',
-            style: const TextStyle(
-              fontSize: 14,
+            style: AppText.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
-          _buildQuantityStepper(unitLabel),
+          const SizedBox(height: AppSpacing.sm),
+          _buildQuantityStepper(context, unitLabel),
         ],
       ),
     );
   }
 
-  Widget _buildQuantityStepper(String unitLabel) {
+  Widget _buildQuantityStepper(BuildContext context, String unitLabel) {
     return Row(
       children: [
         _StepperButton(
           icon: Icons.remove,
           enabled: quantity > 1,
+          semanticLabel: 'Decrease $unitLabel',
           onTap: () => onQuantityChanged(quantity - 1),
         ),
         Expanded(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
+            margin:
+                const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
             padding: const EdgeInsets.symmetric(vertical: 13),
             decoration: BoxDecoration(
-              color: const Color(0xFFEBF4FF),
-              borderRadius: BorderRadius.circular(10),
+              // ignore: deprecated_member_use
+              color: AppColors.primary.withOpacity(0.08),
+              borderRadius: AppRadius.smRadius,
               border: Border.all(
-                color: const Color(0xFF4A90D9).withValues(alpha: 0.35),
+                // ignore: deprecated_member_use
+                color: AppColors.primary.withOpacity(0.35),
               ),
             ),
-            child: Center(
-              child: Text(
-                '$quantity $unitLabel',
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4A90D9),
+            child: Semantics(
+              liveRegion: true,
+              label: '$quantity $unitLabel',
+              child: Center(
+                child: Text(
+                  '$quantity $unitLabel',
+                  style: const TextStyle(
+                    fontFamily: AppText.family,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ),
@@ -109,6 +117,7 @@ class ChoseTimeLeftPanel extends StatelessWidget {
         _StepperButton(
           icon: Icons.add,
           enabled: quantity < _max,
+          semanticLabel: 'Increase $unitLabel',
           onTap: () => onQuantityChanged(quantity + 1),
         ),
       ],
@@ -117,11 +126,12 @@ class ChoseTimeLeftPanel extends StatelessWidget {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      color: AppColors.surface,
+      borderRadius: AppRadius.lgRadius,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
+          // ignore: deprecated_member_use
+          color: AppColors.shadow.withOpacity(0.08),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -155,62 +165,88 @@ class _TypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        decoration: BoxDecoration(
-          color: _isSelected ? const Color(0xFFEBF4FF) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _isSelected ? const Color(0xFF4A90D9) : Colors.grey.shade300,
-            width: _isSelected ? 2 : 1,
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+    return Semantics(
+      label: '$label. $price',
+      button: true,
+      selected: _isSelected,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          borderRadius: AppRadius.mdRadius,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            decoration: BoxDecoration(
+              color: _isSelected
+                  // ignore: deprecated_member_use
+                  ? AppColors.primary.withOpacity(0.08)
+                  : AppColors.surface,
+              borderRadius: AppRadius.mdRadius,
+              border: Border.all(
+                color: _isSelected ? AppColors.primary : AppColors.border,
+                width: _isSelected ? 2 : 1,
               ),
-              child: Icon(icon, color: iconColor, size: 26),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: _isSelected
-                          ? const Color(0xFF4A90D9)
-                          : Colors.black87,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: iconColor.withOpacity(0.12),
+                    borderRadius: AppRadius.smRadius,
+                  ),
+                  child: Icon(icon, color: iconColor, size: 26),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontFamily: AppText.family,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: _isSelected
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        price,
+                        style: AppText.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_isSelected)
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: const BoxDecoration(
+                      color: AppColors.success,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: AppColors.textOnPrimary,
+                      size: 16,
                     ),
                   ),
-                  Text(
-                    price,
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
+              ],
             ),
-            if (_isSelected)
-              Container(
-                width: 26,
-                height: 26,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF4CAF50),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check, color: Colors.white, size: 16),
-              ),
-          ],
+          ),
         ),
       ),
     );
@@ -220,30 +256,47 @@ class _TypeCard extends StatelessWidget {
 class _StepperButton extends StatelessWidget {
   final IconData icon;
   final bool enabled;
+  final String semanticLabel;
   final VoidCallback onTap;
 
   const _StepperButton({
     required this.icon,
     required this.enabled,
+    required this.semanticLabel,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: enabled ? const Color(0xFF4A90D9) : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          icon,
-          color: enabled ? Colors.white : Colors.grey.shade500,
-          size: 22,
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      enabled: enabled,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled
+              ? () {
+                  HapticFeedback.lightImpact();
+                  onTap();
+                }
+              : null,
+          borderRadius: AppRadius.smRadius,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: AppTouch.minTarget,
+            height: AppTouch.minTarget,
+            decoration: BoxDecoration(
+              color: enabled ? AppColors.primary : AppColors.surfaceMuted,
+              borderRadius: AppRadius.smRadius,
+            ),
+            child: Icon(
+              icon,
+              color:
+                  enabled ? AppColors.textOnPrimary : AppColors.textDisabled,
+              size: 22,
+            ),
+          ),
         ),
       ),
     );

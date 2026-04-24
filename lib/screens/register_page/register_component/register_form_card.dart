@@ -1,59 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/screens/register_page/register_component/register_styled_text_field.dart';
+import 'package:untitled/theme/theme.dart';
 
 import '../../../../validators/validator.dart';
 
-class RegisterFormCard extends StatelessWidget{
+class RegisterFormCard extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController telController;
   final TextEditingController emailController;
   final TextEditingController reasonController;
-  const RegisterFormCard({super.key, required this.nameController, required this.telController, required this.emailController, required this.reasonController});
+  const RegisterFormCard({
+    super.key,
+    required this.nameController,
+    required this.telController,
+    required this.emailController,
+    required this.reasonController,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         RegisterStyledTextField(
           controller: nameController,
-          label: 'ชื่อ-นามสกุล',
+          label: l.fullName,
           icon: Icons.badge_rounded,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'กรุณากรอกชื่อ';
+              return l.pleaseEnterName;
             }
             return null;
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
 
         RegisterStyledTextField(
           controller: telController,
-          label: 'เบอร์โทรศัพท์',
+          label: l.phoneNumber,
           icon: Icons.phone_rounded,
           keyboardType: TextInputType.phone,
           validator: Validators.validateTel,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
 
         RegisterStyledTextField(
           controller: emailController,
-          label: 'อีเมล',
+          label: l.email,
           icon: Icons.email_rounded,
           keyboardType: TextInputType.emailAddress,
           validator: Validators.validateEmail,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
 
         RegisterStyledTextField(
           controller: reasonController,
-          label: 'เหตุผลในการจอง',
+          label: l.reasonForBooking,
           icon: Icons.description_rounded,
           maxLines: 4,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'กรุณากรอกเหตุผล';
+              return l.pleaseEnterReason;
             }
             return null;
           },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/theme/theme.dart';
 
 class LockerMiniMap extends StatelessWidget {
   final List<Map<String, dynamic>> lockerData;
@@ -16,7 +17,6 @@ class LockerMiniMap extends StatelessWidget {
   Widget build(BuildContext context) {
     if (lockerData.isEmpty) return const SizedBox.shrink();
 
-    // Group by lockerId
     final Map<int, List<Map<String, dynamic>>> grouped = {};
     for (var unit in lockerData) {
       final lockerId = unit['lockerId'] as int? ?? 0;
@@ -24,51 +24,57 @@ class LockerMiniMap extends StatelessWidget {
       grouped[lockerId]!.add(unit);
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (selectedLockerName != null) ...[
-            Text(
-              '#$selectedLockerName',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
+    return Semantics(
+      label: selectedLockerName != null
+          ? 'Locker map. Locker $selectedLockerName is selected.'
+          : 'Locker map',
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.lgRadius,
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (selectedLockerName != null) ...[
+              Text(
+                '#$selectedLockerName',
+                style: const TextStyle(
+                  fontFamily: AppText.family,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.accent,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+            FittedBox(
+              fit: BoxFit.contain,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: grouped.entries.map((entry) {
+                  final units = entry.value;
+                  final isLast = entry.key == grouped.keys.last;
+                  return Row(
+                    children: [
+                      _buildMiniSection(units),
+                      if (!isLast) const SizedBox(width: AppSpacing.sm),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
-            const SizedBox(height: 12),
           ],
-          FittedBox(
-            fit: BoxFit.contain,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: grouped.entries.map((entry) {
-                final units = entry.value;
-                final isLast = entry.key == grouped.keys.last;
-                return Row(
-                  children: [
-                    _buildMiniSection(units),
-                    if (!isLast) const SizedBox(width: 10),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -119,17 +125,20 @@ class LockerMiniMap extends StatelessWidget {
             height: height,
             child: Container(
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.orange
-                    : Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(4),
+                color: isSelected ? AppColors.accent : AppColors.surfaceMuted,
+                borderRadius: AppRadius.smRadius,
                 border: isSelected
-                    ? Border.all(color: Colors.orange.shade800, width: 2)
+                    ? Border.all(
+                        // ignore: deprecated_member_use
+                        color: AppColors.accent.withOpacity(0.9),
+                        width: 2,
+                      )
                     : null,
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.orange.withValues(alpha: 0.5),
+                          // ignore: deprecated_member_use
+                          color: AppColors.accent.withOpacity(0.5),
                           blurRadius: 6,
                           spreadRadius: 2,
                         ),
@@ -142,9 +151,13 @@ class LockerMiniMap extends StatelessWidget {
                   child: Text(
                     lockerName,
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? Colors.white : Colors.grey.shade600,
+                      fontFamily: AppText.family,
+                      fontSize: 11,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected
+                          ? AppColors.textOnPrimary
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ),

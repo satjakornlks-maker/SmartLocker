@@ -1,6 +1,7 @@
 // lib/services/pin_cache_service.dart
 // Caches SHA-256 hashed PINs per locker unit for offline PIN verification.
 // The backend returns hashed PINs — raw PINs never leave the server.
+import 'package:flutter/foundation.dart';
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -19,12 +20,12 @@ class PinCacheService {
     final json = prefs.getString(_key);
     if (json != null) {
       _cache = Map<String, String>.from(jsonDecode(json));
-      print('[PinCache] Loaded ${_cache.length} cached PIN hashes');
+      debugPrint('[PinCache] Loaded ${_cache.length} cached PIN hashes');
     }
     final bypassJson = prefs.getString(_bypassKey);
     if (bypassJson != null) {
       _bypassCache = Map<String, String>.from(jsonDecode(bypassJson));
-      print('[PinCache] Loaded ${_bypassCache.length} cached bypass PIN hashes');
+      debugPrint('[PinCache] Loaded ${_bypassCache.length} cached bypass PIN hashes');
     }
   }
 
@@ -34,8 +35,8 @@ class PinCacheService {
     _cache = Map.from(pinHashes);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, jsonEncode(_cache));
-    print('[PinCache] Updated: ${_cache.length} lockers cached');
-    _cache.forEach((id, hash) => print('[PinCache]   locker $id → hash: $hash'));
+    debugPrint('[PinCache] Updated: ${_cache.length} lockers cached');
+    _cache.forEach((id, hash) => debugPrint('[PinCache]   locker $id → hash: $hash'));
   }
 
   /// Replaces the bypass PIN cache with [pinHashes] and persists to SharedPreferences.
@@ -44,23 +45,23 @@ class PinCacheService {
     _bypassCache = Map.from(pinHashes);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_bypassKey, jsonEncode(_bypassCache));
-    print('[PinCache] Bypass updated: ${_bypassCache.length} lockers cached');
-    _bypassCache.forEach((id, hash) => print('[PinCache]   bypass locker $id → hash: $hash'));
+    debugPrint('[PinCache] Bypass updated: ${_bypassCache.length} lockers cached');
+    _bypassCache.forEach((id, hash) => debugPrint('[PinCache]   bypass locker $id → hash: $hash'));
   }
 
   /// Returns true if [pin] matches the cached regular PIN hash for [lockerId].
   static bool verify(String lockerId, String pin) {
     final cached = _cache[lockerId];
     if (cached == null) {
-      print('[PinCache] verify locker $lockerId — no cache entry');
+      debugPrint('[PinCache] verify locker $lockerId — no cache entry');
       return false;
     }
     final hash = sha256.convert(utf8.encode(pin)).toString();
-    print('[PinCache] verify locker $lockerId');
-    print('[PinCache]   entered PIN  : $pin');
-    print('[PinCache]   entered hash : $hash');
-    print('[PinCache]   cached  hash : $cached');
-    print('[PinCache]   match: ${hash == cached}');
+    debugPrint('[PinCache] verify locker $lockerId');
+    debugPrint('[PinCache]   entered PIN  : $pin');
+    debugPrint('[PinCache]   entered hash : $hash');
+    debugPrint('[PinCache]   cached  hash : $cached');
+    debugPrint('[PinCache]   match: ${hash == cached}');
     return hash == cached;
   }
 
@@ -68,14 +69,14 @@ class PinCacheService {
   static bool verifyBypass(String lockerId, String pin) {
     final cached = _bypassCache[lockerId];
     if (cached == null) {
-      print('[PinCache] verifyBypass locker $lockerId — no cache entry');
+      debugPrint('[PinCache] verifyBypass locker $lockerId — no cache entry');
       return false;
     }
     final hash = sha256.convert(utf8.encode(pin)).toString();
-    print('[PinCache] verifyBypass locker $lockerId');
-    print('[PinCache]   entered hash : $hash');
-    print('[PinCache]   cached  hash : $cached');
-    print('[PinCache]   match: ${hash == cached}');
+    debugPrint('[PinCache] verifyBypass locker $lockerId');
+    debugPrint('[PinCache]   entered hash : $hash');
+    debugPrint('[PinCache]   cached  hash : $cached');
+    debugPrint('[PinCache]   match: ${hash == cached}');
     return hash == cached;
   }
 }

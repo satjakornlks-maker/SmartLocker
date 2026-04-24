@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/widgets/buttons/primary_button.dart';
 
-class RegisterConfirmButton extends StatelessWidget{
+class RegisterConfirmButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final Function handleUnlockMember;
-  const RegisterConfirmButton({super.key, required this.handleUnlockMember, required this.formKey});
+  const RegisterConfirmButton({
+    super.key,
+    required this.handleUnlockMember,
+    required this.formKey,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxWidth: double.infinity),
-      child: ElevatedButton(
-        onPressed: () {
-          if (formKey.currentState!.validate()) {
-            handleUnlockMember();
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          elevation: 3,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.check_circle_rounded, size: 24),
-            SizedBox(width: 10),
-            Text(
-              'ส่งคำร้อง',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
+    final l = AppLocalizations.of(context)!;
+    return PrimaryButton(
+      label: l.submitRequest,
+      icon: Icons.check_circle_rounded,
+      expand: true,
+      onPressed: () {
+        if (formKey.currentState!.validate()) {
+          handleUnlockMember();
+        }
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
 class OvertimeLeftPanel extends StatelessWidget {
   final String hour;
@@ -23,58 +24,62 @@ class OvertimeLeftPanel extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Warning description
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFECEC),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.warning_amber_rounded,
-                color: Color(0xFFE53935),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                l10n.overtimeWarning,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  height: 1.4,
+        Semantics(
+          liveRegion: true,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
+                  color: AppColors.error.withOpacity(0.12),
+                  borderRadius: AppRadius.mdRadius,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.error,
+                  size: 28,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  l10n.overtimeWarning,
+                  style: AppText.headingMediumR(context).copyWith(
+                    color: AppColors.textPrimary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: AppSpacing.xxl),
 
         // Overtime duration card
         _InfoCard(
           icon: Icons.access_time_rounded,
-          iconBg: const Color(0xFFE3F2FD),
-          iconColor: const Color(0xFF1565C0),
+          // ignore: deprecated_member_use
+          iconBg: AppColors.info.withOpacity(0.12),
+          iconColor: AppColors.info,
           label: l10n.overtimeExceeded,
           value: locale == 'th'
               ? '$hour ชั่วโมง $minute นาที'
               : '$hour hr $minute min',
-          valueColor: const Color(0xFF1565C0),
+          valueColor: AppColors.info,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
 
         // Fine amount card
         _InfoCard(
           icon: Icons.attach_money_rounded,
-          iconBg: const Color(0xFFE8F5E9),
-          iconColor: const Color(0xFF2E7D32),
+          // ignore: deprecated_member_use
+          iconBg: AppColors.success.withOpacity(0.12),
+          iconColor: AppColors.success,
           label: l10n.overtimeFine,
           value: '$fineAmount ${l10n.baht}',
-          valueColor: const Color(0xFF2E7D32),
+          valueColor: AppColors.success,
           valueFontSize: 32,
         ),
       ],
@@ -103,55 +108,64 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(14),
+    return Semantics(
+      label: '$label: $value',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.xl,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.lgRadius,
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: AppColors.shadow.withOpacity(0.07),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: iconColor, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: AppRadius.mdRadius,
               ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: valueFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: valueColor,
-                ),
+              child: Icon(icon, color: iconColor, size: 28),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: AppText.caption.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontFamily: AppText.family,
+                      fontSize: valueFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: valueColor,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

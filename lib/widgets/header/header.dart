@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:untitled/theme/theme.dart';
 
 class Header extends StatelessWidget {
   final Locale currentLocale;
@@ -14,83 +16,100 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine button text based on current locale
     final displayText = currentLocale.languageCode == 'th' ? 'ไทย' : 'English';
+    final otherLanguageLabel =
+        currentLocale.languageCode == 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย';
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            // Back button
-            Container(
-              margin: const EdgeInsets.fromLTRB(50, 0, 0, 0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                onPressed: () {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxxl, vertical: AppSpacing.lg),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Back button
+          Semantics(
+            label: 'Go back',
+            button: true,
+            child: Material(
+              color: AppColors.surface,
+              borderRadius: AppRadius.mdRadius,
+              child: InkWell(
+                borderRadius: AppRadius.mdRadius,
+                onTap: () {
+                  HapticFeedback.lightImpact();
                   if (onBackPressed != null) {
                     onBackPressed!();
                   } else {
                     Navigator.pop(context);
                   }
                 },
+                child: Container(
+                  width: AppTouch.minTarget,
+                  height: AppTouch.minTarget,
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadius.mdRadius,
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                ),
               ),
             ),
-            const SizedBox(width: 16),
-            const Text(
-              'SMART LOCKER',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
+          ),
+          const Text(
+            'SMART LOCKER',
+            style: TextStyle(
+              fontFamily: AppText.family,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+              color: AppColors.textPrimary,
             ),
-          ],
-        ),
+          ),
 
-        // Language switch button
-        Container(
-          margin: const EdgeInsets.only(right: 50),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: onLanguageSwitch,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.language, size: 20, color: Colors.black87),
-                    const SizedBox(width: 8),
-                    Text(
-                      displayText,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+          // Language switch
+          Semantics(
+            label: otherLanguageLabel,
+            button: true,
+            child: Material(
+              color: AppColors.surface,
+              borderRadius: AppRadius.mdRadius,
+              child: InkWell(
+                borderRadius: AppRadius.mdRadius,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  onLanguageSwitch();
+                },
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: AppTouch.minTarget),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: AppRadius.mdRadius,
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.language, size: 20, color: AppColors.textPrimary),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        displayText,
+                        style: const TextStyle(
+                          fontFamily: AppText.family,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

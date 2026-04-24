@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/screens/register_page/register_component/register_body.dart';
 import 'package:untitled/services/device_config_service.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../services/api_service.dart';
@@ -32,36 +33,75 @@ class _RegisterPageState extends State<RegisterPage> {
     return 'http://smart-locker.lanna.co.th/member-register?device_id=$deviceId';
   }
 
-  Widget _buildQrCard() {
+  Widget _buildQrCard(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 4))],
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.sm,
       ),
-      child: Row(
-        children: [
-          QrImageView(
-            data: _qrUrl,
-            version: QrVersions.auto,
-            size: 90,
-            eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF673AB7)),
-            dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF673AB7)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('สแกน QR เพื่อลงทะเบียน', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF673AB7))),
-                const SizedBox(height: 4),
-                const Text('ลงทะเบียนผ่านมือถือของคุณ\nโดยสแกน QR code นี้', style: TextStyle(fontSize: 12, color: Colors.grey, height: 1.4)),
-              ],
-            ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadius.lgRadius,
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: AppColors.shadow.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: Semantics(
+        label: '${l.scanQrTitle}. ${l.scanQrSubtitle}',
+        child: Row(
+          children: [
+            QrImageView(
+              data: _qrUrl,
+              version: QrVersions.auto,
+              size: 90,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: AppColors.primary,
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.scanQrTitle,
+                    style: const TextStyle(
+                      fontFamily: AppText.family,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    l.scanQrSubtitle,
+                    style: const TextStyle(
+                      fontFamily: AppText.family,
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -71,17 +111,19 @@ class _RegisterPageState extends State<RegisterPage> {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
-                const SizedBox(height: 20),
-                Header(currentLocale: currentLocale, onLanguageSwitch: () {
-                  appState?.toggleLocale();
-                },),
-                _buildQrCard(),
+                Header(
+                  currentLocale: currentLocale,
+                  onLanguageSwitch: () {
+                    appState?.toggleLocale();
+                  },
+                ),
+                _buildQrCard(context),
                 Expanded(
                   child: RegisterBody(
                     formKey: _formKey,
@@ -96,11 +138,12 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             if (_isLoading)
               Container(
-                color: Colors.black54,
+                // ignore: deprecated_member_use
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.deepPurple,
+                      AppColors.textOnPrimary,
                     ),
                   ),
                 ),
@@ -124,20 +167,26 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() => _isLoading = false);
       if (result['success']) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        context.showSuccessSnackBar(AppLocalizations.of(context)!.registerSuccess);
+        context.showSuccessSnackBar(
+          AppLocalizations.of(context)!.registerSuccess,
+        );
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const NoticePage()),
         );
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();
-        context.showErrorSnackBar('${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
+        context.showErrorSnackBar(
+          '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}',
+        );
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).clearSnackBars();
-      context.showErrorSnackBar('${AppLocalizations.of(context)!.errorOccur}: $e');
+      context.showErrorSnackBar(
+        '${AppLocalizations.of(context)!.errorOccur}: $e',
+      );
     }
   }
 

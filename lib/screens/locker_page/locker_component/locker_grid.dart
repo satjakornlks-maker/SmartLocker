@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 import '../locker_selection_page.dart';
 import 'locker_section.dart';
 
@@ -23,7 +25,10 @@ class LockerGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (groupedLockers.isEmpty) {
-      return const Text('No lockers available');
+      return Text(
+        AppLocalizations.of(context)!.noAvailableLocker,
+        style: AppText.bodyLarge.copyWith(color: AppColors.textSecondary),
+      );
     }
 
     final int sectionCount = groupedLockers.length;

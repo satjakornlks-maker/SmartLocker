@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -112,10 +113,10 @@ class ApiService {
           resp.data['refresh_token'] as String,
           resp.data['refresh_expires_in'] as int? ?? 604800,
         );
-        print('[ApiService] Token refreshed via refresh_token');
+        debugPrint('[ApiService] Token refreshed via refresh_token');
         return _token!;
       } catch (e) {
-        print('[ApiService] Refresh failed, falling back to full auth: $e');
+        debugPrint('[ApiService] Refresh failed, falling back to full auth: $e');
         _refreshToken = null;
         _refreshTokenExpiry = null;
       }
@@ -137,10 +138,10 @@ class ApiService {
         resp.data['refresh_token'] as String,
         resp.data['refresh_expires_in'] as int? ?? 604800,
       );
-      print('[ApiService] Token acquired via client credentials');
+      debugPrint('[ApiService] Token acquired via client credentials');
       return _token!;
     } catch (e) {
-      print('[ApiService] Token fetch failed: $e');
+      debugPrint('[ApiService] Token fetch failed: $e');
       return '';
     }
   }
@@ -170,7 +171,7 @@ class ApiService {
         '/init/get_locker_pins',
         data: {'locker_ids': DeviceConfigService.lockerIds},
       );
-      print('[ApiService] Raw PIN cache response: ${response.data}');
+      debugPrint('[ApiService] Raw PIN cache response: ${response.data}');
       final responseMap = response.data as Map;
 
       // Support both old flat format { lockerId: hash } and new { pins: {}, bypass_pins: {} }
@@ -193,7 +194,7 @@ class ApiService {
         await PinCacheService.update(data);
       }
     } catch (e) {
-      print('[ApiService] PIN cache sync failed (using cached): $e');
+      debugPrint('[ApiService] PIN cache sync failed (using cached): $e');
     }
   }
 
@@ -305,7 +306,6 @@ class ApiService {
           }
 
       );
-      print(responss);
       return{
         'success':true,
         'data':responss.data,
@@ -336,7 +336,6 @@ class ApiService {
           }
 
       );
-      print(responss);
       return{
         'success':true,
         'data':responss.data,
@@ -426,7 +425,7 @@ class ApiService {
         final prefs = await SharedPreferences.getInstance();
         final cached = prefs.getString(_lockerCacheKey);
         if (cached != null) {
-          print('[ApiService] Offline — returning cached locker data');
+          debugPrint('[ApiService] Offline — returning cached locker data');
           return {'success': true, 'data': jsonDecode(cached), 'offline': true};
         }
         return {'success': false, 'offline': true};
@@ -558,7 +557,7 @@ class ApiService {
       if (_isOffline(e)) {
         // Offline: send unlock command directly to the HF converter via TCP
         final ok = await LockerCommandService.unlockImmediate(lockerId);
-        print('[ApiService] Offline unlock locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
+        debugPrint('[ApiService] Offline unlock locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
         if (ok) {
           // Queue the /unlock_locker call so the locker turns green when backend returns.
           OfflineStatusQueue.add(
@@ -655,7 +654,7 @@ class ApiService {
       if (_isOffline(e)) {
         final ok = PinCacheService.verify(lockerId, pin) ||
                    PinCacheService.verifyBypass(lockerId, pin);
-        print('[ApiService] Offline PIN verify locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
+        debugPrint('[ApiService] Offline PIN verify locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
         return {'success': ok, 'offline': true, 'data': {}};
       }
       return{
@@ -678,15 +677,15 @@ class ApiService {
 
   String _handleError(DioException e) {
 
-    print('============ DIO ERROR DEBUG ============');
-    print('Error Type: ${e.type}');
-    print('Error Message: ${e.message}');
-    print('Status Code: ${e.response?.statusCode}');
-    print('Response Data: ${e.response?.data}');
-    print('Request URL: ${e.requestOptions.uri}');
-    print('Request Method: ${e.requestOptions.method}');
-    print('Request Data: ${e.requestOptions.data}');
-    print('========================================');
+    debugPrint('============ DIO ERROR DEBUG ============');
+    debugPrint('Error Type: ${e.type}');
+    debugPrint('Error Message: ${e.message}');
+    debugPrint('Status Code: ${e.response?.statusCode}');
+    debugPrint('Response Data: ${e.response?.data}');
+    debugPrint('Request URL: ${e.requestOptions.uri}');
+    debugPrint('Request Method: ${e.requestOptions.method}');
+    debugPrint('Request Data: ${e.requestOptions.data}');
+    debugPrint('========================================');
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
         return 'Connection timeout - เซิร์ฟเวอร์ไม่ตอบสนอง';

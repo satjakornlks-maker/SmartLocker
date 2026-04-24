@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/main.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/api_service.dart';
@@ -10,7 +11,11 @@ import '../success_page/success_page.dart';
 class ConfirmationPage extends StatefulWidget {
   final String lockerId;
   final String otp;
-  const ConfirmationPage({super.key, required this.lockerId, required this.otp});
+  const ConfirmationPage({
+    super.key,
+    required this.lockerId,
+    required this.otp,
+  });
 
   @override
   State<ConfirmationPage> createState() => _ConfirmationPage();
@@ -19,72 +24,95 @@ class ConfirmationPage extends StatefulWidget {
 class _ConfirmationPage extends State<ConfirmationPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
+    final l = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           SafeArea(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Header(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                      vertical: AppSpacing.lg,
+                    ),
+                    child: Header(
                       currentLocale: currentLocale,
                       onLanguageSwitch: () {
                         appState?.toggleLocale();
                       },
                     ),
-                    const SizedBox(height: 60),
-                    Center(
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 1400),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: HoverMenuCard(
-                                titleTh: Text(
-                                  AppLocalizations.of(context)!.addMoreItem,
-                                ),
-                                haveIcon: false,
-                                color: Colors.orange,
-                                onPressed: ()=>_unlockLocker(widget.otp,true),
-                                aspectRatio: 1.2, icon: Icons.eighteen_mp,
-                              ),
+                  ),
+                  const SizedBox(height: AppSpacing.xxxl),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                    ),
+                    child: Text(
+                      l.whatWouldYouLikeToDo,
+                      style: AppText.headingLargeR(context),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Center(
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 1400),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xl,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: HoverMenuCard(
+                              titleTh: Text(l.addMoreItem),
+                              haveIcon: false,
+                              color: AppColors.accent,
+                              onPressed: () =>
+                                  _unlockLocker(widget.otp, true),
+                              aspectRatio: 1.2,
+                              icon: Icons.add_circle_outline,
+                              semanticLabel: l.addMoreItem,
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: HoverMenuCard(
-                                haveIcon: false,
-                                titleTh: Text(
-                                  AppLocalizations.of(context)!.endOfUse,
-                                ),
-                                icon: Icons.upload_outlined,
-                                color: Colors.blue,
-                                onPressed: ()=>_unlockLocker(widget.otp,false),
-                                aspectRatio: 1.2,
-                              ),
+                          ),
+                          const SizedBox(width: AppSpacing.lg),
+                          Expanded(
+                            child: HoverMenuCard(
+                              haveIcon: false,
+                              titleTh: Text(l.endOfUse),
+                              icon: Icons.upload_outlined,
+                              color: AppColors.primary,
+                              onPressed: () =>
+                                  _unlockLocker(widget.otp, false),
+                              aspectRatio: 1.2,
+                              semanticLabel: l.endOfUse,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                ],
               ),
             ),
           ),
           if (_isLoading)
             Container(
-              color: Colors.black54,
+              // ignore: deprecated_member_use
+              color: Colors.black.withOpacity(0.5),
               child: const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.textOnPrimary),
                 ),
               ),
             ),
@@ -93,16 +121,20 @@ class _ConfirmationPage extends State<ConfirmationPage> {
     );
   }
 
-  Future<void> _unlockLocker(String otp ,bool stillUse) async {
+  Future<void> _unlockLocker(String otp, bool stillUse) async {
     setState(() => _isLoading = true);
     try {
-      final result = await _apiService.handleFillPIN(pin: otp, lockerId: widget.lockerId,stillUse: stillUse);
+      final result = await _apiService.handleFillPIN(
+        pin: otp,
+        lockerId: widget.lockerId,
+        stillUse: stillUse,
+      );
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SuccessPage()),
+          MaterialPageRoute(builder: (context) => const SuccessPage()),
         );
       } else {
         ScaffoldMessenger.of(context).clearSnackBars();

@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Select the service you wish to proceed with.'**
   String get chose;
 
+  /// No description provided for @chooseService.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the service you wish to proceed with.'**
+  String get chooseService;
+
   /// No description provided for @employee.
   ///
   /// In en, this message translates to:
@@ -179,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @randomLocker.
   ///
   /// In en, this message translates to:
-  /// **'Random locker'**
+  /// **'Quick booking'**
   String get randomLocker;
 
   /// No description provided for @usageMethod.
@@ -257,13 +263,13 @@ abstract class AppLocalizations {
   /// No description provided for @phoneInstruct.
   ///
   /// In en, this message translates to:
-  /// **'Enter your phone number.'**
+  /// **'Enter your phone number — we\'ll send a one-time code.'**
   String get phoneInstruct;
 
   /// No description provided for @emailInstruct.
   ///
   /// In en, this message translates to:
-  /// **'Enter your email address.'**
+  /// **'Enter your email address — we\'ll send a one-time code.'**
   String get emailInstruct;
 
   /// No description provided for @resend.
@@ -329,19 +335,19 @@ abstract class AppLocalizations {
   /// No description provided for @successSupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Look for the locker that have flashing light and push that locker to open also, Thank you for using Smart Locker'**
+  /// **'Look for the locker with the flashing light and push it to open. Thank you for using Smart Locker.'**
   String get successSupTitle;
 
   /// No description provided for @registerSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Register successful.'**
+  /// **'Registered successfully.'**
   String get registerSuccess;
 
   /// No description provided for @errorOccur.
   ///
   /// In en, this message translates to:
-  /// **'An error has occurred.'**
+  /// **'Something went wrong. Please try again.'**
   String get errorOccur;
 
   /// No description provided for @noLocker.
@@ -359,37 +365,37 @@ abstract class AppLocalizations {
   /// No description provided for @otpWarning.
   ///
   /// In en, this message translates to:
-  /// **'Please fill all 6 digits.'**
+  /// **'Please enter all 6 digits.'**
   String get otpWarning;
 
   /// No description provided for @wrongOtp.
   ///
   /// In en, this message translates to:
-  /// **'This PIN does not match the registered PIN.'**
+  /// **'That code doesn\'t match. Please check and try again.'**
   String get wrongOtp;
 
   /// No description provided for @wrongEmail.
   ///
   /// In en, this message translates to:
-  /// **'This email does not match the registered email.'**
+  /// **'This email isn\'t registered. Please check and try again.'**
   String get wrongEmail;
 
   /// No description provided for @noAvailableLocker.
   ///
   /// In en, this message translates to:
-  /// **'None of the lockers are available at the moment.'**
+  /// **'No lockers are available at the moment.'**
   String get noAvailableLocker;
 
   /// No description provided for @loading.
   ///
   /// In en, this message translates to:
-  /// **'Loading locker data...'**
+  /// **'Loading locker data…'**
   String get loading;
 
   /// No description provided for @wrongPhone.
   ///
   /// In en, this message translates to:
-  /// **'This number does not match the registered number.'**
+  /// **'This phone number isn\'t registered. Please check and try again.'**
   String get wrongPhone;
 
   /// No description provided for @locker.
@@ -413,13 +419,13 @@ abstract class AppLocalizations {
   /// No description provided for @noAvailable.
   ///
   /// In en, this message translates to:
-  /// **'No available locker (all lockers have been opened or are disabled)'**
+  /// **'No lockers are available right now (all lockers are open or disabled).'**
   String get noAvailable;
 
   /// No description provided for @cardReaderInstruct.
   ///
   /// In en, this message translates to:
-  /// **'Or use card reader.'**
+  /// **'Or use the card reader.'**
   String get cardReaderInstruct;
 
   /// No description provided for @addMoreItem.
@@ -431,8 +437,92 @@ abstract class AppLocalizations {
   /// No description provided for @endOfUse.
   ///
   /// In en, this message translates to:
-  /// **'Open to end the use of this locker.'**
+  /// **'Open to end use of this locker.'**
   String get endOfUse;
+
+  /// No description provided for @whatWouldYouLikeToDo.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to do?'**
+  String get whatWouldYouLikeToDo;
+
+  /// No description provided for @registrationComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration complete!'**
+  String get registrationComplete;
+
+  /// No description provided for @awaitingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for admin approval.'**
+  String get awaitingApproval;
+
+  /// No description provided for @backToHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to home'**
+  String get backToHome;
+
+  /// No description provided for @choosePreferredMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred method'**
+  String get choosePreferredMethod;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get registerTitle;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in your details to register for locker access.'**
+  String get registerSubtitle;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fullName;
+
+  /// No description provided for @reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reason;
+
+  /// No description provided for @pleaseEnterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name.'**
+  String get pleaseEnterName;
+
+  /// No description provided for @pleaseEnterReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a reason.'**
+  String get pleaseEnterReason;
+
+  /// No description provided for @reasonForBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for booking'**
+  String get reasonForBooking;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get phoneNumber;
+
+  /// No description provided for @submitRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit request'**
+  String get submitRequest;
 
   /// No description provided for @bookingTypeTitle.
   ///
@@ -587,7 +677,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanToPayPromptPay.
   ///
   /// In en, this message translates to:
-  /// **'Scan QR code to pay via PromptPay'**
+  /// **'Scan the QR code to pay via PromptPay'**
   String get scanToPayPromptPay;
 
   /// No description provided for @totalDuration.
@@ -665,7 +755,7 @@ abstract class AppLocalizations {
   /// No description provided for @overtimeWarning.
   ///
   /// In en, this message translates to:
-  /// **'You have exceeded your booking time.\nPlease pay the fine to unlock your locker.'**
+  /// **'You\'ve exceeded your booking time.\nPlease pay the fine to unlock your locker.'**
   String get overtimeWarning;
 
   /// No description provided for @overtimeExceeded.
@@ -697,6 +787,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drop Box'**
   String get dropBox;
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SMART LOCKER'**
+  String get appTitle;
+
+  /// No description provided for @scanQrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR to register'**
+  String get scanQrTitle;
+
+  /// No description provided for @scanQrSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register on your phone by scanning this QR code.'**
+  String get scanQrSubtitle;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @sessionTimeoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session timed out'**
+  String get sessionTimeoutTitle;
+
+  /// No description provided for @sessionTimeoutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve been inactive. Returning to home.'**
+  String get sessionTimeoutMessage;
+
+  /// No description provided for @deleteDigit.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get deleteDigit;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get goBack;
+
+  /// No description provided for @languageSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch language'**
+  String get languageSwitch;
+
+  /// No description provided for @loadingGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get loadingGeneric;
+
+  /// No description provided for @pleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait'**
+  String get pleaseWait;
+
+  /// No description provided for @errorEnterEmailOrPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number or email.'**
+  String get errorEnterEmailOrPhone;
+
+  /// No description provided for @errorInvalidEmailFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'That email format isn\'t valid.'**
+  String get errorInvalidEmailFormat;
+
+  /// No description provided for @errorPhoneMustBe10Digits.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be 10 digits.'**
+  String get errorPhoneMustBe10Digits;
+
+  /// No description provided for @errorEnterValidEmailOrPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email or phone number.'**
+  String get errorEnterValidEmailOrPhone;
+
+  /// No description provided for @errorEnterOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the OTP.'**
+  String get errorEnterOtp;
+
+  /// No description provided for @errorOtpInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid 6-digit OTP.'**
+  String get errorOtpInvalid;
+
+  /// No description provided for @errorEnterPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number.'**
+  String get errorEnterPhone;
+
+  /// No description provided for @errorEnterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email.'**
+  String get errorEnterEmail;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'That email isn\'t valid.'**
+  String get errorInvalidEmail;
 }
 
 class _AppLocalizationsDelegate

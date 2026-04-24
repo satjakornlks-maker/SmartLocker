@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/main.dart';
 
@@ -23,21 +24,20 @@ class _ChoseSizePage extends State<ChoseSizePage> {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
             SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
                     Header(
                       currentLocale: currentLocale,
                       onLanguageSwitch: () => appState?.toggleLocale(),
                     ),
-                    const SizedBox(height: 60),
+                    const SizedBox(height: AppSpacing.xxxl),
                     ChoseSizeMainContent(
                       from: widget.from,
                       mode: widget.mode,
@@ -49,10 +49,12 @@ class _ChoseSizePage extends State<ChoseSizePage> {
             ),
             if (_isLoading)
               Container(
-                color: Colors.black54,
+                // ignore: deprecated_member_use
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.textOnPrimary),
                   ),
                 ),
               ),

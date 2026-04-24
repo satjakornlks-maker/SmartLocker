@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,7 +91,7 @@ class DeviceConfigService {
       await prefs.setString(_keyLockerIds, lockerIds.join(','));
       _lockerIds = lockerIds;
       if (prev.toString() != lockerIds.toString()) {
-        print('[DeviceConfig] locker_ids changed: $prev → $lockerIds');
+        debugPrint('[DeviceConfig] locker_ids changed: $prev → $lockerIds');
       }
     }
 
@@ -99,7 +100,7 @@ class DeviceConfigService {
       await prefs.setInt(_keyAssignedLocker, assignedLocker);
       _assignedLocker = assignedLocker;
       if (prev != assignedLocker) {
-        print('[DeviceConfig] assigned_locker changed: $prev → $assignedLocker');
+        debugPrint('[DeviceConfig] assigned_locker changed: $prev → $assignedLocker');
       }
     }
 
@@ -108,7 +109,7 @@ class DeviceConfigService {
       await prefs.setString(_keySystemMode, systemMode);
       _systemMode = systemMode;
       if (prev != systemMode) {
-        print('[DeviceConfig] system_mode changed: $prev → $systemMode');
+        debugPrint('[DeviceConfig] system_mode changed: $prev → $systemMode');
       }
     }
   }

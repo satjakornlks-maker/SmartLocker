@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/screens/locker_page/locker_component/locker_responsive_body.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../services/api_service.dart';
 import '../../services/device_config_service.dart';
@@ -94,32 +95,34 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: _isLoading
             ? const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primary),
                 ),
               )
             : _showGrid
-            ? LockerResponsiveBody(
-                mode: widget.mode,
-                selectedLocker: selectedLocker,
-                selectedLockerName: selectedLockerName,
-                buttonText: Text(
-                  selectedLockerName != null
-                      ? '$_buttonText #$selectedLockerName'
-                      : _buttonText,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                gridBuilder: _buildResponsiveLockerGrid,
-                lockerData: lockerStatus,
-              )
-            : const SizedBox.shrink(),
+                ? LockerResponsiveBody(
+                    mode: widget.mode,
+                    selectedLocker: selectedLocker,
+                    selectedLockerName: selectedLockerName,
+                    buttonText: Text(
+                      selectedLockerName != null
+                          ? '$_buttonText #$selectedLockerName'
+                          : _buttonText,
+                      style: const TextStyle(
+                        fontFamily: AppText.family,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    gridBuilder: _buildResponsiveLockerGrid,
+                    lockerData: lockerStatus,
+                  )
+                : const SizedBox.shrink(),
       ),
     );
   }

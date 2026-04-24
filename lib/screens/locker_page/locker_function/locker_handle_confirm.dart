@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/widgets/snackbar/snackbar.dart';
 
 import '../../input_type_page/input_type_page/input_type_page.dart';
 import '../../otp_page/otp_page.dart';
@@ -104,13 +106,9 @@ class LockerNavigationService {
       BuildContext context,
       VoidCallback? onError,
       ) {
+    final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('โปรดเลือกตู้ล็อคเกอร์'),
-        backgroundColor: Colors.orange,
-      ),
-    );
+    context.showWarningSnackBar(l.selectLocker);
     onError?.call();
   }
 }

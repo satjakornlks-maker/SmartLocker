@@ -2,6 +2,7 @@
 // Persists /unlock_locker calls that could not reach the backend while offline.
 // When the backend becomes reachable again, flush() replays them so the locker
 // UI transitions from red (occupied) to green (available).
+import 'package:flutter/foundation.dart';
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,7 +52,7 @@ class OfflineStatusQueue {
         ..clear()
         ..addAll(list.map((e) => _PendingUnlock.fromJson(e as Map<String, dynamic>)));
       if (_queue.isNotEmpty) {
-        print('[OfflineQueue] Loaded ${_queue.length} pending unlock(s) to replay');
+        debugPrint('[OfflineQueue] Loaded ${_queue.length} pending unlock(s) to replay');
       }
     } catch (_) {}
   }
@@ -71,7 +72,7 @@ class OfflineStatusQueue {
       timestamp:    DateTime.now().toIso8601String(),
     ));
     await _save();
-    print('[OfflineQueue] Queued unlock for locker $lockerId '
+    debugPrint('[OfflineQueue] Queued unlock for locker $lockerId '
         '(${_queue.length} total pending)');
   }
 
@@ -81,7 +82,7 @@ class OfflineStatusQueue {
       Future<bool> Function(int lockerUnitId, String pin, bool stillUse, String timestamp) sender,
   ) async {
     if (_queue.isEmpty) return;
-    print('[OfflineQueue] Replaying ${_queue.length} pending unlock(s)…');
+    debugPrint('[OfflineQueue] Replaying ${_queue.length} pending unlock(s)…');
     final sent = <_PendingUnlock>[];
     for (final u in List.of(_queue)) {
       try {
@@ -92,7 +93,7 @@ class OfflineStatusQueue {
     _queue.removeWhere(sent.contains);
     await _save();
     if (sent.isNotEmpty) {
-      print('[OfflineQueue] Replayed ${sent.length} unlock(s). '
+      debugPrint('[OfflineQueue] Replayed ${sent.length} unlock(s). '
           '${_queue.length} still pending.');
     }
   }

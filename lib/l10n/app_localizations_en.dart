@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chose => 'Select the service you wish to proceed with.';
 
   @override
+  String get chooseService => 'Select the service you wish to proceed with.';
+
+  @override
   String get employee => 'Employee';
 
   @override
@@ -48,7 +51,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get choseLocker => 'Choose locker.';
 
   @override
-  String get randomLocker => 'Random locker';
+  String get randomLocker => 'Quick booking';
 
   @override
   String get usageMethod => 'Choose usage method.';
@@ -87,10 +90,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlock => 'Unlock';
 
   @override
-  String get phoneInstruct => 'Enter your phone number.';
+  String get phoneInstruct =>
+      'Enter your phone number — we\'ll send a one-time code.';
 
   @override
-  String get emailInstruct => 'Enter your email address.';
+  String get emailInstruct =>
+      'Enter your email address — we\'ll send a one-time code.';
 
   @override
   String get resend => 'Resend OTP';
@@ -124,13 +129,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get successSupTitle =>
-      'Look for the locker that have flashing light and push that locker to open also, Thank you for using Smart Locker';
+      'Look for the locker with the flashing light and push it to open. Thank you for using Smart Locker.';
 
   @override
-  String get registerSuccess => 'Register successful.';
+  String get registerSuccess => 'Registered successfully.';
 
   @override
-  String get errorOccur => 'An error has occurred.';
+  String get errorOccur => 'Something went wrong. Please try again.';
 
   @override
   String get noLocker => 'No locker available.';
@@ -139,23 +144,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get otpSuccess => 'OTP has been sent';
 
   @override
-  String get otpWarning => 'Please fill all 6 digits.';
+  String get otpWarning => 'Please enter all 6 digits.';
 
   @override
-  String get wrongOtp => 'This PIN does not match the registered PIN.';
+  String get wrongOtp =>
+      'That code doesn\'t match. Please check and try again.';
 
   @override
-  String get wrongEmail => 'This email does not match the registered email.';
+  String get wrongEmail =>
+      'This email isn\'t registered. Please check and try again.';
 
   @override
-  String get noAvailableLocker =>
-      'None of the lockers are available at the moment.';
+  String get noAvailableLocker => 'No lockers are available at the moment.';
 
   @override
-  String get loading => 'Loading locker data...';
+  String get loading => 'Loading locker data…';
 
   @override
-  String get wrongPhone => 'This number does not match the registered number.';
+  String get wrongPhone =>
+      'This phone number isn\'t registered. Please check and try again.';
 
   @override
   String get locker => 'Locker';
@@ -168,16 +175,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noAvailable =>
-      'No available locker (all lockers have been opened or are disabled)';
+      'No lockers are available right now (all lockers are open or disabled).';
 
   @override
-  String get cardReaderInstruct => 'Or use card reader.';
+  String get cardReaderInstruct => 'Or use the card reader.';
 
   @override
   String get addMoreItem => 'Open to add more items.';
 
   @override
-  String get endOfUse => 'Open to end the use of this locker.';
+  String get endOfUse => 'Open to end use of this locker.';
+
+  @override
+  String get whatWouldYouLikeToDo => 'What would you like to do?';
+
+  @override
+  String get registrationComplete => 'Registration complete!';
+
+  @override
+  String get awaitingApproval => 'Waiting for admin approval.';
+
+  @override
+  String get backToHome => 'Back to home';
+
+  @override
+  String get choosePreferredMethod => 'Choose your preferred method';
+
+  @override
+  String get registerTitle => 'Register';
+
+  @override
+  String get registerSubtitle =>
+      'Fill in your details to register for locker access.';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get reason => 'Reason';
+
+  @override
+  String get pleaseEnterName => 'Please enter your name.';
+
+  @override
+  String get pleaseEnterReason => 'Please enter a reason.';
+
+  @override
+  String get reasonForBooking => 'Reason for booking';
+
+  @override
+  String get phoneNumber => 'Phone number';
+
+  @override
+  String get submitRequest => 'Submit request';
 
   @override
   String get bookingTypeTitle => 'Booking type\n(Day or Hour)';
@@ -255,7 +305,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentChannels => 'Payment channels';
 
   @override
-  String get scanToPayPromptPay => 'Scan QR code to pay via PromptPay';
+  String get scanToPayPromptPay => 'Scan the QR code to pay via PromptPay';
 
   @override
   String get totalDuration => 'Total duration';
@@ -295,7 +345,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get overtimeWarning =>
-      'You have exceeded your booking time.\nPlease pay the fine to unlock your locker.';
+      'You\'ve exceeded your booking time.\nPlease pay the fine to unlock your locker.';
 
   @override
   String get overtimeExceeded => 'Overtime used';
@@ -312,4 +362,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dropBox => 'Drop Box';
+
+  @override
+  String get appTitle => 'SMART LOCKER';
+
+  @override
+  String get scanQrTitle => 'Scan QR to register';
+
+  @override
+  String get scanQrSubtitle =>
+      'Register on your phone by scanning this QR code.';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get sessionTimeoutTitle => 'Session timed out';
+
+  @override
+  String get sessionTimeoutMessage =>
+      'You\'ve been inactive. Returning to home.';
+
+  @override
+  String get deleteDigit => 'Delete last digit';
+
+  @override
+  String get goBack => 'Go back';
+
+  @override
+  String get languageSwitch => 'Switch language';
+
+  @override
+  String get loadingGeneric => 'Loading…';
+
+  @override
+  String get pleaseWait => 'Please wait';
+
+  @override
+  String get errorEnterEmailOrPhone =>
+      'Please enter your phone number or email.';
+
+  @override
+  String get errorInvalidEmailFormat => 'That email format isn\'t valid.';
+
+  @override
+  String get errorPhoneMustBe10Digits => 'Phone number must be 10 digits.';
+
+  @override
+  String get errorEnterValidEmailOrPhone =>
+      'Please enter a valid email or phone number.';
+
+  @override
+  String get errorEnterOtp => 'Please enter the OTP.';
+
+  @override
+  String get errorOtpInvalid => 'Please enter a valid 6-digit OTP.';
+
+  @override
+  String get errorEnterPhone => 'Please enter your phone number.';
+
+  @override
+  String get errorEnterEmail => 'Please enter your email.';
+
+  @override
+  String get errorInvalidEmail => 'That email isn\'t valid.';
 }

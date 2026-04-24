@@ -4,6 +4,7 @@
 // within 15 minutes and creates an alert.
 // Interval is 5 minutes — short enough to pick up assignment changes quickly,
 // well within the 15-minute offline threshold.
+import 'package:flutter/foundation.dart';
 
 import 'dart:async';
 import 'package:untitled/services/api_service.dart';
@@ -41,9 +42,9 @@ class DeviceHeartbeatService {
     if (_stopped || _deviceId == null) return;
     final data = await ApiService().pingHealth(_deviceId!);
     final ok = data != null;
-    print('[heartbeat] ping ${ok ? 'ok' : 'failed'} (device: $_deviceId)');
+    debugPrint('[heartbeat] ping ${ok ? 'ok' : 'failed'} (device: $_deviceId)');
     if (ok) {
-      print('[heartbeat] raw response: $data');
+      debugPrint('[heartbeat] raw response: $data');
       final lockerIds = (data['locker_ids'] as List?)
           ?.map((e) => (e as num).toInt())
           .toList() ?? [];
@@ -53,23 +54,23 @@ class DeviceHeartbeatService {
       final systemMode = data['system_mode'] as String?;
 
       final prevLockerIds = List<int>.from(DeviceConfigService.lockerIds);
-      print('[heartbeat] before update — lockerIds=$prevLockerIds, assignedLocker=${DeviceConfigService.assignedLocker}, systemMode=${DeviceConfigService.systemMode}');
+      debugPrint('[heartbeat] before update — lockerIds=$prevLockerIds, assignedLocker=${DeviceConfigService.assignedLocker}, systemMode=${DeviceConfigService.systemMode}');
       await DeviceConfigService.updateFromServer(
         lockerIds:      lockerIds,
         assignedLocker: assignedLocker,
         systemMode:     systemMode,
       );
-      print('[heartbeat] after update  — lockerIds=${DeviceConfigService.lockerIds}, assignedLocker=${DeviceConfigService.assignedLocker}, systemMode=${DeviceConfigService.systemMode}');
+      debugPrint('[heartbeat] after update  — lockerIds=${DeviceConfigService.lockerIds}, assignedLocker=${DeviceConfigService.assignedLocker}, systemMode=${DeviceConfigService.systemMode}');
 
       // If locker assignment changed, refresh locker data cache and PIN cache
       // so the screen shows new lockers without requiring a restart.
       final lockerIdsChanged = prevLockerIds.toString() != lockerIds.toString();
       if (lockerIdsChanged) {
-        print('[heartbeat] locker IDs changed — refreshing locker data and PIN cache');
+        debugPrint('[heartbeat] locker IDs changed — refreshing locker data and PIN cache');
         final api = ApiService();
         await api.getLocker();
         await api.syncPinCache();
-        print('[heartbeat] locker data and PIN cache refreshed');
+        debugPrint('[heartbeat] locker data and PIN cache refreshed');
       }
     }
   }

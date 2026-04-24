@@ -21,6 +21,8 @@ import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/services/device_heartbeat_service.dart';
 import 'package:untitled/services/offline_status_queue.dart';
 import 'package:untitled/services/pin_cache_service.dart';
+import 'package:untitled/services/inactivity_service.dart';
+import 'package:untitled/theme/theme.dart';
 import 'utils/config_file_reader.dart';
 import 'utils/platform_check.dart';
 
@@ -170,7 +172,7 @@ Future<void> _handleShutdown() async {
     );
     print('[shutdown] setDeviceOffline: $result');
   } catch (e) {
-    print('[shutdown] setDeviceOffline error: $e');
+    debugPrint('[shutdown] setDeviceOffline error: $e');
   }
 
   await DeviceHeartbeatService.disconnect();

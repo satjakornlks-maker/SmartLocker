@@ -3,6 +3,7 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/screens/input_type_page/email_input_page/email_component/email_body.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/services/api_service.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 
@@ -31,7 +32,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
   final ApiService _apiService = ApiService();
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isLoading = false; // Add loading state
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -41,107 +42,104 @@ class _EmailInputPageState extends State<EmailInputPage> {
   }
 
   Future<void> _onConfirm() async {
-    if (_isValidEmail) {
-      setState(() => _isLoading = true);
-      String cleanValue = _emailController.text.trim();
-      try {
-        // Check forgetPassword FIRST
-        if (widget.from == FromPage.forgetPassword) {
-          // print('forgetPassword');
-          final result = await _apiService.handleForgotPassword(
-            cleanValue,
-            true, // isEmail = true
-            widget.selectedLocker,
-          );
-          if (!mounted) return;
-          setState(() => _isLoading = false);
-          // if(result['success']){
-          //   Navigator.push(context, MaterialPageRoute(builder: (context)=>SuccessPage()));
-          // }else{
-          if (result['success']) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OTPPage(
-                  from: FromPage.unlock,
-                  lockerName: widget.lockerName,
-                  lockerId: widget.selectedLocker,
-                  telOrEmail: cleanValue,
-                  lockerData: widget.lockerData,
-                ),
-              ),
-            );
-          } else {
-            // print(result);
-            context.showErrorSnackBar(AppLocalizations.of(context)!.wrongEmail);
-          }
-        }
-        // Then check resetPassword
-        else if (widget.from == FromPage.resetPassword) {
-          setState(() => _isLoading = false);
-          if (!mounted) return;
+    if (!_isValidEmail) return;
+
+    setState(() => _isLoading = true);
+    String cleanValue = _emailController.text.trim();
+    try {
+      if (widget.from == FromPage.forgetPassword) {
+        final result = await _apiService.handleForgotPassword(
+          cleanValue,
+          true,
+          widget.selectedLocker,
+        );
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        if (result['success']) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => OTPPage(
-                from: FromPage.resetPassword,
-                lockerId: widget.selectedLocker,
+                from: FromPage.unlock,
                 lockerName: widget.lockerName,
+                lockerId: widget.selectedLocker,
                 telOrEmail: cleanValue,
                 lockerData: widget.lockerData,
               ),
             ),
           );
+        } else {
+          context.showErrorSnackBar(AppLocalizations.of(context)!.wrongEmail);
+          _emailController.clear();
+          setState(() {});
         }
-        // Default case: instance, normal, visitor, unlock
-        else {
-          if (widget.selectedLocker == null) {
-            setState(() => _isLoading = false);
-            if (mounted) context.showErrorSnackBar(AppLocalizations.of(context)!.noLocker);
-            return;
-          }
-          final result = await _apiService.sendOTP(
-            cleanValue,
-            true, // isEmail = true
-            widget.selectedLocker!,
-            widget.from == FromPage.visitor ? true : false,
-          );
-          if (!mounted) return;
+      } else if (widget.from == FromPage.resetPassword) {
+        setState(() => _isLoading = false);
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OTPPage(
+              from: FromPage.resetPassword,
+              lockerId: widget.selectedLocker,
+              lockerName: widget.lockerName,
+              telOrEmail: cleanValue,
+              lockerData: widget.lockerData,
+            ),
+          ),
+        );
+      } else {
+        if (widget.selectedLocker == null) {
           setState(() => _isLoading = false);
-          if (result['success']) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OTPPage(
-                  telOrEmail: _emailController.text,
-                  from: widget.from,
-                  lockerId: widget.selectedLocker,
-                  lockerName: widget.lockerName,
-                  userId: result['data']['userId'],
-                  refCode: result['data']['refercode'],
-                  lockerData: widget.lockerData,
-                ),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).clearSnackBars();
-            context.showErrorSnackBar('${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
+          if (mounted) {
+            context.showErrorSnackBar(
+                AppLocalizations.of(context)!.noLocker);
           }
+          return;
         }
-      } catch (e) {
+        final result = await _apiService.sendOTP(
+          cleanValue,
+          true,
+          widget.selectedLocker!,
+          widget.from == FromPage.visitor,
+        );
         if (!mounted) return;
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        context.showErrorSnackBar('${AppLocalizations.of(context)!.errorOccur}: $e');
+        if (result['success']) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OTPPage(
+                telOrEmail: cleanValue,
+                from: widget.from,
+                lockerId: widget.selectedLocker,
+                lockerName: widget.lockerName,
+                userId: result['data']['userId'],
+                refCode: result['data']['refercode'],
+                lockerData: widget.lockerData,
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          context.showErrorSnackBar(
+              '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
+          _emailController.clear();
+          setState(() {});
+        }
       }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      context.showErrorSnackBar(
+          '${AppLocalizations.of(context)!.errorOccur}: $e');
     }
   }
 
   bool get _isValidEmail {
     final email = _emailController.text.trim();
     if (email.isEmpty) return false;
-
-    // Basic email validation
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
@@ -153,18 +151,23 @@ class _EmailInputPageState extends State<EmailInputPage> {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
-                const SizedBox(height: 20),
-                Header(
-                  currentLocale: currentLocale,
-                  onLanguageSwitch: () {
-                    appState?.toggleLocale();
-                  },
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                    vertical: AppSpacing.lg,
+                  ),
+                  child: Header(
+                    currentLocale: currentLocale,
+                    onLanguageSwitch: () {
+                      appState?.toggleLocale();
+                    },
+                  ),
                 ),
                 EmailBody(
                   isLoading: _isLoading,
@@ -172,20 +175,20 @@ class _EmailInputPageState extends State<EmailInputPage> {
                   focusNode: _focusNode,
                   emailController: _emailController,
                   onConfirm: _onConfirm,
-                  onChanged: (){setState(() {
-
-                  });},
+                  onChanged: () {
+                    setState(() {});
+                  },
                 ),
               ],
             ),
-
-            // Loading overlay
             if (_isLoading)
               Container(
-                color: Colors.black54,
+                // ignore: deprecated_member_use
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.textOnPrimary),
                   ),
                 ),
               ),

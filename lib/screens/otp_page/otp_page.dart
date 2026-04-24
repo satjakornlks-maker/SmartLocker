@@ -4,6 +4,7 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/screens/confirmation_page/confirmation_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../services/api_service.dart';
