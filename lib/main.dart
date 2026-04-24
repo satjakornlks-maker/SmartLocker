@@ -45,8 +45,8 @@ void main() async {
   final rawBootstrapFromFile = ((fileConfig['BOOTSTRAP_URL'] as String?) ?? '')
       .trim();
 
-  final bootstrapUrl = AppSettings.instance.bootstrapUrl.isNotEmpty
-      ? AppSettings.instance.bootstrapUrl
+  final bootstrapUrl = AppSettings.instance.apiBaseUrl.isNotEmpty
+      ? AppSettings.instance.apiBaseUrl
       : (rawBootstrapFromFile.isNotEmpty
             ? rawBootstrapFromFile
             : envBootstrapUrl);
