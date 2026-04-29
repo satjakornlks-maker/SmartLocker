@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 class Header extends StatelessWidget {
@@ -16,9 +17,10 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayText = currentLocale.languageCode == 'th' ? 'ไทย' : 'English';
+    final l = AppLocalizations.of(context)!;
+    final displayText = l.currentLanguageName;
     final otherLanguageLabel =
-        currentLocale.languageCode == 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย';
+        currentLocale.languageCode == 'th' ? l.switchToEnglish : l.switchToThai;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxxl, vertical: AppSpacing.lg),
@@ -27,7 +29,7 @@ class Header extends StatelessWidget {
         children: [
           // Back button
           Semantics(
-            label: 'Go back',
+            label: l.goBack,
             button: true,
             child: Material(
               color: AppColors.surface,
@@ -54,8 +56,8 @@ class Header extends StatelessWidget {
               ),
             ),
           ),
-          const Text(
-            'SMART LOCKER',
+          Text(
+            l.appTitle,
             style: TextStyle(
               fontFamily: AppText.family,
               fontSize: 18,

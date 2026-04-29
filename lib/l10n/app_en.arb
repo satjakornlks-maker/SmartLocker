@@ -136,5 +136,80 @@
   "errorOtpInvalid":"Please enter a valid 6-digit OTP.",
   "errorEnterPhone":"Please enter your phone number.",
   "errorEnterEmail":"Please enter your email.",
-  "errorInvalidEmail":"That email isn't valid."
+  "errorInvalidEmail":"That email isn't valid.",
+  "otpUnlockPage":"Enter your OTP that you got from booking SMS",
+  "yourLocker":"Your locker",
+  "notAuthorizedEmployee":"You are not authorised to use this locker. Please contact the administrator.",
+  "enterPassword": "Enter password",
+  "passwordLabel": "Password",
+  "wrongPassword": "Incorrect password",
+  "login": "Login",
+  "settingsSaved": "Settings saved",
+  "save": "Save",
+  "settingsTitle": "Settings",
+  "settingsSubtitle": "Customize screen and system settings",
+  "sectionDisplay": "Display",
+  "sectionSystem": "System",
+  "sectionSecurity": "Security",
+  "fieldAppTitle": "App title",
+  "fieldHomeTitle": "Home title",
+  "fieldLogoAsset": "Logo path",
+  "fieldFooterLeft": "Footer left text",
+  "fieldContactInfo": "Contact info",
+  "fieldSettingsPassword": "Settings password",
+  "fieldSettingsPasswordHint": "Set new password (default: admin)",
+  "emailPlaceholder": "example@email.com",
+  "emailAddressLabel": "Email address",
+  "decreaseUnit": "Decrease {unit}",
+  "@decreaseUnit": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "increaseUnit": "Increase {unit}",
+  "@increaseUnit": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "tapToChooseLocker": "Tap to choose a locker.",
+  "tapForQuickBooking": "Tap for quick booking.",
+  "tapToPickSize": "Tap to pick this size.",
+  "tapToSignInWithPhone": "Tap to sign in with phone number.",
+  "tapToSignInWithEmail": "Tap to sign in with email.",
+  "tapToRegisterNow": "Tap to register now.",
+  "submitPhoneNumber": "Submit your phone number.",
+  "submitOtpCode": "Submit the 6-digit OTP code.",
+  "submitEmailAddress": "Submit your email address.",
+  "digitLabel": "Digit {digit}",
+  "@digitLabel": {
+    "placeholders": {
+      "digit": { "type": "String" }
+    }
+  },
+  "otpEntryStatus": "OTP entry. {filled} of 6 digits entered.",
+  "@otpEntryStatus": {
+    "placeholders": {
+      "filled": { "type": "int" }
+    }
+  },
+  "lockerStatusDisabled": "disabled",
+  "lockerStatusNotAvailable": "not available for this selection",
+  "lockerStatusOccupiedUnlock": "occupied, tap to unlock",
+  "lockerStatusEmpty": "empty",
+  "lockerStatusAvailable": "available, tap to select",
+  "lockerStatusOccupied": "occupied",
+  "lockerSemanticLabel": "Locker {name}. {status}.",
+  "@lockerSemanticLabel": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "currentLanguageName": "English",
+  "switchToEnglish": "Switch to English",
+  "switchToThai": "เปลี่ยนเป็นภาษาไทย",
+  "depositSubtitle":"Start Deposit process",
+  "receiveSubtitle":"Receive your package via OTP",
+  "fieldContactInfo": "Emergency contact"
 }

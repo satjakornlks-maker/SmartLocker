@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/theme/theme.dart';
 
 import '../../../../l10n/app_localizations.dart';
 
 class InputTypeBottom extends StatelessWidget {
-  const InputTypeBottom({super.key});
+  final FromPage from;
+  const InputTypeBottom({super.key, required this.from});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +14,9 @@ class InputTypeBottom extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+
         Text(
+          from == FromPage.visitor ? "":
           l.cardReaderInstruct,
           style: const TextStyle(
             fontFamily: AppText.family,

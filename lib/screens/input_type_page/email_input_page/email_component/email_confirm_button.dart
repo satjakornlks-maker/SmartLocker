@@ -23,7 +23,7 @@ class EmailConfirmButton extends StatelessWidget {
         icon: Icons.check,
         isLoading: isLoading,
         expand: true,
-        semanticLabel: '${l.confirm}. Submit your email address.',
+        semanticLabel: '${l.confirm}. ${l.submitEmailAddress}',
         onPressed: (isValidEmail && !isLoading) ? onConfirm : null,
       ),
     );

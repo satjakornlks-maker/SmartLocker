@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 class OtpInputBox extends StatelessWidget {
@@ -9,7 +10,7 @@ class OtpInputBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final filledCount = otpDigits.where((d) => d.isNotEmpty).length;
     return Semantics(
-      label: 'OTP entry. $filledCount of 6 digits entered.',
+      label: AppLocalizations.of(context)!.otpEntryStatus(filledCount),
       liveRegion: true,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

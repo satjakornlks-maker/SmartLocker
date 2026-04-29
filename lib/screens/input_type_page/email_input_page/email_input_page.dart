@@ -60,7 +60,7 @@ class _EmailInputPageState extends State<EmailInputPage> {
             context,
             MaterialPageRoute(
               builder: (context) => OTPPage(
-                from: FromPage.unlock,
+                from: FromPage.forgetPassword,
                 lockerName: widget.lockerName,
                 lockerId: widget.selectedLocker,
                 telOrEmail: cleanValue,
@@ -122,8 +122,10 @@ class _EmailInputPageState extends State<EmailInputPage> {
           );
         } else {
           ScaffoldMessenger.of(context).clearSnackBars();
-          context.showErrorSnackBar(
-              '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
+          final msg = result['statusCode'] == 403
+              ? AppLocalizations.of(context)!.notAuthorizedEmployee
+              : '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}';
+          context.showErrorSnackBar(msg);
           _emailController.clear();
           setState(() {});
         }

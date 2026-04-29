@@ -19,7 +19,7 @@ class OtpConfirmButton extends StatelessWidget {
       label: l.confirm,
       icon: Icons.check,
       expand: true,
-      semanticLabel: '${l.confirm}. Submit the 6-digit OTP code.',
+      semanticLabel: '${l.confirm}. ${l.submitOtpCode}',
       onPressed: isComplete ? handleSubmitOTP : null,
     );
   }

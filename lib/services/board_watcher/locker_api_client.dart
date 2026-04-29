@@ -244,13 +244,18 @@ class LockerApiClient {
     final name      = locker['name'] as String? ?? 'CU$hex-CH$ch';
     final occupied  = irValue == 1;
     final newStatus = lockValue == 0 ? 'open' : 'close';
-    final dbStatus  = locker['_synced_status'] as String? ?? '';
+    final dbStatus   = locker['_synced_status']   as String? ?? '';
+    final dbOccupied = locker['_synced_occupied'] as bool?;   // null = never synced
 
-    if (newStatus != dbStatus) {
+    final statusChanged   = newStatus != dbStatus;
+    final occupiedChanged = dbOccupied == null || occupied != dbOccupied;
+
+    if (statusChanged || occupiedChanged) {
       final ok = await updateLockerStatus(lockerUId, newStatus, occupied, cuCode: hex);
       if (ok) {
         debugPrint('[${_ts()}] API: $name (ID:$lockerUId) -> $newStatus, has_item=$occupied');
-        locker['_synced_status'] = newStatus;
+        locker['_synced_status']   = newStatus;
+        locker['_synced_occupied'] = occupied;
       }
     }
   }

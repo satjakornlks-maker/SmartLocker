@@ -4,6 +4,7 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/screens/confirmation_page/confirmation_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
+import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_page.dart';
 import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
@@ -257,7 +258,7 @@ class _OTPPageState extends State<OTPPage> {
       child: Column(
         children: [
           const SizedBox(height: 4),
-          OtpTitle(resetPass: resetPass),
+          OtpTitle(resetPass: resetPass,from: widget.from,),
           const SizedBox(height: 8),
           if (widget.from != FromPage.unlock)
             PhoneDisplay(
@@ -358,6 +359,10 @@ class _OTPPageState extends State<OTPPage> {
       context.showErrorSnackBar(AppLocalizations.of(context)!.noLocker);
       return;
     }
+    if (widget.telOrEmail == null) {
+      context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
+      return;
+    }
     setState(() => _isLoading = true);
     final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
     try {
@@ -438,13 +443,15 @@ class _OTPPageState extends State<OTPPage> {
             widget.lockerId!,
             otpCode,
           );
+          if (!mounted) return;
           setState(() {
             _isLoading = false;
           });
-          if (result['success']) {
+          final extractedUserId = result['data']?['userID'] as int?;
+          if (result['success'] && extractedUserId != null) {
             setState(() {
               resetPass = 2;
-              userId = result['data']['userID'];
+              userId = extractedUserId;
               _otpDigits.fillRange(0, 6, '');
               _currentIndex = 0;
             });
@@ -476,6 +483,12 @@ class _OTPPageState extends State<OTPPage> {
               _otpDigits.fillRange(0, 6, '');
               _currentIndex = 0;
             });
+          } else {
+            setState(() {
+              _otpDigits.fillRange(0, 6, '');
+              _currentIndex = 0;
+            });
+            context.showErrorSnackBar(AppLocalizations.of(context)!.wrongOtp);
           }
         } catch (e) {
           if (!mounted) return;
@@ -486,6 +499,12 @@ class _OTPPageState extends State<OTPPage> {
           );
         }
       } else {
+        if (widget.telOrEmail == null) {
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
+          return;
+        }
         final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
         final result = await _apiService.handleSubmitOTP(
           cleanValue,
@@ -516,6 +535,11 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Future<void> _bookLocker(int userId, String otp) async {
+    if (widget.telOrEmail == null) {
+      if (!mounted) return;
+      context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
+      return;
+    }
     final now = DateTime.now();
     final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
     try {
@@ -599,7 +623,7 @@ class _OTPPageState extends State<OTPPage> {
       onPressed: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => InputTypePage(
+          builder: (context) => PhoneInputPage(
             from: FromPage.forgetPassword,
             selectedLocker: widget.lockerId,
             lockerName: widget.lockerName,

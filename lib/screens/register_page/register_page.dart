@@ -56,53 +56,55 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ],
       ),
-      child: Semantics(
-        label: '${l.scanQrTitle}. ${l.scanQrSubtitle}',
-        child: Row(
-          children: [
-            QrImageView(
-              data: _qrUrl,
-              version: QrVersions.auto,
-              size: 90,
-              eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.square,
-                color: AppColors.primary,
+        child: Semantics(
+          label: '${l.scanQrTitle}. ${l.scanQrSubtitle}',
+          child: Column(
+            children: [
+              QrImageView(
+                data: _qrUrl,
+                version: QrVersions.auto,
+                size: 500,
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: AppColors.primary,
+                ),
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: AppColors.primary,
+                ),
               ),
-              dataModuleStyle: const QrDataModuleStyle(
-                dataModuleShape: QrDataModuleShape.square,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.scanQrTitle,
-                    style: const TextStyle(
-                      fontFamily: AppText.family,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppColors.primary,
+              const SizedBox(height: AppSpacing.lg),
+              // Wrap the Expanded inside a Container or SizedBox to give it a proper height constraint
+              Container(
+                height: 100, // Specify a fixed height for the Column
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.scanQrTitle,
+                      style: const TextStyle(
+                        fontFamily: AppText.family,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: AppColors.primary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    l.scanQrSubtitle,
-                    style: const TextStyle(
-                      fontFamily: AppText.family,
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      l.scanQrSubtitle,
+                      style: const TextStyle(
+                        fontFamily: AppText.family,
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        )
     );
   }
 
@@ -124,16 +126,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 _buildQrCard(context),
-                Expanded(
-                  child: RegisterBody(
-                    formKey: _formKey,
-                    nameController: _nameController,
-                    telController: _telController,
-                    emailController: _emailController,
-                    reasonController: _reasonController,
-                    handleUnlockMember: _handleUnlockMember,
-                  ),
-                ),
+                // Expanded(
+                //   child: RegisterBody(
+                //     formKey: _formKey,
+                //     nameController: _nameController,
+                //     telController: _telController,
+                //     emailController: _emailController,
+                //     reasonController: _reasonController,
+                //     handleUnlockMember: _handleUnlockMember,
+                //   ),
+                // ),
               ],
             ),
             if (_isLoading)

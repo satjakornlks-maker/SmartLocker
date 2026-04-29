@@ -25,7 +25,7 @@ class PhoneConfirmButton extends StatelessWidget {
         icon: Icons.check,
         isLoading: isLoading,
         expand: true,
-        semanticLabel: '${l.confirm}. Submit your phone number.',
+        semanticLabel: '${l.confirm}. ${l.submitPhoneNumber}',
         onPressed: (isComplete && !isLoading) ? onConfirm : null,
       ),
     );

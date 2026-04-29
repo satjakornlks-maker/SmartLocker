@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 class PhoneNumButton extends StatelessWidget {
@@ -14,7 +15,7 @@ class PhoneNumButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Digit $number',
+      label: AppLocalizations.of(context)!.digitLabel(number),
       button: true,
       enabled: true,
       child: SizedBox(

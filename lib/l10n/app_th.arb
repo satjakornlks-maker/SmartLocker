@@ -16,7 +16,7 @@
   "choseLocker":"เลือกล็อคเกอร์",
   "randomLocker":"จองด่วน",
   "usageMethod":"กรุณาเลือกวิธีการเข้าใช้งาน",
-  "register":"ลงทะเบียนพนักงาน (ใช้งานประจำ)",
+  "register":"ลงทะเบียนพนักงาน",
   "email":"อีเมล",
   "phone":"เบอร์โทรศัพท์",
   "choseInput":"เลือกวิธีการกรอกข้อมูล",
@@ -136,5 +136,79 @@
   "errorOtpInvalid":"กรุณากรอก OTP 6 หลักให้ถูกต้อง",
   "errorEnterPhone":"กรุณากรอกเบอร์โทรศัพท์",
   "errorEnterEmail":"กรุณากรอกอีเมล",
-  "errorInvalidEmail":"รูปแบบอีเมลไม่ถูกต้อง"
+  "errorInvalidEmail":"รูปแบบอีเมลไม่ถูกต้อง",
+  "otpUnlockPage":"กรุณากรอก OTP ที่คุณได้รับจาก SMS ในขั้นตอนการจอง",
+  "yourLocker":"ล็อคเกอร์ของคุณ",
+  "notAuthorizedEmployee":"คุณไม่มีสิทธิ์ใช้งานล็อคเกอร์นี้ กรุณาติดต่อผู้ดูแลระบบ",
+  "enterPassword": "กรอกรหัสผ่าน",
+  "passwordLabel": "รหัสผ่าน",
+  "wrongPassword": "รหัสผ่านไม่ถูกต้อง",
+  "login": "เข้าใช้งาน",
+  "settingsSaved": "บันทึกการตั้งค่าเรียบร้อย",
+  "save": "บันทึก",
+  "settingsTitle": "ตั้งค่า",
+  "settingsSubtitle": "ปรับแต่งหน้าจอและค่าระบบของเครื่อง",
+  "sectionDisplay": "หน้าจอ",
+  "sectionSystem": "ระบบ",
+  "sectionSecurity": "ความปลอดภัย",
+  "fieldAppTitle": "ชื่อแอป",
+  "fieldHomeTitle": "ชื่อหน้าแรก",
+  "fieldLogoAsset": "ที่อยู่โลโก้",
+  "fieldFooterLeft": "ข้อความด้านล่างฝั่งซ้าย",
+  "fieldContactInfo": "ติดต่อกรณีมีปัญหา",
+  "fieldSettingsPassword": "รหัสผ่านเข้าหน้าตั้งค่า",
+  "fieldSettingsPasswordHint": "ตั้งรหัสใหม่ (ค่าเริ่มต้น: admin)",
+  "emailPlaceholder": "example@email.com",
+  "emailAddressLabel": "อีเมล",
+  "decreaseUnit": "ลด {unit}",
+  "@decreaseUnit": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "increaseUnit": "เพิ่ม {unit}",
+  "@increaseUnit": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "tapToChooseLocker": "แตะเพื่อเลือกล็อคเกอร์",
+  "tapForQuickBooking": "แตะเพื่อจองด่วน",
+  "tapToPickSize": "แตะเพื่อเลือกขนาดนี้",
+  "tapToSignInWithPhone": "แตะเพื่อลงชื่อด้วยหมายเลขโทรศัพท์",
+  "tapToSignInWithEmail": "แตะเพื่อลงชื่อด้วยอีเมล",
+  "tapToRegisterNow": "แตะเพื่อลงทะเบียนเดี๋ยวนี้",
+  "submitPhoneNumber": "ส่งหมายเลขโทรศัพท์ของคุณ",
+  "submitOtpCode": "ส่งรหัส OTP 6 หลัก",
+  "submitEmailAddress": "ส่งอีเมลของคุณ",
+  "digitLabel": "หลัก {digit}",
+  "@digitLabel": {
+    "placeholders": {
+      "digit": { "type": "String" }
+    }
+  },
+  "otpEntryStatus": "กรอก OTP {filled} จาก 6 หลักแล้ว",
+  "@otpEntryStatus": {
+    "placeholders": {
+      "filled": { "type": "int" }
+    }
+  },
+  "lockerStatusDisabled": "ปิดการใช้งาน",
+  "lockerStatusNotAvailable": "ไม่พร้อมให้เลือกขณะนี้",
+  "lockerStatusOccupiedUnlock": "ไม่ว่าง แตะเพื่อปลดล็อค",
+  "lockerStatusEmpty": "ว่าง",
+  "lockerStatusAvailable": "ว่าง แตะเพื่อเลือก",
+  "lockerStatusOccupied": "ไม่ว่าง",
+  "lockerSemanticLabel": "ล็อคเกอร์ {name}. {status}.",
+  "@lockerSemanticLabel": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "currentLanguageName": "ไทย",
+  "switchToEnglish": "Switch to English",
+  "switchToThai": "เปลี่ยนเป็นภาษาไทย",
+  "depositSubtitle":"เริ่มต้นฝากพัสดุเข้าตู้ล็อกเกอร์",
+  "receiveSubtitle":"รับพัสดุด้วย OTP หรือรหัสยืนยัน"
 }

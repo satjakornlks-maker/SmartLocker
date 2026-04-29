@@ -75,12 +75,13 @@ class ChoseTimeLeftPanel extends StatelessWidget {
   }
 
   Widget _buildQuantityStepper(BuildContext context, String unitLabel) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         _StepperButton(
           icon: Icons.remove,
           enabled: quantity > 1,
-          semanticLabel: 'Decrease $unitLabel',
+          semanticLabel: l10n.decreaseUnit(unitLabel),
           onTap: () => onQuantityChanged(quantity - 1),
         ),
         Expanded(
@@ -117,7 +118,7 @@ class ChoseTimeLeftPanel extends StatelessWidget {
         _StepperButton(
           icon: Icons.add,
           enabled: quantity < _max,
-          semanticLabel: 'Increase $unitLabel',
+          semanticLabel: l10n.increaseUnit(unitLabel),
           onTap: () => onQuantityChanged(quantity + 1),
         ),
       ],

@@ -8,7 +8,7 @@ import 'package:untitled/services/locker_command_service.dart';
 import 'package:untitled/services/offline_status_queue.dart';
 
 // OAuth2 client credentials — client_id is fixed, client_secret comes from
-// --dart-define=APP_KEY baked in at build time (or falls back for local dev).
+// --dart-define=APP_KEY baked in at build time.
 const _clientId = 'flutter-app';
 
 class ApiService {
@@ -19,6 +19,7 @@ class ApiService {
   String? _refreshToken;
   DateTime? _refreshTokenExpiry;
   bool _tokensLoaded = false;
+  String _lastAuthUrl = '';
 
   static const _kToken = 'auth_access_token';
   static const _kTokenExp = 'auth_access_expiry';
@@ -92,6 +93,18 @@ class ApiService {
   }
 
   Future<String> _getToken() async {
+    // If the base URL changed since last auth, clear all in-memory tokens so
+    // we re-authenticate against the new server instead of sending old ones.
+    final currentUrl = _dio.options.baseUrl;
+    if (_lastAuthUrl.isNotEmpty && _lastAuthUrl != currentUrl) {
+      _token = null;
+      _tokenExpiry = null;
+      _refreshToken = null;
+      _refreshTokenExpiry = null;
+      _tokensLoaded = false;
+    }
+    _lastAuthUrl = currentUrl;
+
     await _loadPersistedTokens();
 
     // 1. Access token still valid
@@ -123,9 +136,11 @@ class ApiService {
     }
 
     // 3. Full re-auth with client secret
-    final clientSecret = DeviceConfigService.appKey.isNotEmpty
-        ? DeviceConfigService.appKey
-        : 'X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ='; // dev fallback (matches APP_KEY)
+    final clientSecret = DeviceConfigService.appKey;
+    if (clientSecret.isEmpty) {
+      debugPrint('[ApiService] ERROR: APP_KEY not configured — cannot authenticate');
+      throw StateError('Missing APP_KEY. Build with --dart-define=APP_KEY=...');
+    }
     try {
       final resp = await Dio().post(
         '${_dio.options.baseUrl}/auth/token',
@@ -313,7 +328,8 @@ class ApiService {
     }on DioException catch (e){
       return{
         'success' : false,
-        'error' : _handleError(e)
+        'error' : _handleError(e),
+        if (e.response?.statusCode != null) 'statusCode': e.response!.statusCode,
       };
     }
   }
@@ -555,7 +571,14 @@ class ApiService {
       };
     } on DioException catch (e) {
       if (_isOffline(e)) {
-        // Offline: send unlock command directly to the HF converter via TCP
+        // Offline: verify PIN locally before sending hardware unlock command.
+        final pinValid = PinCacheService.verify(lockerId, pin) ||
+            PinCacheService.verifyBypass(lockerId, pin);
+        if (!pinValid) {
+          debugPrint('[ApiService] Offline unlock locker $lockerId: PIN verification failed');
+          return {'success': false, 'offline': true, 'data': {}};
+        }
+        // PIN verified — send unlock command directly to the HF converter via TCP.
         final ok = await LockerCommandService.unlockImmediate(lockerId);
         debugPrint('[ApiService] Offline unlock locker $lockerId: ${ok ? 'OK' : 'FAIL'}');
         if (ok) {

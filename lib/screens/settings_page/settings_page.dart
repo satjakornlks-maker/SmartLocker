@@ -1,6 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/services/api_service.dart';
 import 'package:untitled/services/app_settings.dart';
+import 'package:untitled/services/device_config_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -86,6 +89,29 @@ class _SettingsPageState extends State<SettingsPage> {
       sockTimeout: double.tryParse(_sockTimeoutController.text) ?? 2.0,
     );
 
+    // Apply the new URL immediately so subsequent API calls use it without restart.
+    await DeviceConfigService.updateBaseUrl(_apiBaseUrlController.text);
+
+    // Re-fetch locker config from the new backend so the locker selection page
+    // doesn't show empty when the IP was changed (lockerIds was just cleared above).
+    ApiService().syncDeviceConfig(DeviceConfigService.deviceId).then((result) async {
+      if (result['success'] == true) {
+        final data = result['data'] as Map<String, dynamic>;
+        final rawIds = data['locker_ids'] as List?;
+        final lockerIds = rawIds?.map((e) => e as int).toList();
+        final assignedLocker =
+            (data['AssignedLocker'] ?? data['assigned_locker']) as int?;
+        final systemMode = data['system_mode'] as String?;
+        await DeviceConfigService.updateFromServer(
+          lockerIds: lockerIds,
+          assignedLocker: assignedLocker,
+          systemMode: systemMode,
+        );
+        ApiService().getLocker().ignore();
+        ApiService().syncPinCache().ignore();
+      }
+    }).ignore();
+
     await AppSettings.instance.updateSettingsPassword(
       _settingsPasswordController.text,
     );
@@ -96,7 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: const Text('บันทึกการตั้งค่าเรียบร้อย'),
+        content: Text(AppLocalizations.of(context)!.settingsSaved),
       ),
     );
 
@@ -105,6 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
     return Scaffold(
@@ -170,33 +197,32 @@ class _SettingsPageState extends State<SettingsPage> {
                             _SectionCard(
                               isDark: isDark,
                               icon: Icons.palette_outlined,
-                              title: 'หน้าจอ',
+                              title: l.sectionDisplay,
                               child: Column(
                                 children: [
                                   _SettingsField(
-                                    label: 'ชื่อแอป',
-                                    hint: 'เช่น SmartLocker',
+                                    label: l.fieldAppTitle,
+                                    hint: 'e.g. SmartLocker',
                                     controller: _appTitleController,
                                   ),
                                   _SettingsField(
-                                    label: 'ชื่อหน้าแรก',
-                                    hint: 'เช่น Smart Locker',
+                                    label: l.fieldHomeTitle,
+                                    hint: 'e.g. Smart Locker',
                                     controller: _homeTitleController,
                                   ),
                                   _SettingsField(
-                                    label: 'ที่อยู่โลโก้',
-                                    hint: 'เช่น assets/images/logo.png',
+                                    label: l.fieldLogoAsset,
+                                    hint: 'e.g. assets/images/logo.png',
                                     controller: _logoAssetController,
                                   ),
                                   _SettingsField(
-                                    label: 'ข้อความด้านล่างฝั่งซ้าย',
-                                    hint: 'เช่น ©LANNACOM 2026',
+                                    label: l.fieldFooterLeft,
+                                    hint: 'e.g. ©LANNACOM 2026',
                                     controller: _footerLeftController,
                                   ),
                                   _SettingsField(
-                                    label: 'ติดต่อกรณีมีปัญหา',
-                                    hint:
-                                        'เช่น โทร 02-xxx-xxxx | LINE: @lannacom',
+                                    label: l.fieldContactInfo,
+                                    hint: 'e.g. Tel 02-xxx-xxxx | LINE: @lannacom',
                                     controller: _contactInfoController,
                                     maxLines: 2,
                                   ),
@@ -207,12 +233,12 @@ class _SettingsPageState extends State<SettingsPage> {
                             _SectionCard(
                               isDark: isDark,
                               icon: Icons.settings_ethernet_outlined,
-                              title: 'ระบบ',
+                              title: l.sectionSystem,
                               child: Column(
                                 children: [
                                   _SettingsField(
                                     label: 'Bootstrap URL',
-                                    hint: 'เช่น http://10.3.0.4:5183',
+                                    hint: 'e.g. http://10.3.0.4:5183',
                                     controller: _apiBaseUrlController,
                                   ),
                                   _SettingsField(
@@ -229,43 +255,43 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            _SectionCard(
-                              isDark: isDark,
-                              icon: Icons.tune_outlined,
-                              title: 'Advanced',
-                              child: Column(
-                                children: [
-                                  _SettingsField(
-                                    label: 'Poll Seconds',
-                                    hint: 'เช่น 0.3',
-                                    controller: _pollSecController,
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(
-                                          decimal: true,
-                                        ),
-                                  ),
-                                  _SettingsField(
-                                    label: 'Socket Timeout',
-                                    hint: 'เช่น 2.0',
-                                    controller: _sockTimeoutController,
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(
-                                          decimal: true,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // _SectionCard(
+                            //   isDark: isDark,
+                            //   icon: Icons.tune_outlined,
+                            //   title: 'Advanced',
+                            //   child: Column(
+                            //     children: [
+                            //       _SettingsField(
+                            //         label: 'Poll Seconds',
+                            //         hint: 'เช่น 0.3',
+                            //         controller: _pollSecController,
+                            //         keyboardType:
+                            //             const TextInputType.numberWithOptions(
+                            //               decimal: true,
+                            //             ),
+                            //       ),
+                            //       _SettingsField(
+                            //         label: 'Socket Timeout',
+                            //         hint: 'เช่น 2.0',
+                            //         controller: _sockTimeoutController,
+                            //         keyboardType:
+                            //             const TextInputType.numberWithOptions(
+                            //               decimal: true,
+                            //             ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                             const SizedBox(height: 16),
                             _SectionCard(
                               isDark: isDark,
                               icon: Icons.lock_outline,
-                              title: 'ความปลอดภัย',
+                              title: l.sectionSecurity,
                               child: Column(
                                 children: [
                                   _SettingsField(
-                                    label: 'รหัสผ่านเข้าหน้าตั้งค่า',
-                                    hint: 'ตั้งรหัสใหม่ (ค่าเริ่มต้น: admin)',
+                                    label: l.fieldSettingsPassword,
+                                    hint: l.fieldSettingsPasswordHint,
                                     controller: _settingsPasswordController,
                                     obscureText: true,
                                   ),
@@ -289,7 +315,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             : Colors.black.withOpacity(0.08),
                                       ),
                                     ),
-                                    child: const Text('ยกเลิก'),
+                                    child: Text(l.cancel),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -303,7 +329,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         borderRadius: BorderRadius.circular(18),
                                       ),
                                     ),
-                                    child: const Text('บันทึก'),
+                                    child: Text(l.save),
                                   ),
                                 ),
                               ],
@@ -360,7 +386,7 @@ class _SettingsHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ตั้งค่า',
+                  AppLocalizations.of(context)!.settingsTitle,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
@@ -369,7 +395,7 @@ class _SettingsHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'ปรับแต่งหน้าจอและค่าระบบของเครื่อง',
+                  AppLocalizations.of(context)!.settingsSubtitle,
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark

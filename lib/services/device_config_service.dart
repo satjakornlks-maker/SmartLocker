@@ -114,6 +114,28 @@ class DeviceConfigService {
     }
   }
 
+  /// Call when the user changes the server URL in Settings.
+  /// Updates the in-memory URL immediately and clears all stale auth tokens
+  /// and cached config so the next API call re-authenticates against the new server.
+  static Future<void> updateBaseUrl(String newUrl) async {
+    newUrl = newUrl.trim();
+    if (newUrl.isEmpty || newUrl == _baseUrl) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_access_token');
+    await prefs.remove('auth_access_expiry');
+    await prefs.remove('auth_refresh_token');
+    await prefs.remove('auth_refresh_expiry');
+    await prefs.remove(_keyLockerIds);
+    await prefs.remove(_keyAssignedLocker);
+    await prefs.remove(_keySystemMode);
+    await prefs.setString(_keyLastConfigUrl, newUrl);
+    _baseUrl = newUrl;
+    _lockerIds = [];
+    _assignedLocker = 0;
+    _systemMode = 'B2C';
+    debugPrint('[DeviceConfig] baseUrl updated to $newUrl');
+  }
+
   static String _generateUuid() {
     final random = Random.secure();
     final v = List<int>.generate(16, (_) => random.nextInt(256));

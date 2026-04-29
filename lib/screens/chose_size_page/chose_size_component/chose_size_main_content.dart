@@ -12,6 +12,8 @@ import '../../input_type_page/phone_input_page/phone_input_page.dart';
 import '../../locker_page/locker_selection_page.dart';
 import '../../locker_page/locker_function/locker_service.dart';
 import 'chose_size_bottom.dart';
+import '../../../../widgets/locker_mini_map/locker_mini_map.dart';
+import '../../../../utils/size_color.dart';
 
 class ChoseSizeMainContent extends StatefulWidget {
   final LockerSelectionMode? mode;
@@ -32,6 +34,8 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
   List<Map<String, dynamic>> _sizes = [];
   bool _sizesReady = false;
   bool _sizesError = false;
+  // null = availability unknown (show all enabled); non-null = checked set
+  Set<String>? _availableSizeKeys;
 
   @override
   void initState() {
@@ -41,13 +45,30 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
     });
   }
 
+  // ── booktype used to check availability ────────────────────────────────────
+
+  int? get _bookTypeForAvailability {
+    if (widget.from == FromPage.visitor) return 5;
+    if (widget.from == FromPage.dropBox) return 1;
+    if (widget.from == FromPage.instance) return 1;
+    return null; // mode-based (employee choose locker) — check any type
+  }
+
+  // ── data loading ───────────────────────────────────────────────────────────
+
   Future<void> _loadSizes() async {
     widget.onLoadingChanged?.call(true);
     try {
-      final sizes = await ApiService().getSizes();
+      final sizeFuture = ApiService().getSizes();
+      final availFuture = _fetchAvailableSizeKeys();
+
+      final sizes = await sizeFuture;
+      final avail = await availFuture;
+
       if (!mounted) return;
       setState(() {
         _sizes = sizes;
+        _availableSizeKeys = avail;
         _sizesReady = true;
       });
     } catch (_) {
@@ -61,14 +82,92 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
     }
   }
 
+  Future<Set<String>?> _fetchAvailableSizeKeys() async {
+    try {
+      final result = await LockerService(ApiService()).loadLocker(
+        bookTypeFilter: _bookTypeForAvailability,
+        systemMode: DeviceConfigService.systemMode,
+      );
+      if (!result.isSuccess) return null;
+      final available = result.data?.where((u) =>
+              u['_isFiltered'] == true &&
+              u['status'] == false &&
+              u['enable'] == true) ??
+          [];
+      return available
+          .map((u) =>
+              (u['lockerSize'] ?? u['locker_size'] ?? u['LockerSize'] ?? '')
+                  .toString()
+                  .toLowerCase())
+          .where((k) => k.isNotEmpty)
+          .toSet();
+    } catch (_) {
+      return null; // on error show all as enabled
+    }
+  }
+
+  bool _isEnabled(String key) {
+    if (_availableSizeKeys == null) return true;
+    return _availableSizeKeys!.contains(key.toLowerCase());
+  }
+
+  // ── navigation helpers ─────────────────────────────────────────────────────
+
   Future<void> _onDropBoxSizeSelected(String size) async {
     widget.onLoadingChanged?.call(true);
+    try {
+      final apiService = ApiService();
+      final lockerService = LockerService(apiService);
 
-    final apiService = ApiService();
-    final lockerService = LockerService(apiService);
+      final result = await lockerService.loadLocker(
+        bookTypeFilter: 1,
+        sizeFilter: size,
+        systemMode: DeviceConfigService.systemMode,
+      );
 
-    final result = await lockerService.loadLocker(
-      bookTypeFilter: 1,
+      if (!mounted) return;
+
+      if (!result.isSuccess || result.isEmpty) {
+        context.showErrorSnackBar(AppLocalizations.of(context)!.noAvailableLocker);
+        return;
+      }
+
+      final available =
+          result.data!.where((u) => u['_isFiltered'] == true).toList();
+      if (available.isEmpty) {
+        context.showErrorSnackBar(AppLocalizations.of(context)!.noAvailableLocker);
+        return;
+      }
+
+      final locker = available[Random().nextInt(available.length)];
+      final lockerId = locker['id']?.toString() ?? '';
+      final lockerName = locker['name']?.toString() ?? '';
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PhoneInputPage(
+            from: FromPage.visitor,
+            selectedLocker: lockerId,
+            lockerName: lockerName,
+            lockerData: result.data!,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      context.showErrorSnackBar('${AppLocalizations.of(context)!.errorOccur}: $e');
+    } finally {
+      if (mounted) widget.onLoadingChanged?.call(false);
+    }
+  }
+
+  Future<void> _checkAvailabilityThenNavigate(
+      String size, FromPage from, int bookTypeFilter) async {
+    widget.onLoadingChanged?.call(true);
+
+    final result = await LockerService(ApiService()).loadLocker(
+      bookTypeFilter: bookTypeFilter,
       sizeFilter: size,
       systemMode: DeviceConfigService.systemMode,
     );
@@ -76,31 +175,17 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
     if (!mounted) return;
     widget.onLoadingChanged?.call(false);
 
-    if (!result.isSuccess || result.isEmpty) {
-      context.showErrorSnackBar(AppLocalizations.of(context)!.noAvailableLocker);
-      return;
-    }
-
     final available =
-        result.data!.where((u) => u['_isFiltered'] == true).toList();
-    if (available.isEmpty) {
+        result.data?.where((u) => u['_isFiltered'] == true).toList() ?? [];
+    if (!result.isSuccess || result.isEmpty || available.isEmpty) {
       context.showErrorSnackBar(AppLocalizations.of(context)!.noAvailableLocker);
       return;
     }
-
-    final locker = available[Random().nextInt(available.length)];
-    final lockerId = locker['id']?.toString() ?? '';
-    final lockerName = locker['name']?.toString() ?? '';
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PhoneInputPage(
-          from: FromPage.visitor,
-          selectedLocker: lockerId,
-          lockerName: lockerName,
-          lockerData: result.data!,
-        ),
+        builder: (context) => PhoneInputPage(from: from, size: size),
       ),
     );
   }
@@ -110,15 +195,27 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
       _onDropBoxSizeSelected(size);
       return;
     }
+    if (widget.from == FromPage.visitor) {
+      _checkAvailabilityThenNavigate(size, FromPage.visitor, 5);
+      return;
+    }
+    if (widget.from == FromPage.instance) {
+      _checkAvailabilityThenNavigate(size, FromPage.instance, 1);
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => widget.mode != null
             ? LockerSelectionPage(mode: widget.mode!, size: size)
-            : InputTypePage(from: widget.from!, size: size),
+            : PhoneInputPage(from: widget.from!, size: size),
       ),
     );
   }
+
+  // ── display helpers ────────────────────────────────────────────────────────
+
+  Color _cardColorForKey(String key) => SizeColor.forKey(key);
 
   String _label(Map<String, dynamic> size) {
     final locale = Localizations.localeOf(context).languageCode;
@@ -128,6 +225,8 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
         ? ((size['name_th'] ?? size['nameTh']) as String? ?? fallback)
         : ((size['name_en'] ?? size['nameEn']) as String? ?? fallback);
   }
+
+  // ── build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -160,33 +259,40 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
                 ),
               )
             else
-              Wrap(
-                spacing: AppSpacing.xl,
-                runSpacing: AppSpacing.xl,
-                children: _sizes.map((size) {
-                  final key = (size['key'] ??
-                          size['Key'] ??
-                          size['size_key'] ??
-                          '')
-                      .toString();
-                  final label = _label(size);
-                  return SizedBox(
-                    width: (MediaQuery.of(context).size.width -
-                            (AppSpacing.xl * 2)) /
-                        _sizes.length,
-                    child: HoverMenuCard(
-                      titleTh: Text(label, textAlign: TextAlign.center),
-                      semanticLabel: '$label. Tap to pick this size.',
-                      icon: Icons.home_work,
-                      color: AppColors.primary,
-                      onPressed: () => _onSizeSelected(key),
-                      haveIcon: false,
+              Row(
+                children: [
+                  for (int i = 0; i < _sizes.length; i++) ...[
+                    if (i > 0) const SizedBox(width: AppSpacing.xl),
+                    Expanded(
+                      child: () {
+                        final size = _sizes[i];
+                        final key = (size['key'] ??
+                                size['Key'] ??
+                                size['size_key'] ??
+                                '')
+                            .toString();
+                        final label = _label(size);
+                        final enabled = _isEnabled(key);
+                        return HoverMenuCard(
+                          titleTh: Text(label, textAlign: TextAlign.center),
+                          semanticLabel: '$label. ${l.tapToPickSize}',
+                          icon: Icons.home_work,
+                          color: AppColors.primary,
+                          cardColor: _cardColorForKey(key),
+                          aspectRatio: 2.8,
+                          enabled: enabled,
+                          onPressed: () => _onSizeSelected(key),
+                          haveIcon: false,
+                        );
+                      }(),
                     ),
-                  );
-                }).toList(),
+                  ],
+                ],
               ),
+            const SizedBox(height: AppSpacing.xxl),
+            LockerMiniMap(sizes: _sizes),
             const SizedBox(height: AppSpacing.xxxl),
-            const ChoseSizeBottom(),
+            const ChossSizeBottom(),
           ],
         ),
       ),

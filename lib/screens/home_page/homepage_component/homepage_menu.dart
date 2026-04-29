@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/theme/theme.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class HomePageMenu extends StatelessWidget {
   const HomePageMenu({super.key});
 
@@ -8,7 +10,7 @@ class HomePageMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-
+    final l = AppLocalizations.of(context)!;
     if (isPortrait) {
       return Column(
         children: [
@@ -28,7 +30,7 @@ class HomePageMenu extends StatelessWidget {
             icon: Icons.inventory_2_rounded,
             accentColor: const Color(0xFF0F9D58),
             onTap: () {
-              Navigator.pushNamed(context, '/otp-unlock-page');
+              Navigator.pushNamed(context,'/unlock');
             },
           ),
         ],
@@ -39,8 +41,8 @@ class HomePageMenu extends StatelessWidget {
       children: [
         Expanded(
           child: _AnimatedMenuCard(
-            title: 'ฝากของ',
-            subtitle: 'เริ่มต้นฝากพัสดุเข้าตู้ล็อกเกอร์',
+            title: AppLocalizations.of(context)!.deposit,
+            subtitle: AppLocalizations.of(context)!.depositSubtitle,
             icon: Icons.move_to_inbox_rounded,
             accentColor: const Color(0xFF2563EB),
             onTap: () {
@@ -51,12 +53,12 @@ class HomePageMenu extends StatelessWidget {
         const SizedBox(width: 18),
         Expanded(
           child: _AnimatedMenuCard(
-            title: 'รับของ',
-            subtitle: 'รับพัสดุด้วย OTP หรือรหัสยืนยัน',
+            title: AppLocalizations.of(context)!.receive,
+            subtitle: AppLocalizations.of(context)!.receiveSubtitle,
             icon: Icons.inventory_2_rounded,
             accentColor: const Color(0xFF0F9D58),
             onTap: () {
-              Navigator.pushNamed(context, '/otp-unlock-page');
+              Navigator.pushNamed(context, '/unlock');
             },
           ),
         ),

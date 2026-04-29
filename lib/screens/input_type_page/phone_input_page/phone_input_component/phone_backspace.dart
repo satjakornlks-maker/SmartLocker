@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 class PhoneBackspace extends StatelessWidget {
@@ -10,7 +11,7 @@ class PhoneBackspace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Delete last digit',
+      label: AppLocalizations.of(context)!.deleteDigit,
       button: true,
       enabled: true,
       child: SizedBox(

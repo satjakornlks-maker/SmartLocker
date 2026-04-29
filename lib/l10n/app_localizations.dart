@@ -919,6 +919,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That email isn\'t valid.'**
   String get errorInvalidEmail;
+
+  /// No description provided for @otpUnlockPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your OTP that you got from booking SMS'**
+  String get otpUnlockPage;
+
+  /// No description provided for @yourLocker.
+  ///
+  /// In en, this message translates to:
+  /// **'Your locker'**
+  String get yourLocker;
+
+  /// No description provided for @notAuthorizedEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not authorised to use this locker. Please contact the administrator.'**
+  String get notAuthorizedEmployee;
+
+  /// No description provided for @enterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get enterPassword;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @wrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get wrongPassword;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get settingsSaved;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize screen and system settings'**
+  String get settingsSubtitle;
+
+  /// No description provided for @sectionDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get sectionDisplay;
+
+  /// No description provided for @sectionSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get sectionSystem;
+
+  /// No description provided for @sectionSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get sectionSecurity;
+
+  /// No description provided for @fieldAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App title'**
+  String get fieldAppTitle;
+
+  /// No description provided for @fieldHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home title'**
+  String get fieldHomeTitle;
+
+  /// No description provided for @fieldLogoAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo path'**
+  String get fieldLogoAsset;
+
+  /// No description provided for @fieldFooterLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Footer left text'**
+  String get fieldFooterLeft;
+
+  /// No description provided for @fieldContactInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact'**
+  String get fieldContactInfo;
+
+  /// No description provided for @fieldSettingsPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings password'**
+  String get fieldSettingsPassword;
+
+  /// No description provided for @fieldSettingsPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password (default: admin)'**
+  String get fieldSettingsPasswordHint;
+
+  /// No description provided for @emailPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'example@email.com'**
+  String get emailPlaceholder;
+
+  /// No description provided for @emailAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get emailAddressLabel;
+
+  /// No description provided for @decreaseUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease {unit}'**
+  String decreaseUnit(String unit);
+
+  /// No description provided for @increaseUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase {unit}'**
+  String increaseUnit(String unit);
+
+  /// No description provided for @tapToChooseLocker.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to choose a locker.'**
+  String get tapToChooseLocker;
+
+  /// No description provided for @tapForQuickBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap for quick booking.'**
+  String get tapForQuickBooking;
+
+  /// No description provided for @tapToPickSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to pick this size.'**
+  String get tapToPickSize;
+
+  /// No description provided for @tapToSignInWithPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to sign in with phone number.'**
+  String get tapToSignInWithPhone;
+
+  /// No description provided for @tapToSignInWithEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to sign in with email.'**
+  String get tapToSignInWithEmail;
+
+  /// No description provided for @tapToRegisterNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to register now.'**
+  String get tapToRegisterNow;
+
+  /// No description provided for @submitPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit your phone number.'**
+  String get submitPhoneNumber;
+
+  /// No description provided for @submitOtpCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit the 6-digit OTP code.'**
+  String get submitOtpCode;
+
+  /// No description provided for @submitEmailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit your email address.'**
+  String get submitEmailAddress;
+
+  /// No description provided for @digitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Digit {digit}'**
+  String digitLabel(String digit);
+
+  /// No description provided for @otpEntryStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP entry. {filled} of 6 digits entered.'**
+  String otpEntryStatus(int filled);
+
+  /// No description provided for @lockerStatusDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'disabled'**
+  String get lockerStatusDisabled;
+
+  /// No description provided for @lockerStatusNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'not available for this selection'**
+  String get lockerStatusNotAvailable;
+
+  /// No description provided for @lockerStatusOccupiedUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'occupied, tap to unlock'**
+  String get lockerStatusOccupiedUnlock;
+
+  /// No description provided for @lockerStatusEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get lockerStatusEmpty;
+
+  /// No description provided for @lockerStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'available, tap to select'**
+  String get lockerStatusAvailable;
+
+  /// No description provided for @lockerStatusOccupied.
+  ///
+  /// In en, this message translates to:
+  /// **'occupied'**
+  String get lockerStatusOccupied;
+
+  /// No description provided for @lockerSemanticLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Locker {name}. {status}.'**
+  String lockerSemanticLabel(String name, String status);
+
+  /// No description provided for @currentLanguageName.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get currentLanguageName;
+
+  /// No description provided for @switchToEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to English'**
+  String get switchToEnglish;
+
+  /// No description provided for @switchToThai.
+  ///
+  /// In en, this message translates to:
+  /// **'เปลี่ยนเป็นภาษาไทย'**
+  String get switchToThai;
+
+  /// No description provided for @depositSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Deposit process'**
+  String get depositSubtitle;
+
+  /// No description provided for @receiveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive your package via OTP'**
+  String get receiveSubtitle;
 }
 
 class _AppLocalizationsDelegate

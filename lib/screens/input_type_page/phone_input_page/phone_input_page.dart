@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
+import 'package:untitled/screens/input_type_page/input_type_page/input_type_service/locker_service.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_confirm_button.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_display.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_component/phone_numpad.dart';
 import 'package:untitled/services/api_service.dart';
+import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
+import 'package:untitled/widgets/locker_mini_map/locker_mini_map.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../main.dart';
@@ -17,6 +20,7 @@ class PhoneInputPage extends StatefulWidget {
   final String? lockerName;
   final FromPage from;
   final List<Map<String, dynamic>> lockerData;
+  final String? size;
 
   const PhoneInputPage({
     super.key,
@@ -24,6 +28,7 @@ class PhoneInputPage extends StatefulWidget {
     this.lockerName,
     required this.from,
     this.lockerData = const [],
+    this.size,
   });
 
   @override
@@ -32,9 +37,87 @@ class PhoneInputPage extends StatefulWidget {
 
 class _PhoneInputPageState extends State<PhoneInputPage> {
   final ApiService _apiService = ApiService();
+  final LockerService _lockerService = LockerService();
+
   String phoneNumber = '';
   final int maxLength = 10;
   bool _isLoading = false;
+  bool _isLoadingLocker = false;
+
+  String? _selectedLockerId;
+  String? _selectedLockerName;
+  List<Map<String, dynamic>> _lockerStatus = [];
+
+  bool get _isInstanceMode =>
+      widget.from == FromPage.instance || widget.from == FromPage.visitor;
+
+  bool get _showMiniMap =>
+      widget.from == FromPage.instance ||
+      widget.from == FromPage.visitor ||
+      widget.from == FromPage.normal ||
+      widget.from == FromPage.forgetPassword;
+
+  String? get _effectiveLockerId =>
+      _isInstanceMode ? _selectedLockerId : widget.selectedLocker;
+
+  String? get _effectiveLockerName =>
+      _isInstanceMode ? _selectedLockerName : widget.lockerName;
+
+  List<Map<String, dynamic>> get _effectiveLockerData =>
+      widget.lockerData.isNotEmpty ? widget.lockerData : _lockerStatus;
+
+  String get _systemMode => DeviceConfigService.systemMode;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isInstanceMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadLocker();
+      });
+    }
+  }
+
+  Future<void> _loadLocker() async {
+    setState(() => _isLoadingLocker = true);
+
+    final result = await _lockerService.fetchLockerUnits();
+    if (!mounted) return;
+
+    if (result['success'] != true) {
+      setState(() => _isLoadingLocker = false);
+      context.showErrorSnackBar(
+          '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
+      return;
+    }
+
+    final List<Map<String, dynamic>> units =
+        List<Map<String, dynamic>>.from(result['data']);
+
+    final selected = _lockerService.selectRandomLocker(
+      units: units,
+      from: widget.from,
+      systemMode: _systemMode,
+      size: widget.size,
+    );
+
+    if (!mounted) return;
+
+    if (selected == null) {
+      setState(() => _isLoadingLocker = false);
+      Navigator.pop(context);
+      context.showWarningSnackBar(
+          AppLocalizations.of(context)!.noAvailableLocker);
+      return;
+    }
+
+    setState(() {
+      _lockerStatus = units;
+      _selectedLockerId = selected['id'].toString();
+      _selectedLockerName = selected['name'];
+      _isLoadingLocker = false;
+    });
+  }
 
   void _onNumberPress(String number) {
     if (phoneNumber.length < maxLength) {
@@ -63,7 +146,7 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
         final result = await _apiService.handleForgotPassword(
           phoneNumber,
           false,
-          widget.selectedLocker,
+          _effectiveLockerId,
         );
         if (!mounted) return;
         setState(() => _isLoading = false);
@@ -72,10 +155,10 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
             context,
             MaterialPageRoute(
               builder: (context) => OTPPage(
-                from: FromPage.unlock,
-                lockerName: widget.lockerName,
-                lockerId: widget.selectedLocker,
-                lockerData: widget.lockerData,
+                from: FromPage.forgetPassword,
+                lockerName: _effectiveLockerName,
+                lockerId: _effectiveLockerId,
+                lockerData: _effectiveLockerData,
               ),
             ),
           );
@@ -86,18 +169,17 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
           setState(() => phoneNumber = '');
         }
       } else {
-        if (widget.selectedLocker == null) {
+        if (_effectiveLockerId == null) {
           setState(() => _isLoading = false);
           if (mounted) {
-            context.showErrorSnackBar(
-                AppLocalizations.of(context)!.noLocker);
+            context.showErrorSnackBar(AppLocalizations.of(context)!.noLocker);
           }
           return;
         }
         final result = await _apiService.sendOTP(
           phoneNumber,
           phoneNumber.contains('@'),
-          widget.selectedLocker!,
+          _effectiveLockerId!,
           widget.from == FromPage.visitor,
         );
         if (!mounted) return;
@@ -109,18 +191,20 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
               builder: (context) => OTPPage(
                 telOrEmail: phoneNumber.toString(),
                 from: widget.from,
-                lockerId: widget.selectedLocker,
-                lockerName: widget.lockerName,
+                lockerId: _effectiveLockerId,
+                lockerName: _effectiveLockerName,
                 userId: result['data']['userId'],
                 refCode: result['data']['refercode'],
-                lockerData: widget.lockerData,
+                lockerData: _effectiveLockerData,
               ),
             ),
           );
         } else {
           ScaffoldMessenger.of(context).clearSnackBars();
-          context.showErrorSnackBar(
-              '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}');
+          final msg = result['statusCode'] == 403
+              ? AppLocalizations.of(context)!.notAuthorizedEmployee
+              : '${AppLocalizations.of(context)!.errorOccur}: ${result['error']}';
+          context.showErrorSnackBar(msg);
           setState(() => phoneNumber = '');
         }
       }
@@ -140,6 +224,35 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     final l = AppLocalizations.of(context)!;
+
+    final phonePanel = Container(
+      constraints: const BoxConstraints(maxWidth: 420),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            l.phoneInstruct,
+            textAlign: TextAlign.center,
+            style: AppText.headingLargeR(context),
+          ),
+          const SizedBox(height: AppSpacing.xxl),
+          PhoneDisplay(phoneNumber: phoneNumber),
+          const SizedBox(height: 20),
+          PhoneNumpad(
+            phoneNumber: phoneNumber,
+            onNumberPress: _onNumberPress,
+            onBackspace: _onBackspace,
+            isLoading: _isLoading,
+          ),
+          PhoneConfirmButton(
+            isLoading: _isLoading,
+            isComplete: _isComplete,
+            onConfirm: _onConfirm,
+          ),
+        ],
+      ),
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -160,45 +273,32 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: Center(
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: AppSpacing.xxl),
-                              Text(
-                                l.phoneInstruct,
-                                textAlign: TextAlign.center,
-                                style: AppText.headingLargeR(context),
-                              ),
-                              const SizedBox(height: AppSpacing.xxl),
-                              PhoneDisplay(phoneNumber: phoneNumber),
-                              const SizedBox(height: AppSpacing.huge),
-                              PhoneNumpad(
-                                phoneNumber: phoneNumber,
-                                onNumberPress: _onNumberPress,
-                                onBackspace: _onBackspace,
-                                isLoading: _isLoading,
-                              ),
-                              const SizedBox(height: AppSpacing.xxl),
-                              PhoneConfirmButton(
-                                isLoading: _isLoading,
-                                isComplete: _isComplete,
-                                onConfirm: _onConfirm,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: _showMiniMap
+                        ? Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 480),
+                                  child: LockerMiniMap(
+                                    lockerData: _effectiveLockerData,
+                                    selectedLockerId: _effectiveLockerId,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.xxxl),
+                                phonePanel,
+                              ],
+                            ),
+                          )
+                        : Center(child: phonePanel),
                   ),
                 ),
               ],
             ),
-            if (_isLoading)
+            if (_isLoading || _isLoadingLocker)
               Container(
                 // ignore: deprecated_member_use
                 color: Colors.black.withOpacity(0.5),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 class EmailInputZone extends StatelessWidget {
@@ -21,7 +22,7 @@ class EmailInputZone extends StatelessWidget {
       child: Opacity(
         opacity: isLoading ? 0.5 : 1.0,
         child: Semantics(
-          label: 'Email address',
+          label: AppLocalizations.of(context)!.emailAddressLabel,
           textField: true,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 500),
@@ -48,8 +49,8 @@ class EmailInputZone extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: AppColors.textPrimary,
               ),
-              decoration: const InputDecoration(
-                hintText: 'example@email.com',
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.emailPlaceholder,
                 hintStyle: TextStyle(
                   fontFamily: AppText.family,
                   fontSize: 22,

@@ -432,4 +432,159 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorInvalidEmail => 'That email isn\'t valid.';
+
+  @override
+  String get otpUnlockPage => 'Enter your OTP that you got from booking SMS';
+
+  @override
+  String get yourLocker => 'Your locker';
+
+  @override
+  String get notAuthorizedEmployee =>
+      'You are not authorised to use this locker. Please contact the administrator.';
+
+  @override
+  String get enterPassword => 'Enter password';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get wrongPassword => 'Incorrect password';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get settingsSaved => 'Settings saved';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsSubtitle => 'Customize screen and system settings';
+
+  @override
+  String get sectionDisplay => 'Display';
+
+  @override
+  String get sectionSystem => 'System';
+
+  @override
+  String get sectionSecurity => 'Security';
+
+  @override
+  String get fieldAppTitle => 'App title';
+
+  @override
+  String get fieldHomeTitle => 'Home title';
+
+  @override
+  String get fieldLogoAsset => 'Logo path';
+
+  @override
+  String get fieldFooterLeft => 'Footer left text';
+
+  @override
+  String get fieldContactInfo => 'Emergency contact';
+
+  @override
+  String get fieldSettingsPassword => 'Settings password';
+
+  @override
+  String get fieldSettingsPasswordHint => 'Set new password (default: admin)';
+
+  @override
+  String get emailPlaceholder => 'example@email.com';
+
+  @override
+  String get emailAddressLabel => 'Email address';
+
+  @override
+  String decreaseUnit(String unit) {
+    return 'Decrease $unit';
+  }
+
+  @override
+  String increaseUnit(String unit) {
+    return 'Increase $unit';
+  }
+
+  @override
+  String get tapToChooseLocker => 'Tap to choose a locker.';
+
+  @override
+  String get tapForQuickBooking => 'Tap for quick booking.';
+
+  @override
+  String get tapToPickSize => 'Tap to pick this size.';
+
+  @override
+  String get tapToSignInWithPhone => 'Tap to sign in with phone number.';
+
+  @override
+  String get tapToSignInWithEmail => 'Tap to sign in with email.';
+
+  @override
+  String get tapToRegisterNow => 'Tap to register now.';
+
+  @override
+  String get submitPhoneNumber => 'Submit your phone number.';
+
+  @override
+  String get submitOtpCode => 'Submit the 6-digit OTP code.';
+
+  @override
+  String get submitEmailAddress => 'Submit your email address.';
+
+  @override
+  String digitLabel(String digit) {
+    return 'Digit $digit';
+  }
+
+  @override
+  String otpEntryStatus(int filled) {
+    return 'OTP entry. $filled of 6 digits entered.';
+  }
+
+  @override
+  String get lockerStatusDisabled => 'disabled';
+
+  @override
+  String get lockerStatusNotAvailable => 'not available for this selection';
+
+  @override
+  String get lockerStatusOccupiedUnlock => 'occupied, tap to unlock';
+
+  @override
+  String get lockerStatusEmpty => 'empty';
+
+  @override
+  String get lockerStatusAvailable => 'available, tap to select';
+
+  @override
+  String get lockerStatusOccupied => 'occupied';
+
+  @override
+  String lockerSemanticLabel(String name, String status) {
+    return 'Locker $name. $status.';
+  }
+
+  @override
+  String get currentLanguageName => 'English';
+
+  @override
+  String get switchToEnglish => 'Switch to English';
+
+  @override
+  String get switchToThai => 'เปลี่ยนเป็นภาษาไทย';
+
+  @override
+  String get depositSubtitle => 'Start Deposit process';
+
+  @override
+  String get receiveSubtitle => 'Receive your package via OTP';
 }

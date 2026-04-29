@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 import '../locker_selection_page.dart';
@@ -62,15 +63,16 @@ class LockerCell extends StatelessWidget {
     final String? groupTag = entry['lockerName'] as String?;
 
     // Build accessible status string for screen reader
+    final l = AppLocalizations.of(context)!;
     String semanticStatus;
     if (!isEnable) {
-      semanticStatus = 'disabled';
+      semanticStatus = l.lockerStatusDisabled;
     } else if (!isFiltered) {
-      semanticStatus = 'not available for this selection';
+      semanticStatus = l.lockerStatusNotAvailable;
     } else if (mode == LockerSelectionMode.unlock) {
-      semanticStatus = status ? 'occupied, tap to unlock' : 'empty';
+      semanticStatus = status ? l.lockerStatusOccupiedUnlock : l.lockerStatusEmpty;
     } else {
-      semanticStatus = isAvailable ? 'available, tap to select' : 'occupied';
+      semanticStatus = isAvailable ? l.lockerStatusAvailable : l.lockerStatusOccupied;
     }
 
     return Positioned(
@@ -79,7 +81,7 @@ class LockerCell extends StatelessWidget {
       width: width,
       height: height,
       child: Semantics(
-        label: 'Locker $lockerName. $semanticStatus.',
+        label: l.lockerSemanticLabel(lockerName, semanticStatus),
         button: isFiltered && isEnable,
         enabled: isFiltered && isEnable,
         selected: isSelected,

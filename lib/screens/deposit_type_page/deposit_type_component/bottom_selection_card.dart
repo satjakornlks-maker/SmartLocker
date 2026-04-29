@@ -13,7 +13,7 @@ class BottomSelectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Semantics(
-      label: '${l.register}. Tap to register now.',
+      label: '${l.register}. ${l.tapToRegisterNow}',
       button: true,
       child: Material(
         color: AppColors.primary,

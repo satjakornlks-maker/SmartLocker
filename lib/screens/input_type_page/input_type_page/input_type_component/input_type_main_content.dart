@@ -7,6 +7,7 @@ import '../input_type_page.dart';
 import '../input_type_service/locker_service.dart';
 import 'input_type_bottom.dart';
 import 'input_type_selection_cards.dart';
+import '../../../../widgets/locker_mini_map/locker_mini_map.dart';
 
 class InputTypeMainContent extends StatefulWidget {
   final FromPage from;
@@ -126,8 +127,16 @@ class _InputTypeMainContentState extends State<InputTypeMainContent> {
               lockerName: _lockerName,
               lockerData: _effectiveLockerData,
             ),
+            if (widget.from == FromPage.instance ||
+                widget.from == FromPage.visitor) ...[
+              const SizedBox(height: AppSpacing.xxl),
+              LockerMiniMap(
+                lockerData: _effectiveLockerData,
+                selectedLockerId: _selectedLockerId,
+              ),
+            ],
             const SizedBox(height: AppSpacing.xxxl),
-            const InputTypeBottom(),
+            InputTypeBottom(from: widget.from,),
           ],
         ),
       ),

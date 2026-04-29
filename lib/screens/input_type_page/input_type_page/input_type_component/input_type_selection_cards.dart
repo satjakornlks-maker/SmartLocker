@@ -30,9 +30,10 @@ class InputTypeSelectionCards extends StatelessWidget {
         Expanded(
           child: HoverMenuCard(
             titleTh: Text(l.phone),
-            semanticLabel: '${l.phone}. Tap to sign in with phone number.',
+            semanticLabel: '${l.phone}. ${l.tapToSignInWithPhone}',
             icon: Icons.phone_android,
             color: AppColors.primary,
+            aspectRatio: 2.2,
             onPressed: ready
                 ? () => Navigator.push(
                       context,
@@ -52,9 +53,10 @@ class InputTypeSelectionCards extends StatelessWidget {
         Expanded(
           child: HoverMenuCard(
             titleTh: Text(l.email),
-            semanticLabel: '${l.email}. Tap to sign in with email.',
+            semanticLabel: '${l.email}. ${l.tapToSignInWithEmail}',
             icon: Icons.email,
             color: AppColors.primary,
+            aspectRatio: 2.2,
             onPressed: ready
                 ? () => Navigator.push(
                       context,

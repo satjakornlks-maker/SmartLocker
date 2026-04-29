@@ -60,22 +60,39 @@ class LockerCommandService {
         return false;
       }
 
-      // Step 1: set trigger time to 0 (immediate — no push needed)
-      await sendTriggerTime(sock, loc.cuAddr, 0);
-      await Future.delayed(const Duration(milliseconds: 100));
+      var restoreNeeded = false;
+      var unlocked = false;
 
-      // Step 2: send unlock
-      await sendUnlock(sock, loc.cuAddr, loc.ch);
-      await Future.delayed(const Duration(milliseconds: 300));
+      try {
+        // Step 1: set trigger time to 0 (immediate — no push needed)
+        await sendTriggerTime(sock, loc.cuAddr, 0);
+        restoreNeeded = true;
+        await Future.delayed(const Duration(milliseconds: 100));
 
-      // Step 3: restore trigger time to 60s
-      await sendTriggerTime(sock, loc.cuAddr, 60);
+        // Step 2: send unlock
+        await sendUnlock(sock, loc.cuAddr, loc.ch);
+        unlocked = true;
+        await Future.delayed(const Duration(milliseconds: 300));
+      } catch (e) {
+        debugPrint('[LockerCmd] Unlock error: $e');
+      } finally {
+        // Step 3: always restore trigger time to 60s if Step 1 succeeded
+        if (restoreNeeded) {
+          try {
+            await sendTriggerTime(sock, loc.cuAddr, 60);
+          } catch (e) {
+            debugPrint('[LockerCmd] Restore trigger time failed: $e');
+          }
+        }
+      }
 
-      debugPrint('[LockerCmd] Offline unlock OK — locker $lockerId '
-          '(${loc.ip} CU 0x${loc.cuAddr.toRadixString(16).toUpperCase()} CH${loc.ch})');
-      return true;
+      if (unlocked) {
+        debugPrint('[LockerCmd] Offline unlock OK — locker $lockerId '
+            '(${loc.ip} CU 0x${loc.cuAddr.toRadixString(16).toUpperCase()} CH${loc.ch})');
+      }
+      return unlocked;
     } catch (e) {
-      debugPrint('[LockerCmd] Unlock error: $e');
+      debugPrint('[LockerCmd] Connection error: $e');
       return false;
     } finally {
       await sock?.close();

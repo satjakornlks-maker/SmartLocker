@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/theme/theme.dart';
 
 import 'keypad_button.dart';
@@ -17,13 +18,14 @@ class KeypadRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: keys.map((key) {
         if (key == 'delete') {
           return KeypadButton(
             onTap: handleDelete,
-            semanticLabel: 'Delete last digit',
+            semanticLabel: l.deleteDigit,
             child: const Icon(
               Icons.backspace_outlined,
               size: 24,
@@ -35,7 +37,7 @@ class KeypadRow extends StatelessWidget {
             children: [
               const SizedBox(width: AppTouch.keypadButton + AppSpacing.xl),
               KeypadButton(
-                semanticLabel: 'Digit 0',
+                semanticLabel: l.digitLabel('0'),
                 onTap: () => handleNumberTap(key),
                 child: const Text(
                   '0',
@@ -51,7 +53,7 @@ class KeypadRow extends StatelessWidget {
           );
         } else {
           return KeypadButton(
-            semanticLabel: 'Digit $key',
+            semanticLabel: l.digitLabel(key),
             onTap: () => handleNumberTap(key),
             child: Text(
               key,

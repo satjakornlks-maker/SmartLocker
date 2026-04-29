@@ -48,7 +48,7 @@ class LockerService {
 
     final available = units.where((locker) {
       final baseCondition = locker['status'] == false &&
-          locker['enable'] == false &&
+          locker['enable'] == true &&
           locker['locker_status'] == 'close';
 
       final bookTypeCondition = locker['locker_booktype'] == bookType;
