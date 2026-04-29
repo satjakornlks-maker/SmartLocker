@@ -13,6 +13,10 @@
 migrate_working_dir/
 .env
 
+# Secrets / credentials — never commit these
+config.prod.json
+lib/.claude/settings.local.json
+
 # IntelliJ related
 *.iml
 *.ipr

@@ -10,7 +10,6 @@ import 'package:untitled/screens/home_page/my_home_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/screens/locker_page/locker_selection_page.dart';
 import 'package:untitled/screens/otp_page/otp_page.dart';
-import 'package:untitled/screens/payment_page/payment_page.dart';
 import 'package:untitled/screens/settings_page/settings_page.dart';
 import 'package:untitled/screens/user_type_page/user_type_page.dart';
 import 'package:untitled/services/api_service.dart';
@@ -334,16 +333,6 @@ class _MyAppState extends State<MyApp>
             const LockerSelectionPage(mode: LockerSelectionMode.unlock),
         '/user-type-page': (context) => const UserTypePage(),
         '/otp-unlock-page': (context) => const OTPPage(from: FromPage.unlock),
-        '/test-page': (context) => const PaymentPage(
-          lockerId: "",
-          lockerName: "",
-          telOrEmail: "",
-          otp: "",
-          userId: 1,
-          bookingType: "bookingType",
-          quantity: 1,
-          total: 1,
-        ),
         '/settings': (context) => const SettingsPage(),
       },
     );

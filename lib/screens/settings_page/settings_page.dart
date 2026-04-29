@@ -51,9 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _sockTimeoutController = TextEditingController(
       text: settings.sockTimeout.toString(),
     );
-    _settingsPasswordController = TextEditingController(
-      text: settings.settingsPassword,
-    );
+    _settingsPasswordController = TextEditingController();
   }
 
   @override

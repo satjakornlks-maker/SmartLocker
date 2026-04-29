@@ -58,7 +58,6 @@ class PinCacheService {
     }
     final hash = sha256.convert(utf8.encode(pin)).toString();
     debugPrint('[PinCache] verify locker $lockerId');
-    debugPrint('[PinCache]   entered PIN  : $pin');
     debugPrint('[PinCache]   entered hash : $hash');
     debugPrint('[PinCache]   cached  hash : $cached');
     debugPrint('[PinCache]   match: ${hash == cached}');

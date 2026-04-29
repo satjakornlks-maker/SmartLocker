@@ -276,7 +276,7 @@ class ApiService {
     List<String> stringList = name.split(RegExp(r' '));
 
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/locker/periodic_request',
           data: {
             'PhoneNumber':tel,
@@ -292,7 +292,7 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
 
     }on DioException catch (e){
@@ -312,7 +312,7 @@ class ApiService {
     }
 
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/locker/send_otp',
           data: {
             'LockerUnitID':int.parse(lockerId),
@@ -323,7 +323,7 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
@@ -343,7 +343,7 @@ class ApiService {
     }
 
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/send-link',
           data: {
             'LockerUnitID':int.parse(lockerId),
@@ -354,7 +354,7 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
@@ -373,7 +373,7 @@ class ApiService {
     }
 
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
         '/locker/register',
         data: {
           'userId':userId,
@@ -390,7 +390,7 @@ class ApiService {
       Future.delayed(const Duration(seconds: 3), () => syncPinCache().ignore());
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
@@ -499,7 +499,7 @@ class ApiService {
     }
 
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/forgot_password',
           data: {
             type: data,
@@ -511,7 +511,7 @@ class ApiService {
       Future.delayed(const Duration(seconds: 3), () => syncPinCache().ignore());
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
@@ -530,7 +530,7 @@ class ApiService {
     }
 
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/locker/verify',
           data: {
             type: data,
@@ -539,7 +539,7 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
@@ -600,7 +600,7 @@ class ApiService {
 
   Future<Map<String,dynamic>> handleAcceptRequest(int userId)async{
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/approve/accept',
           data: {
             'userId':userId,
@@ -609,7 +609,7 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
@@ -621,7 +621,7 @@ class ApiService {
 
   Future<Map<String,dynamic>> handleRejectRequest(int userId)async{
     try{
-      final responss = await _dio.post(
+      final response = await _dio.post(
           '/approve/reject',
           data: {
             'userId':userId,
@@ -629,7 +629,7 @@ class ApiService {
       );
       return{
         'success':true,
-        'data':responss.data,
+        'data':response.data,
       };
     }on DioException catch (e){
       return{
