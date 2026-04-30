@@ -1,0 +1,12 @@
+{
+  "BOOTSTRAP_URL": "http://localhost:5183",
+  "BASE_URL": "http://localhost:5183",
+  "APP_KEY": "X0W8Id76MYiAf2J7vlgSQkOUL3Em4UkvlIC5J5w6ozQ=",
+  "BOARD_CLIENT_ID": "board-check",
+  "BOARD_CLIENT_SECRET": "boardcheck-secret-2026",
+
+  "POLL_SEC": 0.3,
+  "SOCK_TIMEOUT": 2.0,
+  "RESTART_HOUR": 0,
+  "HF_CONNECTIONS": ""
+}
