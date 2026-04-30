@@ -8,6 +8,7 @@ class OtpInputBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.height <= 800;
     final filledCount = otpDigits.where((d) => d.isNotEmpty).length;
     return Semantics(
       label: AppLocalizations.of(context)!.otpEntryStatus(filledCount),
@@ -17,9 +18,9 @@ class OtpInputBox extends StatelessWidget {
         children: List.generate(6, (index) {
           final filled = otpDigits[index].isNotEmpty;
           return Container(
-            width: 50,
-            height: 60,
-            margin: const EdgeInsets.symmetric(horizontal: 5),
+            width: compact ? 38.0 : 50.0,
+            height: compact ? 46.0 : 60.0,
+            margin: EdgeInsets.symmetric(horizontal: compact ? 3.0 : 5.0),
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: AppRadius.mdRadius,
@@ -31,9 +32,9 @@ class OtpInputBox extends StatelessWidget {
             child: Center(
               child: Text(
                 filled ? '*' : '',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppText.family,
-                  fontSize: 28,
+                  fontSize: compact ? 22.0 : 28.0,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),

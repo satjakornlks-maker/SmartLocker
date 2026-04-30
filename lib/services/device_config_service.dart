@@ -11,7 +11,7 @@ class DeviceConfigService {
 
   static String _deviceId      = '';
   static String _baseUrl       = '';
-  static String _appKey        = '';
+  static String _appKey        = 'flutter-secret-2026';
   static List<int> _lockerIds  = [];
   static int _assignedLocker   = 0;
   static String _systemMode    = 'B2C'; // default until synced from server

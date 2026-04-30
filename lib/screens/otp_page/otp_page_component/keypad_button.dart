@@ -16,13 +16,17 @@ class KeypadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.height <= 800;
+    final btnSize = compact ? 46.0 : AppTouch.keypadButton;
     return Semantics(
       label: semanticLabel,
       button: true,
       child: Container(
-        width: AppTouch.keypadButton,
-        height: AppTouch.keypadButton,
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        width: btnSize,
+        height: btnSize,
+        margin: EdgeInsets.symmetric(
+          horizontal: compact ? AppSpacing.xs : AppSpacing.md,
+        ),
         child: Material(
           color: AppColors.surface,
           shape: const CircleBorder(

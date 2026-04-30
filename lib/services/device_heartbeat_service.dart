@@ -40,7 +40,7 @@ class DeviceHeartbeatService {
 
   static Future<void> _sendPing() async {
     if (_stopped || _deviceId == null) return;
-    final data = await ApiService().pingHealth(_deviceId!);
+    final data = await ApiService.instance.pingHealth(_deviceId!);
     final ok = data != null;
     debugPrint('[heartbeat] ping ${ok ? 'ok' : 'failed'} (device: $_deviceId)');
     if (ok) {
@@ -67,7 +67,7 @@ class DeviceHeartbeatService {
       final lockerIdsChanged = prevLockerIds.toString() != lockerIds.toString();
       if (lockerIdsChanged) {
         debugPrint('[heartbeat] locker IDs changed — refreshing locker data and PIN cache');
-        final api = ApiService();
+        final api = ApiService.instance;
         await api.getLocker();
         await api.syncPinCache();
         debugPrint('[heartbeat] locker data and PIN cache refreshed');

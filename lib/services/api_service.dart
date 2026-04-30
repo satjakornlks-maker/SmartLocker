@@ -2,16 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled/services/app_settings.dart';
 import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/services/pin_cache_service.dart';
 import 'package:untitled/services/locker_command_service.dart';
 import 'package:untitled/services/offline_status_queue.dart';
 
-// OAuth2 client credentials — client_id is fixed, client_secret comes from
-// --dart-define=APP_KEY baked in at build time.
+// OAuth2 client credentials — client_id is fixed, client_secret is read from
+// AppSettings (configurable in Settings page) with fallback to --dart-define=APP_KEY.
 const _clientId = 'flutter-app';
 
 class ApiService {
+  static final ApiService instance = ApiService._();
+
   late final Dio _dio;
 
   String? _token;
@@ -20,13 +23,16 @@ class ApiService {
   DateTime? _refreshTokenExpiry;
   bool _tokensLoaded = false;
   String _lastAuthUrl = '';
+  // Cooldown: after a failed full-auth, wait 30 s before retrying so we don't
+  // spam the /auth/token endpoint on every API call.
+  DateTime? _authFailedAt;
 
   static const _kToken = 'auth_access_token';
   static const _kTokenExp = 'auth_access_expiry';
   static const _kRefresh = 'auth_refresh_token';
   static const _kRefreshExp = 'auth_refresh_expiry';
 
-  ApiService() {
+  ApiService._() {
     _dio = Dio(
       BaseOptions(
         baseUrl: DeviceConfigService.baseUrl.isNotEmpty
@@ -136,10 +142,20 @@ class ApiService {
     }
 
     // 3. Full re-auth with client secret
-    final clientSecret = DeviceConfigService.appKey;
+    // Respect cooldown — skip the request if we just failed recently.
+    if (_authFailedAt != null &&
+        DateTime.now().difference(_authFailedAt!).inSeconds < 30) {
+      return '';
+    }
+
+    // Prefer secret from Settings page; fall back to --dart-define APP_KEY.
+    final clientSecret = AppSettings.instance.clientSecret.isNotEmpty
+        ? AppSettings.instance.clientSecret
+        : DeviceConfigService.appKey;
+
     if (clientSecret.isEmpty) {
-      debugPrint('[ApiService] ERROR: APP_KEY not configured — cannot authenticate');
-      throw StateError('Missing APP_KEY. Build with --dart-define=APP_KEY=...');
+      debugPrint('[ApiService] ERROR: client secret not configured');
+      return '';
     }
     try {
       final resp = await Dio().post(
@@ -147,6 +163,7 @@ class ApiService {
         data: {'client_id': _clientId, 'client_secret': clientSecret},
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
+      _authFailedAt = null; // clear cooldown on success
       await _saveTokens(
         resp.data['access_token'] as String,
         resp.data['expires_in'] as int? ?? 900,
@@ -156,6 +173,7 @@ class ApiService {
       debugPrint('[ApiService] Token acquired via client credentials');
       return _token!;
     } catch (e) {
+      _authFailedAt = DateTime.now(); // start cooldown
       debugPrint('[ApiService] Token fetch failed: $e');
       return '';
     }
@@ -246,13 +264,29 @@ class ApiService {
   }
 
   /// Fetches available locker sizes with bilingual labels from the backend.
+  /// Returns cached data immediately if the network call fails.
   Future<List<Map<String, dynamic>>> getSizes() async {
-    final response = await _dio.get('/init/get_sizes');
-    final data = response.data;
-    if (data is List) {
-      return List<Map<String, dynamic>>.from(data);
+    try {
+      final response = await _dio.get('/init/get_sizes');
+      final data = response.data;
+      if (data is List) {
+        final sizes = List<Map<String, dynamic>>.from(data);
+        // Persist for offline / fast-open use
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_sizesCacheKey, jsonEncode(sizes));
+        return sizes;
+      }
+      return [];
+    } catch (e) {
+      // Network unavailable — return cached sizes so the page isn't stuck
+      final prefs = await SharedPreferences.getInstance();
+      final cached = prefs.getString(_sizesCacheKey);
+      if (cached != null) {
+        debugPrint('[ApiService] Offline — returning cached sizes');
+        return List<Map<String, dynamic>>.from(jsonDecode(cached));
+      }
+      rethrow; // no cache, let _loadSizes show an error
     }
-    return [];
   }
 
   /// Sends a health ping to the backend so it knows this device is still alive.
@@ -421,6 +455,7 @@ class ApiService {
   }
 
   static const _lockerCacheKey = 'locker_cache';
+  static const _sizesCacheKey  = 'sizes_cache';
 
   Future<Map<String, dynamic>> getLocker() async {
     final lockerIds = DeviceConfigService.lockerIds;

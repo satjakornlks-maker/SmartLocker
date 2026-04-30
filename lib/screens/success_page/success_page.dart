@@ -11,7 +11,7 @@ class SuccessPage extends StatefulWidget {
   const SuccessPage({
     super.key,
     this.onComplete,
-    this.displayDuration = const Duration(seconds: 6),
+    this.displayDuration = const Duration(seconds: 5),
   });
 
   @override

@@ -7,6 +7,7 @@ class PhoneDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.height <= 800;
     return Semantics(
       label: phoneNumber.isEmpty
           ? 'Phone number field, empty'
@@ -14,9 +15,9 @@ class PhoneDisplay extends StatelessWidget {
       liveRegion: true,
       child: Container(
         width: double.infinity,
-        constraints: const BoxConstraints(maxWidth: 400, minHeight: 80),
-        padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.xl,
+        constraints: BoxConstraints(maxWidth: 400, minHeight: compact ? 52 : 80),
+        padding: EdgeInsets.symmetric(
+          vertical: compact ? AppSpacing.sm : AppSpacing.xl,
           horizontal: AppSpacing.xxxl,
         ),
         decoration: BoxDecoration(
@@ -28,9 +29,9 @@ class PhoneDisplay extends StatelessWidget {
           child: Text(
             phoneNumber,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppText.family,
-              fontSize: 32,
+              fontSize: compact ? 24.0 : 32.0,
               fontWeight: FontWeight.w500,
               letterSpacing: 3,
               color: AppColors.textPrimary,

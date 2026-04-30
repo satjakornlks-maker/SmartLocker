@@ -32,8 +32,10 @@ class BottomSelectionCard extends StatelessWidget {
           child: Container(
             width: double.infinity,
             constraints: const BoxConstraints(minHeight: AppTouch.minTarget),
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.xxl,
+            padding: EdgeInsets.symmetric(
+              vertical: MediaQuery.of(context).size.height <= 800
+                  ? AppSpacing.md
+                  : AppSpacing.xxl,
               horizontal: AppSpacing.xxxl,
             ),
             child: Row(

@@ -34,28 +34,39 @@ class LockerResponsiveBody extends StatelessWidget {
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
         final screenHeight = constraints.maxHeight;
+        final compact = screenHeight <= 800;
 
-        const double headerHeight = 70;
-        const double titleHeight = 60;
-        const double legendHeight = 40;
-        const double buttonHeight = 64;
-        const double paddingTotal = 96;
+        final double headerPaddingV = compact ? AppSpacing.xs : AppSpacing.lg;
+        final double innerPaddingH = compact ? AppSpacing.xl : AppSpacing.huge;
+        final double spacerAfterTitle = compact ? AppSpacing.xs : AppSpacing.md;
+        final double spacerAfterLegend = compact ? AppSpacing.xs : AppSpacing.lg;
+        final double spacerAfterGrid = compact ? AppSpacing.xs : AppSpacing.md;
+        final double spacerAfterButton = compact ? AppSpacing.xs : AppSpacing.xxl;
+
+        const double headerHeight = 80;
+        const double titleHeight = 40;
+        const double legendHeight = 32;
+        const double buttonHeight = 56;
 
         final double availableGridHeight = screenHeight -
             headerHeight -
+            headerPaddingV * 2 -
             titleHeight -
+            spacerAfterTitle -
             legendHeight -
+            spacerAfterLegend -
+            spacerAfterGrid -
             buttonHeight -
-            paddingTotal;
+            spacerAfterButton;
 
-        final double availableGridWidth = screenWidth - 80;
+        final double availableGridWidth = screenWidth - innerPaddingH * 2;
 
         return Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.xl,
-                vertical: AppSpacing.lg,
+                vertical: headerPaddingV,
               ),
               child: Header(
                 currentLocale: currentLocale,
@@ -66,18 +77,16 @@ class LockerResponsiveBody extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.huge,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: innerPaddingH),
                 child: Column(
                   children: [
                     Text(
                       l.selectLocker,
                       style: AppText.headingLargeR(context),
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(height: spacerAfterTitle),
                     const LockerLegend(),
-                    const SizedBox(height: AppSpacing.lg),
+                    SizedBox(height: spacerAfterLegend),
                     Expanded(
                       child: Center(
                         child: gridBuilder(
@@ -86,7 +95,7 @@ class LockerResponsiveBody extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(height: spacerAfterGrid),
                     LockerConfirmButton(
                       mode: mode,
                       selectedLocker: selectedLocker,
@@ -94,7 +103,7 @@ class LockerResponsiveBody extends StatelessWidget {
                       buttonText: buttonText,
                       lockerData: lockerData,
                     ),
-                    const SizedBox(height: AppSpacing.xxl),
+                    SizedBox(height: spacerAfterButton),
                   ],
                 ),
               ),

@@ -19,6 +19,9 @@ class KeypadRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final compact = MediaQuery.of(context).size.height <= 800;
+    final btnSize = compact ? 52.0 : AppTouch.keypadButton;
+    final rowGap = compact ? AppSpacing.xs * 2 : AppSpacing.xl;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: keys.map((key) {
@@ -26,16 +29,16 @@ class KeypadRow extends StatelessWidget {
           return KeypadButton(
             onTap: handleDelete,
             semanticLabel: l.deleteDigit,
-            child: const Icon(
+            child: Icon(
               Icons.backspace_outlined,
-              size: 24,
+              size: compact ? 20 : 24,
               color: AppColors.textPrimary,
             ),
           );
         } else if (key == '0') {
           return Row(
             children: [
-              const SizedBox(width: AppTouch.keypadButton + AppSpacing.xl),
+              SizedBox(width: btnSize + rowGap),
               KeypadButton(
                 semanticLabel: l.digitLabel('0'),
                 onTap: () => handleNumberTap(key),

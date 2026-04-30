@@ -11,12 +11,16 @@ class UserTypeMainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final compact = MediaQuery.of(context).size.height <= 800;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 980),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        padding: EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: compact ? 10 : 18,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           color: isDark
@@ -34,14 +38,14 @@ class UserTypeMainContent extends StatelessWidget {
             Text(
               AppLocalizations.of(context)!.userType,
               style: TextStyle(
-                fontSize: 26,
+                fontSize: compact ? 20 : 26,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : const Color(0xFF111827),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: compact ? 8 : 20),
             UserTypeMenu(systemMode: systemMode),
-            const SizedBox(height: 28),
+            const Spacer(),
             const UserTypeBottom(),
           ],
         ),

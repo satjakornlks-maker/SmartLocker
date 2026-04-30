@@ -73,7 +73,7 @@ class AppText {
   static TextStyle displayMediumR(BuildContext c) =>
       _scaled(c, 32, FontWeight.bold);
   static TextStyle headingLargeR(BuildContext c) =>
-      _scaled(c, 28, FontWeight.w600);
+      _scaled(c, 24, FontWeight.w600);
   static TextStyle headingMediumR(BuildContext c) =>
       _scaled(c, 22, FontWeight.w600);
   static TextStyle titleLargeR(BuildContext c) =>

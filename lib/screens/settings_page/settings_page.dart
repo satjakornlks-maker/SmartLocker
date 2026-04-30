@@ -24,6 +24,9 @@ class _SettingsPageState extends State<SettingsPage> {
   late final TextEditingController _pollSecController;
   late final TextEditingController _sockTimeoutController;
   late final TextEditingController _settingsPasswordController;
+  late final TextEditingController _clientSecretController;
+
+  bool _registeringDevice = false;
 
   @override
   void initState() {
@@ -52,6 +55,7 @@ class _SettingsPageState extends State<SettingsPage> {
       text: settings.sockTimeout.toString(),
     );
     _settingsPasswordController = TextEditingController();
+    _clientSecretController = TextEditingController(text: settings.clientSecret);
   }
 
   @override
@@ -67,6 +71,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _pollSecController.dispose();
     _sockTimeoutController.dispose();
     _settingsPasswordController.dispose();
+    _clientSecretController.dispose();
     super.dispose();
   }
 
@@ -85,6 +90,7 @@ class _SettingsPageState extends State<SettingsPage> {
       restartHour: int.tryParse(_restartHourController.text) ?? 0,
       pollSec: double.tryParse(_pollSecController.text) ?? 0.3,
       sockTimeout: double.tryParse(_sockTimeoutController.text) ?? 2.0,
+      clientSecret: _clientSecretController.text,
     );
 
     // Apply the new URL immediately so subsequent API calls use it without restart.
@@ -92,7 +98,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Re-fetch locker config from the new backend so the locker selection page
     // doesn't show empty when the IP was changed (lockerIds was just cleared above).
-    ApiService().syncDeviceConfig(DeviceConfigService.deviceId).then((result) async {
+    ApiService.instance.syncDeviceConfig(DeviceConfigService.deviceId).then((result) async {
       if (result['success'] == true) {
         final data = result['data'] as Map<String, dynamic>;
         final rawIds = data['locker_ids'] as List?;
@@ -105,8 +111,8 @@ class _SettingsPageState extends State<SettingsPage> {
           assignedLocker: assignedLocker,
           systemMode: systemMode,
         );
-        ApiService().getLocker().ignore();
-        ApiService().syncPinCache().ignore();
+        ApiService.instance.getLocker().ignore();
+        ApiService.instance.syncPinCache().ignore();
       }
     }).ignore();
 
@@ -125,6 +131,67 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     Navigator.pop(context);
+  }
+
+  Future<void> _registerDevice() async {
+    final deviceId = DeviceConfigService.deviceId;
+    if (deviceId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Device ID not generated yet — restart the app')),
+      );
+      return;
+    }
+
+    setState(() => _registeringDevice = true);
+    try {
+      final result = await ApiService.instance.syncDeviceConfig(deviceId);
+      if (!mounted) return;
+      if (result['success'] == true) {
+        final data = result['data'] as Map<String, dynamic>;
+        final lockerIds = (data['locker_ids'] as List?)?.map((e) => e as int).toList();
+        final assignedLocker = (data['AssignedLocker'] ?? data['assigned_locker']) as int?;
+        final systemMode = data['system_mode'] as String?;
+        await DeviceConfigService.updateFromServer(
+          lockerIds: lockerIds,
+          assignedLocker: assignedLocker,
+          systemMode: systemMode,
+        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green.shade600,
+            content: Text('Device registered — ID: $deviceId'),
+          ),
+        );
+      } else {
+        final error = result['error'] ?? 'unknown error';
+        final statusCode = result['statusCode'];
+        final debugMsg = statusCode != null ? '[$statusCode] $error' : '$error';
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Registration Failed'),
+            content: SingleChildScrollView(
+              child: SelectableText(
+                'Device ID: ${DeviceConfigService.deviceId}\n'
+                'URL: ${DeviceConfigService.baseUrl}\n\n'
+                'Error:\n$debugMsg',
+                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _registeringDevice = false);
+    }
   }
 
   @override
@@ -240,6 +307,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                     controller: _apiBaseUrlController,
                                   ),
                                   _SettingsField(
+                                    label: 'Client Secret',
+                                    hint: 'e.g. flutter-secret-2026',
+                                    controller: _clientSecretController,
+                                    obscureText: true,
+                                  ),
+                                  _SettingsField(
                                     label: 'HF Connections',
                                     controller: _hfConnectionsController,
                                   ),
@@ -248,6 +321,47 @@ class _SettingsPageState extends State<SettingsPage> {
                                     hint: '0 - 23',
                                     controller: _restartHourController,
                                     keyboardType: TextInputType.number,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  // Device ID display
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: isDark
+                                          ? Colors.white.withOpacity(0.04)
+                                          : Colors.black.withOpacity(0.04),
+                                    ),
+                                    child: Text(
+                                      'Device ID: ${DeviceConfigService.deviceId.isEmpty ? '(not generated)' : DeviceConfigService.deviceId}',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: 'monospace',
+                                        color: isDark ? Colors.white54 : Colors.black45,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: _registeringDevice ? null : _registerDevice,
+                                      icon: _registeringDevice
+                                          ? const SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                            )
+                                          : const Icon(Icons.send_rounded, size: 18),
+                                      label: Text(_registeringDevice ? 'Registering...' : 'Register Device'),
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(14),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

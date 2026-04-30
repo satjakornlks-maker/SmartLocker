@@ -23,7 +23,7 @@ class _LockerSelectionPageState extends State<LockerSelectionPage> {
   bool _isLoading = true;
   String? selectedLocker;
   String? selectedLockerName;
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
   List<Map<String, dynamic>> lockerStatus = [];
   bool _showGrid = false;
   String get systemMode => DeviceConfigService.systemMode;

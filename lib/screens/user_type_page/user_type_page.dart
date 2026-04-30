@@ -25,26 +25,19 @@ class _UserTypePageState extends State<UserTypePage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Header(currentLocale: currentLocale, onLanguageSwitch: () {
-                      appState?.toggleLocale();
-                    },),
-                    const SizedBox(height: 60),
-
-                    // Center content
-                    UserTypeMainContent(systemMode: systemMode)
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            children: [
+              Header(currentLocale: currentLocale, onLanguageSwitch: () {
+                appState?.toggleLocale();
+              }),
+              const SizedBox(height: AppSpacing.xl),
+              Expanded(
+                child: UserTypeMainContent(systemMode: systemMode),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

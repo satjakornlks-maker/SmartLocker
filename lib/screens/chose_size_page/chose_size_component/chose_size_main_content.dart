@@ -59,7 +59,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
   Future<void> _loadSizes() async {
     widget.onLoadingChanged?.call(true);
     try {
-      final sizeFuture = ApiService().getSizes();
+      final sizeFuture = ApiService.instance.getSizes();
       final availFuture = _fetchAvailableSizeKeys();
 
       final sizes = await sizeFuture;
@@ -84,7 +84,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
 
   Future<Set<String>?> _fetchAvailableSizeKeys() async {
     try {
-      final result = await LockerService(ApiService()).loadLocker(
+      final result = await LockerService(ApiService.instance).loadLocker(
         bookTypeFilter: _bookTypeForAvailability,
         systemMode: DeviceConfigService.systemMode,
       );
@@ -116,7 +116,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
   Future<void> _onDropBoxSizeSelected(String size) async {
     widget.onLoadingChanged?.call(true);
     try {
-      final apiService = ApiService();
+      final apiService = ApiService.instance;
       final lockerService = LockerService(apiService);
 
       final result = await lockerService.loadLocker(
@@ -166,7 +166,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
       String size, FromPage from, int bookTypeFilter) async {
     widget.onLoadingChanged?.call(true);
 
-    final result = await LockerService(ApiService()).loadLocker(
+    final result = await LockerService(ApiService.instance).loadLocker(
       bookTypeFilter: bookTypeFilter,
       sizeFilter: size,
       systemMode: DeviceConfigService.systemMode,
@@ -231,6 +231,7 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final compact = MediaQuery.of(context).size.height <= 800;
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -241,24 +242,23 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
               l.choseLockerType,
               style: AppText.displayMediumR(context),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            SizedBox(height: compact ? AppSpacing.xs : AppSpacing.xl),
             if (!_sizesReady)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(AppSpacing.xxl),
-                  child: CircularProgressIndicator(),
-                ),
+              const Expanded(
+                child: Center(child: CircularProgressIndicator()),
               )
             else if (_sizesError || _sizes.isEmpty)
-              Center(
-                child: Text(
-                  l.noAvailableLocker,
-                  style: AppText.bodyLarge.copyWith(
-                    color: AppColors.textSecondary,
+              Expanded(
+                child: Center(
+                  child: Text(
+                    l.noAvailableLocker,
+                    style: AppText.bodyLarge.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               )
-            else
+            else ...[
               Row(
                 children: [
                   for (int i = 0; i < _sizes.length; i++) ...[
@@ -289,10 +289,12 @@ class _ChoseSizeMainContentState extends State<ChoseSizeMainContent> {
                   ],
                 ],
               ),
-            const SizedBox(height: AppSpacing.xxl),
-            LockerMiniMap(sizes: _sizes),
-            const SizedBox(height: AppSpacing.xxxl),
-            const ChossSizeBottom(),
+              const Spacer(),
+              LockerMiniMap(sizes: _sizes),
+              const SizedBox(height: AppSpacing.lg),
+              const ChossSizeBottom(),
+              const SizedBox(height: AppSpacing.lg),
+            ],
           ],
         ),
       ),

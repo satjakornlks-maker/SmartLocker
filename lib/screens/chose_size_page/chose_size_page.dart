@@ -28,23 +28,23 @@ class _ChoseSizePage extends State<ChoseSizePage> {
       body: SafeArea(
         child: Stack(
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  children: [
-                    Header(
-                      currentLocale: currentLocale,
-                      onLanguageSwitch: () => appState?.toggleLocale(),
-                    ),
-                    const SizedBox(height: AppSpacing.xxxl),
-                    ChoseSizeMainContent(
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                children: [
+                  Header(
+                    currentLocale: currentLocale,
+                    onLanguageSwitch: () => appState?.toggleLocale(),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Expanded(
+                    child: ChoseSizeMainContent(
                       from: widget.from,
                       mode: widget.mode,
                       onLoadingChanged: (v) => setState(() => _isLoading = v),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             if (_isLoading)

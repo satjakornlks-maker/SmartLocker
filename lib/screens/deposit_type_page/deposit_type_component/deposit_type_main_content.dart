@@ -12,6 +12,7 @@ class DepositTypeMainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final compact = MediaQuery.of(context).size.height <= 800;
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -22,13 +23,13 @@ class DepositTypeMainContent extends StatelessWidget {
               l.usageMethod,
               style: AppText.displayMediumR(context),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            SizedBox(height: compact ? AppSpacing.xs : AppSpacing.xl),
             TopSelectionCard(systemMode: systemMode),
             if (systemMode != 'B2C') ...[
-              const SizedBox(height: AppSpacing.xxl),
+              SizedBox(height: compact ? AppSpacing.xs : AppSpacing.xxl),
               BottomSelectionCard(systemMode: systemMode),
             ],
-            const SizedBox(height: AppSpacing.xxxl),
+            const Spacer(),
             const DepositTypeBottom(),
           ],
         ),

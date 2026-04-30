@@ -39,7 +39,7 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   String _selectedMethod = 'qr_payment';
   bool _isLoading = false;
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
 
   Future<void> _handlePay() async {
     final l10n = AppLocalizations.of(context)!;

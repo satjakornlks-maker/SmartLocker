@@ -44,7 +44,7 @@ class OTPPage extends StatefulWidget {
 }
 
 class _OTPPageState extends State<OTPPage> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
 
   late int resetPass;
   bool _isLoading = false;
@@ -119,8 +119,10 @@ class _OTPPageState extends State<OTPPage> {
                   : Colors.cyan.withOpacity(0.10),
             ),
             SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(14),
+              child: Builder(builder: (context) {
+              final compact = MediaQuery.of(context).size.height <= 800;
+              return Padding(
+                padding: EdgeInsets.all(compact ? 6 : 14),
                 child: _GlassShell(
                   isDark: isDark,
                   child: Stack(
@@ -128,7 +130,12 @@ class _OTPPageState extends State<OTPPage> {
                       Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                            padding: EdgeInsets.fromLTRB(
+                              20,
+                              compact ? 6 : 14,
+                              20,
+                              compact ? 4 : 8,
+                            ),
                             child: Header(
                               currentLocale: currentLocale,
                               onLanguageSwitch: () {
@@ -140,7 +147,7 @@ class _OTPPageState extends State<OTPPage> {
                           Expanded(
                             child: SingleChildScrollView(
                               physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.fromLTRB(20, 6, 20, 20),
+                              padding: EdgeInsets.fromLTRB(20, 6, 20, compact ? 8 : 20),
                               child: _buildBody(isDark),
                             ),
                           ),
@@ -159,7 +166,8 @@ class _OTPPageState extends State<OTPPage> {
                     ],
                   ),
                 ),
-              ),
+              );
+            }),
             ),
           ],
         ),
@@ -241,9 +249,13 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildOtpContent(bool isDark) {
+    final compact = MediaQuery.of(context).size.height <= 800;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      padding: EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: compact ? 10 : 20,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         color: isDark
@@ -257,17 +269,17 @@ class _OTPPageState extends State<OTPPage> {
       ),
       child: Column(
         children: [
-          const SizedBox(height: 4),
-          OtpTitle(resetPass: resetPass,from: widget.from,),
-          const SizedBox(height: 8),
+          SizedBox(height: compact ? 2 : 4),
+          OtpTitle(resetPass: resetPass, from: widget.from),
+          SizedBox(height: compact ? 4 : 8),
           if (widget.from != FromPage.unlock)
             PhoneDisplay(
               telOrEmail: widget.telOrEmail,
               lockerName: widget.lockerName,
             ),
-          const SizedBox(height: 14),
+          SizedBox(height: compact ? 6 : 14),
           OtpInputBox(otpDigits: _otpDigits),
-          const SizedBox(height: 12),
+          SizedBox(height: compact ? 4 : 12),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -287,13 +299,13 @@ class _OTPPageState extends State<OTPPage> {
                 _buildResetPassword(),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: compact ? 8 : 20),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
             child: Column(
               children: [
                 _buildNumericKeypad(),
-                const SizedBox(height: 20),
+                SizedBox(height: compact ? 8 : 20),
                 OtpConfirmButton(
                   otpDigits: _otpDigits,
                   handleSubmitOTP: _handleSubmitOTP,
@@ -307,6 +319,8 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildNumericKeypad() {
+    final compact = MediaQuery.of(context).size.height <= 800;
+    final rowGap = compact ? 6.0 : 12.0;
     return Column(
       children: [
         KeypadRow(
@@ -314,19 +328,19 @@ class _OTPPageState extends State<OTPPage> {
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: rowGap),
         KeypadRow(
           keys: ['4', '5', '6'],
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: rowGap),
         KeypadRow(
           keys: ['7', '8', '9'],
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: rowGap),
         KeypadRow(
           keys: ['0', 'delete'],
           handleDelete: _handleDelete,

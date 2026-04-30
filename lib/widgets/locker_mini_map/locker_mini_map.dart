@@ -75,7 +75,7 @@ class _LockerMiniMapState extends State<LockerMiniMap> {
 
   Future<List<Map<String, dynamic>>> _fetchUnits() async {
     try {
-      final result = await ApiService().getLocker();
+      final result = await ApiService.instance.getLocker();
       final data = result['data'];
       Map<String, dynamic>? firstMap;
       if (data is List && data.isNotEmpty && data.first is Map<String, dynamic>) {
@@ -97,7 +97,7 @@ class _LockerMiniMapState extends State<LockerMiniMap> {
 
   Future<Map<String, String>> _fetchSizeNames() async {
     try {
-      final sizes = await ApiService().getSizes();
+      final sizes = await ApiService.instance.getSizes();
       return _buildNameMap(sizes);
     } catch (_) {
       return {};

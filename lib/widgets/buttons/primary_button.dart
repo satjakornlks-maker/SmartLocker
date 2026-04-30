@@ -43,6 +43,9 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.height <= 800;
+    final btnHeight = compact ? 44.0 : 56.0;
+
     final child = isLoading
         ? const SizedBox(
             width: 22,
@@ -57,10 +60,17 @@ class PrimaryButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 20),
+                Icon(icon, size: compact ? 17 : 20),
                 const SizedBox(width: AppSpacing.sm),
               ],
-              Text(label),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: AppText.family,
+                  fontSize: compact ? 15.0 : 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           );
 
@@ -80,7 +90,7 @@ class PrimaryButton extends StatelessWidget {
       button: true,
       enabled: _enabled,
       child: SizedBox(
-        height: 56,
+        height: btnHeight,
         width: expand ? double.infinity : null,
         child: button,
       ),

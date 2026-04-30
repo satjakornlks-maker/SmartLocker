@@ -20,13 +20,20 @@ class _ChossSizeBottom extends State<ChossSizeBottom> {
   bool _isLoading = true;
   String? selectedLocker;
   String? selectedLockerName;
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
   List<Map<String, dynamic>> lockerStatus = [];
   bool _showGrid = false;
   String get systemMode => DeviceConfigService.systemMode;
   late final LockerService _lockerService;
 
-
+  @override
+  void initState() {
+    super.initState();
+    _lockerService = LockerService(_apiService);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadLocker();
+    });
+  }
 
   Future<void> _loadLocker() async {
     setState(() => _isLoading = true);
@@ -56,6 +63,7 @@ class _ChossSizeBottom extends State<ChossSizeBottom> {
       _isLoading = false;
     });
   }
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

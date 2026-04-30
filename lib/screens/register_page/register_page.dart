@@ -20,7 +20,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -63,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
               QrImageView(
                 data: _qrUrl,
                 version: QrVersions.auto,
-                size: 500,
+                size: 400,
                 eyeStyle: const QrEyeStyle(
                   eyeShape: QrEyeShape.square,
                   color: AppColors.primary,

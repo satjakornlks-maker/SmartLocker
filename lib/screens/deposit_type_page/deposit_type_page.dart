@@ -24,22 +24,22 @@ class _DepositTypePageState extends State<DepositTypePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Header(
-                  currentLocale: currentLocale,
-                  onLanguageSwitch: () {
-                    appState?.toggleLocale();
-                  },
-                ),
-                const SizedBox(height: AppSpacing.xxxl),
-                DepositTypeMainContent(systemMode: systemMode),
-              ],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Header(
+                currentLocale: currentLocale,
+                onLanguageSwitch: () {
+                  appState?.toggleLocale();
+                },
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Expanded(
+                child: DepositTypeMainContent(systemMode: systemMode),
+              ),
+            ],
           ),
         ),
       ),

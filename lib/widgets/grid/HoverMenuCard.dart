@@ -105,7 +105,11 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
                       },
                 borderRadius: AppRadius.xlRadius,
                 child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xxl),
+                  padding: EdgeInsets.all(
+                    MediaQuery.of(context).size.height <= 800
+                        ? AppSpacing.sm
+                        : AppSpacing.xxl,
+                  ),
                   child: Column(
                     mainAxisAlignment: widget.haveIcon!
                         ? MainAxisAlignment.spaceBetween

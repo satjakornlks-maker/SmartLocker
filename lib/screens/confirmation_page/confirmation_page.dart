@@ -22,7 +22,7 @@ class ConfirmationPage extends StatefulWidget {
 }
 
 class _ConfirmationPage extends State<ConfirmationPage> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
   bool _isLoading = false;
 
   @override

@@ -14,13 +14,15 @@ class PhoneNumButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.height <= 800;
+    final btnSize = compact ? 52.0 : AppTouch.keypadButton;
     return Semantics(
       label: AppLocalizations.of(context)!.digitLabel(number),
       button: true,
       enabled: true,
       child: SizedBox(
-        width: AppTouch.keypadButton,
-        height: AppTouch.keypadButton,
+        width: btnSize,
+        height: btnSize,
         child: Material(
           color: AppColors.surface,
           shape: CircleBorder(
@@ -37,9 +39,9 @@ class PhoneNumButton extends StatelessWidget {
             child: Center(
               child: Text(
                 number,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppText.family,
-                  fontSize: 28,
+                  fontSize: compact ? 22.0 : 28.0,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
                 ),

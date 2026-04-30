@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:untitled/theme/theme.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../services/api_service.dart';
+
+/// Fire-and-forget: warm up the sizes + locker caches so ChoseSizePage
+/// opens instantly instead of waiting for two network calls.
+void _preloadDepositData() {
+  ApiService.instance.getSizes().ignore();
+  ApiService.instance.getLocker().ignore();
+}
 
 class HomePageMenu extends StatelessWidget {
   const HomePageMenu({super.key});
@@ -20,6 +28,7 @@ class HomePageMenu extends StatelessWidget {
             icon: Icons.move_to_inbox_rounded,
             accentColor: const Color(0xFF2563EB),
             onTap: () {
+              _preloadDepositData();
               Navigator.pushNamed(context, '/user-type-page');
             },
           ),
@@ -46,6 +55,7 @@ class HomePageMenu extends StatelessWidget {
             icon: Icons.move_to_inbox_rounded,
             accentColor: const Color(0xFF2563EB),
             onTap: () {
+              _preloadDepositData();
               Navigator.pushNamed(context, '/user-type-page');
             },
           ),

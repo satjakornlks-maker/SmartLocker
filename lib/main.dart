@@ -36,9 +36,13 @@ void main() async {
   // APP_KEY is baked in at build time via --dart-define
   const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
   if (appKey.isEmpty) {
-    throw StateError(
-      'Missing APP_KEY. Build with --dart-define=APP_KEY=<your_key>',
-    );
+    if (kReleaseMode || kProfileMode) {
+      throw StateError(
+        'Missing APP_KEY. Build with --dart-define=APP_KEY=<your_key>',
+      );
+    } else {
+      debugPrint('[main] WARNING: APP_KEY is empty — running without auth (debug only)');
+    }
   }
   const envBootstrapUrl = String.fromEnvironment(
     'BOOTSTRAP_URL',
@@ -68,7 +72,7 @@ void main() async {
     final prevAssignedLocker = DeviceConfigService.assignedLocker;
     final prevLockerIds = List<int>.from(DeviceConfigService.lockerIds);
 
-    ApiService()
+    ApiService.instance
         .syncDeviceConfig(DeviceConfigService.deviceId)
         .then((result) async {
           print('[syncDeviceConfig] result: $result');
@@ -111,9 +115,9 @@ void main() async {
           print('[syncDeviceConfig] failed: $e');
         });
 
-    ApiService().syncPinCache().ignore();
-    ApiService().getLocker().ignore();
-    ApiService().flushOfflineQueue().ignore();
+    ApiService.instance.syncPinCache().ignore();
+    ApiService.instance.getLocker().ignore();
+    ApiService.instance.flushOfflineQueue().ignore();
   }
   // --- End device config init ---
 
@@ -159,7 +163,7 @@ void main() async {
       // Flush queued offline status updates every 60 s while app is running.
       Timer.periodic(const Duration(seconds: 60), (_) {
         if (OfflineStatusQueue.pendingCount > 0) {
-          ApiService().flushOfflineQueue().ignore();
+          ApiService.instance.flushOfflineQueue().ignore();
         }
       });
 
@@ -226,7 +230,7 @@ Future<void> _registerOfflineUnlock(
 Future<void> _handleShutdown() async {
   // Fire offline ping without waiting — exit(0) below kills the process.
   // Give it 500 ms so the request can land if the backend is reachable.
-  ApiService().setDeviceOffline(DeviceConfigService.deviceId).ignore();
+  ApiService.instance.setDeviceOffline(DeviceConfigService.deviceId).ignore();
   await Future.delayed(const Duration(milliseconds: 500));
 
   DeviceHeartbeatService.disconnect();

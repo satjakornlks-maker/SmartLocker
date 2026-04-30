@@ -25,6 +25,7 @@ class _SelectionCardState extends State<SelectionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.height <= 800;
     return Semantics(
       label: widget.semanticLabel,
       button: true,
@@ -43,10 +44,10 @@ class _SelectionCardState extends State<SelectionCard> {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              constraints: const BoxConstraints(
-                minHeight: AppTouch.minTarget * 3,
+              constraints: BoxConstraints(
+                minHeight: compact ? AppTouch.minTarget : AppTouch.minTarget * 3,
               ),
-              padding: const EdgeInsets.all(AppSpacing.huge),
+              padding: EdgeInsets.all(compact ? AppSpacing.lg : AppSpacing.huge),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: AppRadius.xlRadius,
@@ -68,7 +69,7 @@ class _SelectionCardState extends State<SelectionCard> {
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.xl),
                     decoration: BoxDecoration(
                       color: _hovered
                           // ignore: deprecated_member_use
@@ -78,18 +79,18 @@ class _SelectionCardState extends State<SelectionCard> {
                     ),
                     child: Icon(
                       widget.icon,
-                      size: 40,
+                      size: compact ? 28 : 40,
                       color: _hovered
                           ? AppColors.accent
                           : AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.xl),
+                  SizedBox(height: compact ? AppSpacing.sm : AppSpacing.xl),
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
                     style: TextStyle(
                       fontFamily: AppText.family,
-                      fontSize: 20,
+                      fontSize: compact ? 16 : 20,
                       fontWeight: FontWeight.bold,
                       color: _hovered
                           ? AppColors.accent

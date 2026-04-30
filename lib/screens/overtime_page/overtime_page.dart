@@ -33,7 +33,7 @@ class OvertimePage extends StatefulWidget {
 class _OvertimePageState extends State<OvertimePage> {
   String _selectedMethod = 'qr_payment';
   bool _isLoading = false;
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
 
   Future<void> _handlePay() async {
     final l10n = AppLocalizations.of(context)!;

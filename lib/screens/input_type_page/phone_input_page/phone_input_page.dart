@@ -36,7 +36,7 @@ class PhoneInputPage extends StatefulWidget {
 }
 
 class _PhoneInputPageState extends State<PhoneInputPage> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
   final LockerService _lockerService = LockerService();
 
   String phoneNumber = '';
@@ -225,6 +225,7 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
     final appState = MyApp.of(context);
     final l = AppLocalizations.of(context)!;
 
+    final compact = MediaQuery.of(context).size.height <= 800;
     final phonePanel = Container(
       constraints: const BoxConstraints(maxWidth: 420),
       child: Column(
@@ -235,9 +236,9 @@ class _PhoneInputPageState extends State<PhoneInputPage> {
             textAlign: TextAlign.center,
             style: AppText.headingLargeR(context),
           ),
-          const SizedBox(height: AppSpacing.xxl),
+          SizedBox(height: compact ? AppSpacing.xs : AppSpacing.xxl),
           PhoneDisplay(phoneNumber: phoneNumber),
-          const SizedBox(height: 20),
+          SizedBox(height: compact ? AppSpacing.xs : 20),
           PhoneNumpad(
             phoneNumber: phoneNumber,
             onNumberPress: _onNumberPress,

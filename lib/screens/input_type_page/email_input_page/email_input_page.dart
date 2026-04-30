@@ -29,7 +29,7 @@ class EmailInputPage extends StatefulWidget {
 }
 
 class _EmailInputPageState extends State<EmailInputPage> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isLoading = false;
