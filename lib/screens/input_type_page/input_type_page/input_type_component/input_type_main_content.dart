@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/services/device_config_service.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../input_type_page.dart';
 import '../input_type_service/locker_service.dart';
 import 'input_type_bottom.dart';
 import 'input_type_selection_cards.dart';
+import '../../../../widgets/locker_mini_map/locker_mini_map.dart';
 
 class InputTypeMainContent extends StatefulWidget {
   final FromPage from;
@@ -91,7 +93,8 @@ class _InputTypeMainContentState extends State<InputTypeMainContent> {
     if (selected == null) {
       setState(() => _isLoading = false);
       Navigator.pop(context);
-      context.showWarningSnackBar(AppLocalizations.of(context)!.noAvailableLocker);
+      context.showWarningSnackBar(
+          AppLocalizations.of(context)!.noAvailableLocker);
       return;
     }
 
@@ -106,6 +109,7 @@ class _InputTypeMainContentState extends State<InputTypeMainContent> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -113,21 +117,26 @@ class _InputTypeMainContentState extends State<InputTypeMainContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.choseInput,
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+              l.choseInput,
+              style: AppText.displayMediumR(context),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: AppSpacing.xl),
             InputTypeSelectionCards(
               from: widget.from,
               lockerId: _lockerId,
               lockerName: _lockerName,
               lockerData: _effectiveLockerData,
             ),
-            const SizedBox(height: 60),
-            const InputTypeBottom(),
+            if (widget.from == FromPage.instance ||
+                widget.from == FromPage.visitor) ...[
+              const SizedBox(height: AppSpacing.xxl),
+              LockerMiniMap(
+                lockerData: _effectiveLockerData,
+                selectedLockerId: _selectedLockerId,
+              ),
+            ],
+            const SizedBox(height: AppSpacing.xxxl),
+            InputTypeBottom(from: widget.from,),
           ],
         ),
       ),

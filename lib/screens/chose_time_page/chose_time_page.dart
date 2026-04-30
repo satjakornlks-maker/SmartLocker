@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
+import '../../theme/theme.dart';
 import '../../widgets/header/header.dart';
+import '../../widgets/snackbar/snackbar.dart';
 import '../payment_page/payment_page.dart';
 import 'chose_time_component/booking_promotion.dart';
 import 'chose_time_component/chose_time_left_panel.dart';
@@ -122,12 +124,7 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     final l10n = AppLocalizations.of(context)!;
     if (_quantity == 0) {
       final unitLabel = _bookingType == 'day' ? l10n.day : l10n.hour;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${l10n.pleaseSpecifyAmount} ($unitLabel)'),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ));
+      context.showErrorSnackBar('${l10n.pleaseSpecifyAmount} ($unitLabel)');
       return;
     }
     Navigator.of(context).push(
@@ -152,12 +149,11 @@ class _ChoseTimePage extends State<ChoseTimePage> {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            const SizedBox(height: 20),
             Header(
               currentLocale: currentLocale,
               onLanguageSwitch: () => appState?.toggleLocale(),
@@ -178,14 +174,14 @@ class _ChoseTimePage extends State<ChoseTimePage> {
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1000),
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               child: isWide
                   ? IntrinsicHeight(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(child: _buildLeftPanel()),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: AppSpacing.xl),
                           Expanded(child: _buildRightPanel()),
                         ],
                       ),
@@ -193,11 +189,12 @@ class _ChoseTimePage extends State<ChoseTimePage> {
                   : Column(
                       children: [
                         _buildLeftPanel(),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppSpacing.xl),
                         _buildRightPanel(),
                         SizedBox(
-                            height:
-                                MediaQuery.of(context).padding.bottom + 20),
+                          height: MediaQuery.of(context).padding.bottom +
+                              AppSpacing.xl,
+                        ),
                       ],
                     ),
             ),

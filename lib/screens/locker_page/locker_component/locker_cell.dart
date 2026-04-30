@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
 import '../locker_selection_page.dart';
 
@@ -30,26 +33,22 @@ class LockerCell extends StatelessWidget {
     final status = entry['status'] == true;
     final isFiltered = entry['_isFiltered'] == true;
 
-    // Position data
-    final int x = entry['x'] as int? ?? 0; // Column
-    final int y = entry['y'] as int? ?? 0; // Row
-    final int w = entry['w'] as int? ?? 1; // Width in cells
-    final int h = entry['h'] as int? ?? 1; // Height in cells
+    final int x = entry['x'] as int? ?? 0;
+    final int y = entry['y'] as int? ?? 0;
+    final int w = entry['w'] as int? ?? 1;
+    final int h = entry['h'] as int? ?? 1;
 
-    // Calculate position and size
     final double left = x * (cellWidth + gap);
     final double top = y * (cellHeight + gap);
     final double width = w * cellWidth + (w - 1) * gap;
     final double height = h * cellHeight + (h - 1) * gap;
 
-    // Determine availability based on mode
     final isAvailable = mode == LockerSelectionMode.unlock
-        ? status // For unlock mode, select occupied (status: true)
-        : !(status && isEnable); // For booking mode: red only when BOTH booked AND disabled
+        ? status
+        : !(status && isEnable);
 
     final isSelected = selectedLocker == lockerId;
 
-    // Determine color
     final Color buttonColor = _getButtonColor(
       isFiltered: isFiltered,
       isSelected: isSelected,
@@ -57,120 +56,129 @@ class LockerCell extends StatelessWidget {
       status: status,
       isAvailable: isAvailable,
     );
-    final Color borderColor = Colors.transparent;
 
-    // Calculate responsive font and icon sizes based on cell size
     final double baseFontSize = (cellWidth * 0.18).clamp(10.0, 16.0);
     final double iconSize = (cellWidth * 0.3).clamp(16.0, 32.0);
 
     final String? groupTag = entry['lockerName'] as String?;
+
+    // Build accessible status string for screen reader
+    final l = AppLocalizations.of(context)!;
+    String semanticStatus;
+    if (!isEnable) {
+      semanticStatus = l.lockerStatusDisabled;
+    } else if (!isFiltered) {
+      semanticStatus = l.lockerStatusNotAvailable;
+    } else if (mode == LockerSelectionMode.unlock) {
+      semanticStatus = status ? l.lockerStatusOccupiedUnlock : l.lockerStatusEmpty;
+    } else {
+      semanticStatus = isAvailable ? l.lockerStatusAvailable : l.lockerStatusOccupied;
+    }
 
     return Positioned(
       left: left,
       top: top,
       width: width,
       height: height,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: buttonColor,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor, width: isSelected ? 3 : 0),
-          boxShadow: isSelected
-              ? [
-            BoxShadow(
-              color: Colors.orange.withOpacity(0.4),
-              blurRadius: 8,
-              spreadRadius: 2,
-            ),
-          ]
-              : [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: isFiltered && isEnable
-                ? () => onTap(lockerId, isAvailable, lockerName)
+      child: Semantics(
+        label: l.lockerSemanticLabel(lockerName, semanticStatus),
+        button: isFiltered && isEnable,
+        enabled: isFiltered && isEnable,
+        selected: isSelected,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: buttonColor,
+            borderRadius: AppRadius.smRadius,
+            border: isSelected
+                ? Border.all(color: AppColors.accent, width: 3)
                 : null,
-            child: Container(
-              padding: EdgeInsets.all(cellWidth * 0.08),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Icon
-                  Icon(
-                    w >= 2 || h >= 2
-                        ? Icons.inventory_2
-                        : Icons.inventory_2_outlined,
-                    size: iconSize,
-                    color: Colors.white,
-                  ),
-                  SizedBox(height: cellHeight * 0.05),
-                  // Locker name
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      lockerName,
-                      style: TextStyle(
-                        fontSize: baseFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      // ignore: deprecated_member_use
+                      color: AppColors.accent.withOpacity(0.4),
+                      blurRadius: 8,
+                      spreadRadius: 2,
                     ),
-                  ),
-                  // Status indicator for occupied lockers
-                  if (status && isFiltered && height > 60)
-                    Container(
-                      margin: const EdgeInsets.only(top: 2),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: const FittedBox(fit: BoxFit.scaleDown),
+                  ]
+                : const [
+                    BoxShadow(
+                      color: AppColors.shadow,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
                     ),
-                ],
-              ),
-            ),
-            ),
-            ),
+                  ],
           ),
-          // Group tag badge
-          if (groupTag != null && groupTag.isNotEmpty)
-            Positioned(
-              top: 4,
-              left: 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade700,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  groupTag,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: AppRadius.smRadius,
+                    onTap: isFiltered && isEnable
+                        ? () {
+                            HapticFeedback.selectionClick();
+                            onTap(lockerId, isAvailable, lockerName);
+                          }
+                        : null,
+                    child: Container(
+                      padding: EdgeInsets.all(cellWidth * 0.08),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            w >= 2 || h >= 2
+                                ? Icons.inventory_2
+                                : Icons.inventory_2_outlined,
+                            size: iconSize,
+                            color: AppColors.textOnPrimary,
+                          ),
+                          SizedBox(height: cellHeight * 0.05),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              lockerName,
+                              style: TextStyle(
+                                fontFamily: AppText.family,
+                                fontSize: baseFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textOnPrimary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+              if (groupTag != null && groupTag.isNotEmpty)
+                Positioned(
+                  top: 4,
+                  left: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: AppRadius.smRadius,
+                    ),
+                    child: Text(
+                      groupTag,
+                      style: const TextStyle(
+                        fontFamily: AppText.family,
+                        color: AppColors.textOnPrimary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -183,18 +191,12 @@ class LockerCell extends StatelessWidget {
     required bool status,
     required bool isAvailable,
   }) {
-    if (!isEnable) {
-      return Colors.grey.shade300; // Disabled unit — always grey
-    } else if (!isFiltered) {
-      return Colors.grey.shade300;
-    } else if (isSelected) {
-      return Colors.yellow.shade700;
-    } else if (mode == LockerSelectionMode.unlock) {
-      // Unlock mode: Green = occupied (can unlock), Red = empty
-      return status ? Colors.red.shade400 : Colors.green;
-    } else {
-      // Booking mode: Green = available, Red = occupied
-      return isAvailable ? Colors.green : Colors.red.shade400;
+    if (!isEnable) return AppColors.lockerDisabled;
+    if (!isFiltered) return AppColors.lockerDisabled;
+    if (isSelected) return AppColors.lockerChoosing;
+    if (mode == LockerSelectionMode.unlock) {
+      return status ? AppColors.lockerOccupied : AppColors.lockerEmpty;
     }
+    return isAvailable ? AppColors.lockerEmpty : AppColors.lockerOccupied;
   }
 }

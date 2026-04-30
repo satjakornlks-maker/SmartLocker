@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +18,7 @@ class AppSettings extends ChangeNotifier {
   static const _keyPollSec = 'poll_sec';
   static const _keySockTimeout = 'sock_timeout';
   static const _keySettingsPassword = 'settings_password';
+  static const _keyClientSecret    = 'client_secret';
 
   String _appTitle = 'SmartLocker';
   String _homeTitle = 'Smart Locker';
@@ -27,7 +30,9 @@ class AppSettings extends ChangeNotifier {
   int _restartHour = 0;
   double _pollSec = 0.3;
   double _sockTimeout = 2.0;
-  String _settingsPassword = 'admin';
+  String _clientSecret = '';
+  // Stored as SHA-256 hex hash, never plaintext.
+  String _settingsPasswordHash = _hashPassword('admin');
 
   String get appTitle => _appTitle;
   String get homeTitle => _homeTitle;
@@ -39,7 +44,8 @@ class AppSettings extends ChangeNotifier {
   int get restartHour => _restartHour;
   double get pollSec => _pollSec;
   double get sockTimeout => _sockTimeout;
-  String get settingsPassword => _settingsPassword;
+  String get clientSecret => _clientSecret;
+  // Intentionally not exposing the raw password or hash.
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -54,8 +60,17 @@ class AppSettings extends ChangeNotifier {
     _restartHour = prefs.getInt(_keyRestartHour) ?? _restartHour;
     _pollSec = prefs.getDouble(_keyPollSec) ?? _pollSec;
     _sockTimeout = prefs.getDouble(_keySockTimeout) ?? _sockTimeout;
-    _settingsPassword =
-        prefs.getString(_keySettingsPassword) ?? _settingsPassword;
+    _clientSecret = prefs.getString(_keyClientSecret) ?? _clientSecret;
+    final stored = prefs.getString(_keySettingsPassword);
+    if (stored != null) {
+      // Migrate plaintext values written by older app versions.
+      if (stored.length != 64 || !RegExp(r'^[0-9a-f]+$').hasMatch(stored)) {
+        _settingsPasswordHash = _hashPassword(stored);
+        await prefs.setString(_keySettingsPassword, _settingsPasswordHash);
+      } else {
+        _settingsPasswordHash = stored;
+      }
+    }
     notifyListeners();
   }
 
@@ -95,6 +110,7 @@ class AppSettings extends ChangeNotifier {
     required int restartHour,
     required double pollSec,
     required double sockTimeout,
+    String? clientSecret,
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -103,24 +119,30 @@ class AppSettings extends ChangeNotifier {
     _restartHour = restartHour;
     _pollSec = pollSec;
     _sockTimeout = sockTimeout;
+    if (clientSecret != null) _clientSecret = clientSecret.trim();
 
     await prefs.setString(_keyapiBaseUrl, _apiBaseUrl);
     await prefs.setString(_keyHfConnections, _hfConnections);
     await prefs.setInt(_keyRestartHour, _restartHour);
     await prefs.setDouble(_keyPollSec, _pollSec);
     await prefs.setDouble(_keySockTimeout, _sockTimeout);
+    await prefs.setString(_keyClientSecret, _clientSecret);
 
     notifyListeners();
   }
 
   Future<void> updateSettingsPassword(String value) async {
     final prefs = await SharedPreferences.getInstance();
-    _settingsPassword = value.trim().isEmpty ? 'admin' : value.trim();
-    await prefs.setString(_keySettingsPassword, _settingsPassword);
+    final raw = value.trim().isEmpty ? 'admin' : value.trim();
+    _settingsPasswordHash = _hashPassword(raw);
+    await prefs.setString(_keySettingsPassword, _settingsPasswordHash);
     notifyListeners();
   }
 
   bool verifySettingsPassword(String value) {
-    return value == _settingsPassword;
+    return _hashPassword(value) == _settingsPasswordHash;
   }
+
+  static String _hashPassword(String password) =>
+      sha256.convert(utf8.encode(password)).toString();
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/theme/theme.dart';
 
 import 'notice_component/notice_body.dart';
 import 'notice_component/notice_header.dart';
@@ -9,18 +10,15 @@ class NoticePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 20),
             NoticeHeader(mainContext: context),
-            Expanded(child: NoticeBody(mainContext: context,)),
+            Expanded(child: NoticeBody(mainContext: context)),
           ],
         ),
       ),
     );
   }
-
-
 }

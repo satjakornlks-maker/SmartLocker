@@ -3,6 +3,7 @@
 // Used when the backend is offline — bypasses the API entirely.
 //
 // Flow: set trigger time to 0 → send unlock → restore trigger time to 60s
+import 'package:flutter/foundation.dart';
 
 import 'board_watcher/cu16c_protocol.dart';
 import 'board_watcher/hf_connection.dart';
@@ -39,7 +40,7 @@ class LockerCommandService {
         }
       }
     }
-    print('[LockerCmd] Registered ${_map.length} lockers for offline unlock');
+    debugPrint('[LockerCmd] Registered ${_map.length} lockers for offline unlock');
   }
 
   /// Unlocks [lockerId] immediately (no door push required) via direct TCP.
@@ -47,7 +48,7 @@ class LockerCommandService {
   static Future<bool> unlockImmediate(String lockerId) async {
     final loc = _map[lockerId];
     if (loc == null) {
-      print('[LockerCmd] No location for locker $lockerId — cannot unlock offline');
+      debugPrint('[LockerCmd] No location for locker $lockerId — cannot unlock offline');
       return false;
     }
 
@@ -55,26 +56,43 @@ class LockerCommandService {
     try {
       sock = await HfSocket.connect(loc.ip, loc.port);
       if (sock == null) {
-        print('[LockerCmd] Cannot connect to ${loc.ip}:${loc.port}');
+        debugPrint('[LockerCmd] Cannot connect to ${loc.ip}:${loc.port}');
         return false;
       }
 
-      // Step 1: set trigger time to 0 (immediate — no push needed)
-      await sendTriggerTime(sock, loc.cuAddr, 0);
-      await Future.delayed(const Duration(milliseconds: 100));
+      var restoreNeeded = false;
+      var unlocked = false;
 
-      // Step 2: send unlock
-      await sendUnlock(sock, loc.cuAddr, loc.ch);
-      await Future.delayed(const Duration(milliseconds: 300));
+      try {
+        // Step 1: set trigger time to 0 (immediate — no push needed)
+        await sendTriggerTime(sock, loc.cuAddr, 0);
+        restoreNeeded = true;
+        await Future.delayed(const Duration(milliseconds: 100));
 
-      // Step 3: restore trigger time to 60s
-      await sendTriggerTime(sock, loc.cuAddr, 60);
+        // Step 2: send unlock
+        await sendUnlock(sock, loc.cuAddr, loc.ch);
+        unlocked = true;
+        await Future.delayed(const Duration(milliseconds: 300));
+      } catch (e) {
+        debugPrint('[LockerCmd] Unlock error: $e');
+      } finally {
+        // Step 3: always restore trigger time to 60s if Step 1 succeeded
+        if (restoreNeeded) {
+          try {
+            await sendTriggerTime(sock, loc.cuAddr, 60);
+          } catch (e) {
+            debugPrint('[LockerCmd] Restore trigger time failed: $e');
+          }
+        }
+      }
 
-      print('[LockerCmd] Offline unlock OK — locker $lockerId '
-          '(${loc.ip} CU 0x${loc.cuAddr.toRadixString(16).toUpperCase()} CH${loc.ch})');
-      return true;
+      if (unlocked) {
+        debugPrint('[LockerCmd] Offline unlock OK — locker $lockerId '
+            '(${loc.ip} CU 0x${loc.cuAddr.toRadixString(16).toUpperCase()} CH${loc.ch})');
+      }
+      return unlocked;
     } catch (e) {
-      print('[LockerCmd] Unlock error: $e');
+      debugPrint('[LockerCmd] Connection error: $e');
       return false;
     } finally {
       await sock?.close();

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
+import 'package:untitled/widgets/buttons/primary_button.dart';
 import 'alipay_logo.dart';
 import 'branded_qr_illustration.dart';
 import 'credit_card_illustration.dart';
@@ -30,25 +32,26 @@ class PaymentRightPanel extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: AppRadius.lgRadius,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            // ignore: deprecated_member_use
+            color: AppColors.shadow.withOpacity(0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildIllustration(selectedMethod, l10n),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           const Divider(height: 1),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           OrderSummary(
             l10n: l10n,
             locale: locale,
@@ -56,49 +59,21 @@ class PaymentRightPanel extends StatelessWidget {
             quantity: quantity,
             total: total,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           const Divider(height: 1),
-          const SizedBox(height: 16),
-          OutlinedButton(
+          const SizedBox(height: AppSpacing.lg),
+          PrimaryButton.secondary(
+            label: l10n.discountDetails,
+            icon: Icons.local_offer_outlined,
             onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF4A90D9),
-              side: const BorderSide(color: Color(0xFF4A90D9)),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.local_offer_outlined, size: 16),
-                const SizedBox(width: 6),
-                Text(l10n.discountDetails,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-              ],
-            ),
           ),
           const Spacer(),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: onPay,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4A90D9),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 3,
-              ),
-              child: Text(
-                l10n.payNow,
-                style: const TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.bold),
-              ),
-            ),
+          const SizedBox(height: AppSpacing.xl),
+          PrimaryButton(
+            label: l10n.payNow,
+            icon: Icons.payments_outlined,
+            expand: true,
+            onPressed: onPay,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/main.dart';
 import 'package:untitled/services/app_settings.dart';
 
@@ -203,20 +204,21 @@ class _SettingsPasswordDialogState extends State<_SettingsPasswordDialog> {
       Navigator.pop(context, true);
     } else {
       setState(() {
-        _errorText = 'รหัสผ่านไม่ถูกต้อง';
+        _errorText = AppLocalizations.of(context)!.wrongPassword;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final isDark =
         MediaQuery.of(context).platformBrightness == Brightness.dark;
 
     return AlertDialog(
       backgroundColor: isDark ? const Color(0xFF132238) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('กรอกรหัสผ่าน'),
+      title: Text(l.enterPassword),
       content: SizedBox(
         width: 360,
         child: TextField(
@@ -225,7 +227,7 @@ class _SettingsPasswordDialogState extends State<_SettingsPasswordDialog> {
           autofocus: true,
           onSubmitted: (_) => _submit(),
           decoration: InputDecoration(
-            labelText: 'Password',
+            labelText: l.passwordLabel,
             errorText: _errorText,
             border: const OutlineInputBorder(),
             suffixIcon: IconButton(
@@ -244,11 +246,11 @@ class _SettingsPasswordDialogState extends State<_SettingsPasswordDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('ยกเลิก'),
+          child: Text(l.cancel),
         ),
         ElevatedButton(
           onPressed: _submit,
-          child: const Text('เข้าใช้งาน'),
+          child: Text(l.login),
         ),
       ],
     );

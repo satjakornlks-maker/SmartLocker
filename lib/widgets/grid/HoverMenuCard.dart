@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:untitled/theme/theme.dart';
 
 class HoverMenuCard extends StatefulWidget {
+  /// Primary title. Historically called `titleTh`; name kept for backward
+  /// compatibility — accepts any Widget (e.g. localized Text).
   final Widget titleTh;
   final String? titleEn;
   final IconData icon;
@@ -9,6 +13,12 @@ class HoverMenuCard extends StatefulWidget {
   final double aspectRatio;
   final Color hoverColor;
   final bool? haveIcon;
+  final String? semanticLabel;
+  /// When set, the card uses this as its background colour (with white text).
+  /// When null, the card uses the default white surface.
+  final Color? cardColor;
+  /// When false the card is visually dimmed and non-interactive.
+  final bool enabled;
 
   const HoverMenuCard({
     super.key,
@@ -18,8 +28,11 @@ class HoverMenuCard extends StatefulWidget {
     required this.color,
     required this.onPressed,
     this.aspectRatio = 1.4,
-    this.hoverColor = const Color(0xFFF9A825),
-    this.haveIcon = true
+    this.hoverColor = AppColors.accent,
+    this.haveIcon = true,
+    this.semanticLabel,
+    this.cardColor,
+    this.enabled = true,
   });
 
   @override
@@ -31,93 +44,135 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AspectRatio(
-        aspectRatio: widget.aspectRatio,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: _isHovered ? widget.hoverColor : Colors.grey.shade300,
-              width: _isHovered ? 2 : 1,
+    final bool disabled = !widget.enabled;
+    final bool colored = widget.cardColor != null && !disabled;
+
+    final Color bgColor = disabled
+        ? Colors.grey.shade200
+        : (colored ? widget.cardColor! : AppColors.surface);
+    final Color textColor = disabled
+        ? Colors.grey.shade400
+        : (colored
+            ? Colors.white
+            : (_isHovered ? widget.hoverColor : AppColors.textPrimary));
+    final Color borderColor = disabled
+        ? Colors.grey.shade300
+        : (colored
+            ? (_isHovered
+                ? Colors.white.withValues(alpha: 0.6)
+                : Colors.transparent)
+            : (_isHovered ? widget.hoverColor : AppColors.border));
+    final Color shadowColor = disabled
+        ? Colors.transparent
+        : (colored
+            ? widget.cardColor!.withValues(alpha: _isHovered ? 0.45 : 0.25)
+            : AppColors.shadow.withValues(alpha: _isHovered ? 0.18 : 0.08));
+
+    return Semantics(
+      label: widget.semanticLabel ?? widget.titleEn,
+      button: true,
+      enabled: widget.enabled,
+      child: MouseRegion(
+        cursor: disabled
+            ? SystemMouseCursors.basic
+            : SystemMouseCursors.click,
+        onEnter: disabled ? null : (_) => setState(() => _isHovered = true),
+        onExit: disabled ? null : (_) => setState(() => _isHovered = false),
+        child: AspectRatio(
+          aspectRatio: widget.aspectRatio,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: AppRadius.xlRadius,
+              border: Border.all(color: borderColor, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: _isHovered ? 15 : 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: _isHovered ? 0.1 : 0.05),
-                blurRadius: _isHovered ? 15 : 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: widget.onPressed,
-              borderRadius: BorderRadius.circular(20),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: widget.haveIcon! ? MainAxisAlignment.spaceBetween : .center,
-                  children: [
-                    // Icon at the top
-                    widget.haveIcon! ? Align(
-                      alignment: Alignment.topRight,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: _isHovered
-                              ? widget.hoverColor.withValues(alpha: 0.2)
-                              : Colors.grey.shade100,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          widget.icon,
-                          size: 32,
-                          color: _isHovered ? widget.hoverColor : Colors.grey.shade700,
-                        ),
-                      ),
-                    ) : SizedBox.shrink(),
-
-                    // Text at the bottom
-                    Align(
-                      alignment: widget.haveIcon! ? Alignment.bottomLeft : Alignment.center,
-                      child: Column(
-
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedDefaultTextStyle(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: disabled
+                    ? null
+                    : () {
+                        HapticFeedback.lightImpact();
+                        widget.onPressed();
+                      },
+                borderRadius: AppRadius.xlRadius,
+                child: Padding(
+                  padding: EdgeInsets.all(
+                    MediaQuery.of(context).size.height <= 800
+                        ? AppSpacing.sm
+                        : AppSpacing.xxl,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: widget.haveIcon!
+                        ? MainAxisAlignment.spaceBetween
+                        : MainAxisAlignment.center,
+                    children: [
+                      // ── icon ───────────────────────────────────────────
+                      if (widget.haveIcon!)
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: _isHovered ? widget.hoverColor : Colors.black87,
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            decoration: BoxDecoration(
+                              color: disabled
+                                  ? Colors.grey.shade300
+                                  : (colored
+                                      ? Colors.white.withValues(alpha: 0.2)
+                                      : (_isHovered
+                                          ? widget.hoverColor
+                                              .withValues(alpha: 0.2)
+                                          : AppColors.surfaceMuted)),
+                              shape: BoxShape.circle,
                             ),
-                            child: widget.titleTh
+                            child: Icon(
+                              widget.icon,
+                              size: 32,
+                              color: disabled
+                                  ? Colors.grey.shade400
+                                  : (colored
+                                      ? Colors.white
+                                      : (_isHovered
+                                          ? widget.hoverColor
+                                          : AppColors.textSecondary)),
+                            ),
                           ),
-                          if (widget.titleEn != null && widget.titleEn!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 200),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: _isHovered ? widget.hoverColor : Colors.grey.shade600,
-                              ),
-                              child: Text(
-                                widget.titleEn!,
-                                textAlign: widget.haveIcon! ? TextAlign.left : TextAlign.center,
-                              ),
+                        )
+                      else
+                        const SizedBox.shrink(),
+
+                      // ── text ───────────────────────────────────────────
+                      // haveIcon=true  → plain Align so it sits at the bottom-left
+                      // haveIcon=false → Expanded+Center so FittedBox has a
+                      //                  real bounded height to scale into
+                      if (widget.haveIcon!)
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.bottomLeft,
+                            child: _textColumn(textColor, colored),
+                          ),
+                        )
+                      else
+                        Expanded(
+                          child: Center(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: _textColumn(textColor, colored),
                             ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -125,5 +180,53 @@ class _HoverMenuCardState extends State<HoverMenuCard> {
         ),
       ),
     );
+  }
+
+  Widget _textColumn(Color textColor, bool colored) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: widget.haveIcon!
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
+      children: [
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          style: TextStyle(
+            fontFamily: AppText.family,
+            fontSize: _responsiveTitleSize(context),
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+          child: widget.titleTh,
+        ),
+        if (widget.titleEn != null && widget.titleEn!.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.xs),
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: TextStyle(
+              fontFamily: AppText.family,
+              fontSize: 14,
+              color: colored
+                  ? Colors.white.withValues(alpha: 0.85)
+                  : (_isHovered
+                      ? widget.hoverColor
+                      : AppColors.textSecondary),
+            ),
+            child: Text(
+              widget.titleEn!,
+              textAlign:
+                  widget.haveIcon! ? TextAlign.left : TextAlign.center,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  double _responsiveTitleSize(BuildContext ctx) {
+    final width = MediaQuery.of(ctx).size.width;
+    if (width < 600) return 28;
+    if (width < 1000) return 34;
+    return 40;
   }
 }

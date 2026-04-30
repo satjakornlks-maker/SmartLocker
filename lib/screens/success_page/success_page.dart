@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
 class SuccessPage extends StatefulWidget {
   final VoidCallback? onComplete;
@@ -10,7 +11,7 @@ class SuccessPage extends StatefulWidget {
   const SuccessPage({
     super.key,
     this.onComplete,
-    this.displayDuration = const Duration(seconds: 3),
+    this.displayDuration = const Duration(seconds: 5),
   });
 
   @override
@@ -29,19 +30,16 @@ class _SuccessPageState extends State<SuccessPage>
   void initState() {
     super.initState();
 
-    // Circle expansion animation
     _circleController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Content fade-in animation
     _contentController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
-    // Circle expands from center
     _circleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -50,7 +48,6 @@ class _SuccessPageState extends State<SuccessPage>
       curve: Curves.easeInOut,
     ));
 
-    // Icon scales in after circle fills
     _iconScaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -59,7 +56,6 @@ class _SuccessPageState extends State<SuccessPage>
       curve: Curves.elasticOut,
     ));
 
-    // Text fades in
     _textOpacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -68,19 +64,13 @@ class _SuccessPageState extends State<SuccessPage>
       curve: Curves.easeIn,
     ));
 
-    // Start animations
     _startAnimations();
   }
 
   void _startAnimations() async {
-    // Start circle expansion
     await _circleController.forward();
-
-    // Wait a bit then start content fade-in
     await Future.delayed(const Duration(milliseconds: 100));
     await _contentController.forward();
-
-    // Wait for display duration then navigate back or call onComplete
     await Future.delayed(widget.displayDuration);
 
     if (!mounted) return;
@@ -101,105 +91,98 @@ class _SuccessPageState extends State<SuccessPage>
 
   @override
   Widget build(BuildContext context) {
-    final currentLocale = Localizations.localeOf(context);
-    final isThai = currentLocale.languageCode == 'th';
-    final isEnglish = currentLocale.languageCode == 'en';
-    String title = AppLocalizations.of(context)!.successTitle;
-    String subtitle = AppLocalizations.of(context)!.successSupTitle;
+    final l = AppLocalizations.of(context)!;
+    final title = l.successTitle;
+    final subtitle = l.successSupTitle;
     final size = MediaQuery.of(context).size;
-    // Use the larger dimension and multiply by 3 to ensure full coverage
     final maxDimension = size.width > size.height ? size.width : size.height;
     final maxRadius = maxDimension * 3;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // White background
-          Container(color: Colors.white),
-
-          // Expanding green circle - allowed to overflow
-          Center(
-            child: AnimatedBuilder(
-              animation: _circleAnimation,
-              builder: (context, child) {
-                return OverflowBox(
-                  maxWidth: double.infinity,
-                  maxHeight: double.infinity,
-                  child: Container(
-                    width: maxRadius * 2 * _circleAnimation.value,
-                    height: maxRadius * 2 * _circleAnimation.value,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF2E7D32), // Dark green
-                      shape: BoxShape.circle,
+      body: Semantics(
+        liveRegion: true,
+        label: '$title. $subtitle',
+        child: Stack(
+          children: [
+            Container(color: AppColors.surface),
+            Center(
+              child: AnimatedBuilder(
+                animation: _circleAnimation,
+                builder: (context, child) {
+                  return OverflowBox(
+                    maxWidth: double.infinity,
+                    maxHeight: double.infinity,
+                    child: Container(
+                      width: maxRadius * 2 * _circleAnimation.value,
+                      height: maxRadius * 2 * _circleAnimation.value,
+                      decoration: const BoxDecoration(
+                        color: AppColors.success,
+                        shape: BoxShape.circle,
+                      ),
                     ),
+                  );
+                },
+              ),
+            ),
+            AnimatedBuilder(
+              animation: _contentController,
+              builder: (context, child) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Transform.scale(
+                        scale: _iconScaleAnimation.value,
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            // ignore: deprecated_member_use
+                            color: AppColors.textOnPrimary.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check,
+                            color: AppColors.textOnPrimary,
+                            size: 80,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
+                      Opacity(
+                        opacity: _textOpacityAnimation.value,
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            fontFamily: AppText.family,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textOnPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      Opacity(
+                        opacity: _textOpacityAnimation.value,
+                        child: Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontFamily: AppText.family,
+                            fontSize: 18,
+                            // ignore: deprecated_member_use
+                            color: AppColors.textOnPrimary.withOpacity(0.92),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
-          ),
-
-          // Content (icon and text)
-          AnimatedBuilder(
-            animation: _contentController,
-            builder: (context, child) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Checkmark icon with scale animation
-                    Transform.scale(
-                      scale: _iconScaleAnimation.value,
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 80,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Title with fade animation
-                    Opacity(
-                      opacity: _textOpacityAnimation.value,
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Subtitle with fade animation
-                    Opacity(
-                      opacity: _textOpacityAnimation.value,
-                      child: Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

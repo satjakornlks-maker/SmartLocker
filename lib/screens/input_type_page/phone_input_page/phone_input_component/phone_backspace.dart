@@ -1,37 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
-class PhoneBackspace extends StatelessWidget{
+class PhoneBackspace extends StatelessWidget {
   final VoidCallback onBackspace;
 
   const PhoneBackspace({super.key, required this.onBackspace});
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      width: 70,
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+    return Semantics(
+      label: AppLocalizations.of(context)!.deleteDigit,
+      button: true,
+      enabled: true,
+      child: SizedBox(
+        width: AppTouch.keypadButton,
+        height: AppTouch.keypadButton,
+        child: Material(
+          color: AppColors.surface,
+          shape: CircleBorder(
+            side: BorderSide(color: AppColors.border),
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onBackspace,
-          borderRadius: BorderRadius.circular(35),
-          child: const Center(
-            child: Icon(
-              Icons.backspace_outlined,
-              size: 28,
-              color: Colors.black87,
+          elevation: 1,
+          shadowColor: AppColors.shadow,
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onBackspace();
+            },
+            child: const Center(
+              child: Icon(
+                Icons.backspace_outlined,
+                size: 28,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
         ),

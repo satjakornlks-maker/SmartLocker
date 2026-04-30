@@ -4,7 +4,7 @@ import 'package:untitled/screens/input_type_page/input_type_page/input_type_page
 import '../../../../services/api_service.dart';
 
 class LockerService {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
 
   /// Fetches and parses locker units from the API.
   /// Returns `{'success': true, 'data': List<Map<String, dynamic>>}` on success,
@@ -48,7 +48,7 @@ class LockerService {
 
     final available = units.where((locker) {
       final baseCondition = locker['status'] == false &&
-          locker['enable'] == false &&
+          locker['enable'] == true &&
           locker['locker_status'] == 'close';
 
       final bookTypeCondition = locker['locker_booktype'] == bookType;

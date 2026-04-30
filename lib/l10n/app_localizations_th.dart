@@ -24,6 +24,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get chose => 'เลือกรายการที่ท่านต้องการดำเนินการ';
 
   @override
+  String get chooseService => 'เลือกรายการที่ท่านต้องการดำเนินการ';
+
+  @override
   String get employee => 'พนักงาน';
 
   @override
@@ -54,7 +57,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get usageMethod => 'กรุณาเลือกวิธีการเข้าใช้งาน';
 
   @override
-  String get register => 'ลงทะเบียนพนักงาน (ใช้งานประจำ)';
+  String get register => 'ลงทะเบียนพนักงาน';
 
   @override
   String get email => 'อีเมล';
@@ -87,10 +90,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get unlock => 'ปลดล็อค';
 
   @override
-  String get phoneInstruct => 'กรุณากรอกเบอร์โทรศัพท์';
+  String get phoneInstruct => 'กรอกเบอร์โทรศัพท์ — ระบบจะส่งรหัส OTP ให้';
 
   @override
-  String get emailInstruct => 'กรุณากรอกอีเมล';
+  String get emailInstruct => 'กรอกอีเมล — ระบบจะส่งรหัส OTP ให้';
 
   @override
   String get resend => 'ส่งรหัสใหม่';
@@ -124,28 +127,29 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get successSupTitle =>
-      'มองหาตู้ที่ไฟกระพริบและกดตู้นั้นเพื่อเปิดออก ขอบคุณที่ใช้บริการ';
+      'มองหาตู้ที่ไฟกระพริบและกดตู้นั้นเพื่อเปิด ขอบคุณที่ใช้บริการ';
 
   @override
   String get registerSuccess => 'สมัครสมาชิกเสร็จสิ้น';
 
   @override
-  String get errorOccur => 'เกิดข้อผิดพลาด';
+  String get errorOccur => 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
 
   @override
   String get noLocker => 'ไม่มีล็อคเกอร์ที่ว่างอยู่';
 
   @override
-  String get otpSuccess => 'ส่ง OTP เสร็จสิ้น';
+  String get otpSuccess => 'ส่ง OTP เรียบร้อยแล้ว';
 
   @override
   String get otpWarning => 'กรุณากรอก OTP ให้ครบ 6 หลัก';
 
   @override
-  String get wrongOtp => 'PIN ไม่ตรงกับที่ลงทะเบียนไว้';
+  String get wrongOtp => 'รหัส OTP ไม่ถูกต้อง กรุณาตรวจสอบแล้วลองใหม่อีกครั้ง';
 
   @override
-  String get wrongEmail => 'อีเมลนี้ไม่ตรงกับอีเมลที่ลงทะเบียนกับตู้นี้';
+  String get wrongEmail =>
+      'อีเมลนี้ไม่ได้ลงทะเบียนไว้ กรุณาตรวจสอบแล้วลองใหม่อีกครั้ง';
 
   @override
   String get noAvailableLocker => 'ไม่มีตู้ว่าง กรุณาลองใหม่อีกครั้ง';
@@ -154,7 +158,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get loading => 'กำลังโหลดข้อมูลตู้...';
 
   @override
-  String get wrongPhone => 'หมายเลขนี้ไม่ตรงกับหมายเลขที่ลงทะเบียนกับตู้นี้';
+  String get wrongPhone =>
+      'หมายเลขนี้ไม่ได้ลงทะเบียนไว้ กรุณาตรวจสอบแล้วลองใหม่อีกครั้ง';
 
   @override
   String get locker => 'ตู้';
@@ -177,6 +182,48 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get endOfUse => 'เปิดเพื่อจบการใช้งานตู้นี้ (คืนตู้)';
+
+  @override
+  String get whatWouldYouLikeToDo => 'คุณต้องการทำอะไรต่อไป?';
+
+  @override
+  String get registrationComplete => 'ลงทะเบียนสำเร็จ!';
+
+  @override
+  String get awaitingApproval => 'รอการตอบกลับจากผู้ดูแล';
+
+  @override
+  String get backToHome => 'กลับสู่หน้าหลัก';
+
+  @override
+  String get choosePreferredMethod => 'เลือกช่องทางที่ต้องการ';
+
+  @override
+  String get registerTitle => 'สมัครสมาชิก';
+
+  @override
+  String get registerSubtitle => 'กรอกข้อมูลเพื่อสมัครใช้งานตู้ประจำ';
+
+  @override
+  String get fullName => 'ชื่อ-นามสกุล';
+
+  @override
+  String get reason => 'เหตุผล';
+
+  @override
+  String get pleaseEnterName => 'กรุณากรอกชื่อ';
+
+  @override
+  String get pleaseEnterReason => 'กรุณากรอกเหตุผล';
+
+  @override
+  String get reasonForBooking => 'เหตุผลในการจอง';
+
+  @override
+  String get phoneNumber => 'เบอร์โทรศัพท์';
+
+  @override
+  String get submitRequest => 'ส่งคำร้อง';
 
   @override
   String get bookingTypeTitle => 'ประเภทการจอง\n(วันหรือชั่วโมง)';
@@ -303,7 +350,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get overtimeFine => 'ค่าปรับที่ต้องชำระ';
 
   @override
-  String get overtimePaymentTitle => 'หน้าเลือกวิธีการจ่ายเงิน';
+  String get overtimePaymentTitle => 'เลือกวิธีชำระเงิน';
 
   @override
   String get autoOpenNote =>
@@ -311,4 +358,227 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get dropBox => 'ฝากพัสดุ';
+
+  @override
+  String get appTitle => 'SMART LOCKER';
+
+  @override
+  String get scanQrTitle => 'สแกน QR เพื่อลงทะเบียน';
+
+  @override
+  String get scanQrSubtitle => 'ลงทะเบียนผ่านมือถือของคุณ\nโดยสแกน QR code นี้';
+
+  @override
+  String get tryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get cancel => 'ยกเลิก';
+
+  @override
+  String get back => 'ย้อนกลับ';
+
+  @override
+  String get sessionTimeoutTitle => 'หมดเวลาใช้งาน';
+
+  @override
+  String get sessionTimeoutMessage => 'ไม่มีการใช้งาน กำลังกลับสู่หน้าหลัก';
+
+  @override
+  String get deleteDigit => 'ลบตัวเลขล่าสุด';
+
+  @override
+  String get goBack => 'ย้อนกลับ';
+
+  @override
+  String get languageSwitch => 'เปลี่ยนภาษา';
+
+  @override
+  String get loadingGeneric => 'กำลังโหลด...';
+
+  @override
+  String get pleaseWait => 'กรุณารอสักครู่';
+
+  @override
+  String get errorEnterEmailOrPhone => 'กรุณากรอกเบอร์โทรศัพท์หรืออีเมล';
+
+  @override
+  String get errorInvalidEmailFormat => 'รูปแบบอีเมลไม่ถูกต้อง';
+
+  @override
+  String get errorPhoneMustBe10Digits => 'เบอร์โทรศัพท์ต้องเป็น 10 หลัก';
+
+  @override
+  String get errorEnterValidEmailOrPhone =>
+      'กรุณากรอกอีเมลหรือเบอร์โทรศัพท์ที่ถูกต้อง';
+
+  @override
+  String get errorEnterOtp => 'กรุณากรอก OTP';
+
+  @override
+  String get errorOtpInvalid => 'กรุณากรอก OTP 6 หลักให้ถูกต้อง';
+
+  @override
+  String get errorEnterPhone => 'กรุณากรอกเบอร์โทรศัพท์';
+
+  @override
+  String get errorEnterEmail => 'กรุณากรอกอีเมล';
+
+  @override
+  String get errorInvalidEmail => 'รูปแบบอีเมลไม่ถูกต้อง';
+
+  @override
+  String get otpUnlockPage =>
+      'กรุณากรอก OTP ที่คุณได้รับจาก SMS ในขั้นตอนการจอง';
+
+  @override
+  String get yourLocker => 'ล็อคเกอร์ของคุณ';
+
+  @override
+  String get notAuthorizedEmployee =>
+      'คุณไม่มีสิทธิ์ใช้งานล็อคเกอร์นี้ กรุณาติดต่อผู้ดูแลระบบ';
+
+  @override
+  String get enterPassword => 'กรอกรหัสผ่าน';
+
+  @override
+  String get passwordLabel => 'รหัสผ่าน';
+
+  @override
+  String get wrongPassword => 'รหัสผ่านไม่ถูกต้อง';
+
+  @override
+  String get login => 'เข้าใช้งาน';
+
+  @override
+  String get settingsSaved => 'บันทึกการตั้งค่าเรียบร้อย';
+
+  @override
+  String get save => 'บันทึก';
+
+  @override
+  String get settingsTitle => 'ตั้งค่า';
+
+  @override
+  String get settingsSubtitle => 'ปรับแต่งหน้าจอและค่าระบบของเครื่อง';
+
+  @override
+  String get sectionDisplay => 'หน้าจอ';
+
+  @override
+  String get sectionSystem => 'ระบบ';
+
+  @override
+  String get sectionSecurity => 'ความปลอดภัย';
+
+  @override
+  String get fieldAppTitle => 'ชื่อแอป';
+
+  @override
+  String get fieldHomeTitle => 'ชื่อหน้าแรก';
+
+  @override
+  String get fieldLogoAsset => 'ที่อยู่โลโก้';
+
+  @override
+  String get fieldFooterLeft => 'ข้อความด้านล่างฝั่งซ้าย';
+
+  @override
+  String get fieldContactInfo => 'ติดต่อกรณีมีปัญหา';
+
+  @override
+  String get fieldSettingsPassword => 'รหัสผ่านเข้าหน้าตั้งค่า';
+
+  @override
+  String get fieldSettingsPasswordHint => 'ตั้งรหัสใหม่ (ค่าเริ่มต้น: admin)';
+
+  @override
+  String get emailPlaceholder => 'example@email.com';
+
+  @override
+  String get emailAddressLabel => 'อีเมล';
+
+  @override
+  String decreaseUnit(String unit) {
+    return 'ลด $unit';
+  }
+
+  @override
+  String increaseUnit(String unit) {
+    return 'เพิ่ม $unit';
+  }
+
+  @override
+  String get tapToChooseLocker => 'แตะเพื่อเลือกล็อคเกอร์';
+
+  @override
+  String get tapForQuickBooking => 'แตะเพื่อจองด่วน';
+
+  @override
+  String get tapToPickSize => 'แตะเพื่อเลือกขนาดนี้';
+
+  @override
+  String get tapToSignInWithPhone => 'แตะเพื่อลงชื่อด้วยหมายเลขโทรศัพท์';
+
+  @override
+  String get tapToSignInWithEmail => 'แตะเพื่อลงชื่อด้วยอีเมล';
+
+  @override
+  String get tapToRegisterNow => 'แตะเพื่อลงทะเบียนเดี๋ยวนี้';
+
+  @override
+  String get submitPhoneNumber => 'ส่งหมายเลขโทรศัพท์ของคุณ';
+
+  @override
+  String get submitOtpCode => 'ส่งรหัส OTP 6 หลัก';
+
+  @override
+  String get submitEmailAddress => 'ส่งอีเมลของคุณ';
+
+  @override
+  String digitLabel(String digit) {
+    return 'หลัก $digit';
+  }
+
+  @override
+  String otpEntryStatus(int filled) {
+    return 'กรอก OTP $filled จาก 6 หลักแล้ว';
+  }
+
+  @override
+  String get lockerStatusDisabled => 'ปิดการใช้งาน';
+
+  @override
+  String get lockerStatusNotAvailable => 'ไม่พร้อมให้เลือกขณะนี้';
+
+  @override
+  String get lockerStatusOccupiedUnlock => 'ไม่ว่าง แตะเพื่อปลดล็อค';
+
+  @override
+  String get lockerStatusEmpty => 'ว่าง';
+
+  @override
+  String get lockerStatusAvailable => 'ว่าง แตะเพื่อเลือก';
+
+  @override
+  String get lockerStatusOccupied => 'ไม่ว่าง';
+
+  @override
+  String lockerSemanticLabel(String name, String status) {
+    return 'ล็อคเกอร์ $name. $status.';
+  }
+
+  @override
+  String get currentLanguageName => 'ไทย';
+
+  @override
+  String get switchToEnglish => 'Switch to English';
+
+  @override
+  String get switchToThai => 'เปลี่ยนเป็นภาษาไทย';
+
+  @override
+  String get depositSubtitle => 'เริ่มต้นฝากพัสดุเข้าตู้ล็อกเกอร์';
+
+  @override
+  String get receiveSubtitle => 'รับพัสดุด้วย OTP หรือรหัสยืนยัน';
 }

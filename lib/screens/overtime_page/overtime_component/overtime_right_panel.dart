@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
+import 'package:untitled/widgets/buttons/primary_button.dart';
 import 'overtime_alipay_logo.dart';
 import 'overtime_app_dots.dart';
 import 'overtime_branded_qr_illustration.dart';
@@ -32,41 +34,40 @@ class OvertimeRightPanel extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: AppRadius.lgRadius,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            // ignore: deprecated_member_use
+            color: AppColors.shadow.withOpacity(0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             l10n.overtimePaymentTitle,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            style: AppText.titleLargeR(context).copyWith(
+              color: AppColors.textPrimary,
             ),
           ),
           Text(
             l10n.paymentChannels,
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+            style: AppText.caption.copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
 
           OvertimeMethodCard(
             isSelected: selectedMethod == 'qr_payment',
             onTap: () => onMethodChanged('qr_payment'),
             leading: const OvertimeIconBadge(
               icon: Icons.qr_code_2,
-              color: Colors.white,
-              bg: Color(0xFF4A90D9),
+              color: AppColors.textOnPrimary,
+              bg: AppColors.primary,
             ),
             title: l10n.qrPayment,
             subtitle: l10n.qrPaymentSubtitle,
@@ -84,12 +85,15 @@ class OvertimeRightPanel extends StatelessWidget {
             onTap: () => onMethodChanged('alipay'),
             leading: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(9),
-                border: Border.all(color: Colors.grey.shade200),
+                color: AppColors.surface,
+                borderRadius: AppRadius.smRadius,
+                border: Border.all(color: AppColors.border),
               ),
-              padding: const EdgeInsets.all(4),
-              child: Image.asset('assets/images/alipay.png', fit: BoxFit.contain),
+              padding: const EdgeInsets.all(AppSpacing.xs),
+              child: Image.asset(
+                'assets/images/alipay.png',
+                fit: BoxFit.contain,
+              ),
             ),
             title: 'Alipay',
             subtitle: l10n.aliPaySubtitle,
@@ -99,16 +103,16 @@ class OvertimeRightPanel extends StatelessWidget {
             onTap: () => onMethodChanged('line_pay'),
             leading: const OvertimeIconBadge(
               icon: Icons.chat_bubble,
-              color: Colors.white,
+              color: AppColors.textOnPrimary,
               bg: Color(0xFF06C755),
             ),
             title: 'LINE Pay',
             subtitle: l10n.linePaySubtitle,
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
           const Divider(height: 1),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
 
           if (isExpanded)
             Expanded(
@@ -117,70 +121,72 @@ class OvertimeRightPanel extends StatelessWidget {
           else
             Center(child: _buildIllustration(selectedMethod, l10n)),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
           const Divider(height: 1),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 l10n.overtimeFine,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                style: AppText.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               Text(
                 '$fineAmount ${l10n.baht}',
                 style: const TextStyle(
+                  fontFamily: AppText.family,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFE53935),
+                  color: AppColors.error,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
 
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F7FF),
-              borderRadius: BorderRadius.circular(10),
+              // ignore: deprecated_member_use
+              color: AppColors.info.withOpacity(0.08),
+              borderRadius: AppRadius.smRadius,
               border: Border.all(
-                  color: const Color(0xFF4A90D9).withValues(alpha: 0.25)),
+                // ignore: deprecated_member_use
+                color: AppColors.info.withOpacity(0.25),
+              ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.info_outline_rounded,
-                    color: Color(0xFF4A90D9), size: 16),
-                const SizedBox(width: 8),
+                const Icon(
+                  Icons.info_outline_rounded,
+                  color: AppColors.info,
+                  size: 16,
+                ),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
                     l10n.autoOpenNote,
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                    style: AppText.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
 
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: onPay,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4A90D9),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 3,
-              ),
-              child: Text(
-                l10n.payNow,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
+          PrimaryButton(
+            label: l10n.payNow,
+            expand: true,
+            icon: Icons.payments_outlined,
+            onPressed: onPay,
           ),
         ],
       ),

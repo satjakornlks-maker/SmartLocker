@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/main.dart';
 import 'input_type_component/input_type_main_content.dart';
@@ -42,23 +43,22 @@ class _InputTypePageState extends State<InputTypePage> {
     final currentLocale = Localizations.localeOf(context);
     final appState = MyApp.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
             SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
                     Header(
                       currentLocale: currentLocale,
                       onLanguageSwitch: () {
                         appState?.toggleLocale();
                       },
                     ),
-                    const SizedBox(height: 60),
+                    const SizedBox(height: AppSpacing.xxxl),
                     InputTypeMainContent(
                       from: widget.from,
                       selectedLocker: widget.selectedLocker,
@@ -73,10 +73,12 @@ class _InputTypePageState extends State<InputTypePage> {
             ),
             if (_isLoading)
               Container(
-                color: Colors.black54,
+                // ignore: deprecated_member_use
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.textOnPrimary),
                   ),
                 ),
               ),

@@ -1,50 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
 class LockerLegend extends StatelessWidget {
   const LockerLegend({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final l = AppLocalizations.of(context)!;
+    return Wrap(
+      alignment: WrapAlignment.center,
+      runSpacing: AppSpacing.sm,
+      spacing: AppSpacing.xxl,
       children: [
-        _buildLegendItem(
-          Colors.green,
-          Text(
-            AppLocalizations.of(context)!.empty,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-        ),
-        const SizedBox(width: 25),
-        _buildLegendItem(Colors.red.shade400, Text(
-          AppLocalizations.of(context)!.occupiedLegend,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
-        ),),
-        const SizedBox(width: 25),
-        _buildLegendItem(Colors.yellow.shade700, Text(
-          AppLocalizations.of(context)!.choosing,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
-        ),),
-        const SizedBox(width: 25),
-        _buildLegendItem(Colors.grey.shade400, Text(
-          AppLocalizations.of(context)!.cantBeUse,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
-        ),),
+        _buildLegendItem(AppColors.lockerEmpty, l.empty),
+        _buildLegendItem(AppColors.lockerOccupied, l.occupiedLegend),
+        _buildLegendItem(AppColors.lockerChoosing, l.choosing),
+        _buildLegendItem(AppColors.lockerDisabled, l.cantBeUse),
       ],
     );
   }
 
-  Widget _buildLegendItem(Color color, Widget label) {
+  Widget _buildLegendItem(Color color, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 14,
           height: 14,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 6),
-        label
+        const SizedBox(width: AppSpacing.xs),
+        Text(
+          label,
+          style: AppText.bodySmall.copyWith(color: AppColors.textPrimary),
+        ),
       ],
     );
   }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/api_service.dart';
+import '../../theme/theme.dart';
 import '../../widgets/header/header.dart';
+import '../../widgets/snackbar/snackbar.dart';
 import 'payment_component/payment_left_panel.dart';
 import 'payment_component/payment_right_panel.dart';
 
@@ -37,7 +39,7 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   String _selectedMethod = 'qr_payment';
   bool _isLoading = false;
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
 
   Future<void> _handlePay() async {
     final l10n = AppLocalizations.of(context)!;
@@ -59,29 +61,18 @@ class _PaymentPageState extends State<PaymentPage> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (result['success']) {
-        _showSnackBar(l10n.lockerOpenedSuccess, Colors.green);
+        context.showSuccessSnackBar(l10n.lockerOpenedSuccess);
         Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
-        _showSnackBar('${l10n.errorOccur}: ${result['error']}', Colors.red);
+        context.showErrorSnackBar(
+          '${l10n.errorOccur}: ${result['error']}',
+        );
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _showSnackBar('${l10n.errorOccur}: $e', Colors.red);
+      context.showErrorSnackBar('${l10n.errorOccur}: $e');
     }
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
   }
 
   @override
@@ -91,31 +82,30 @@ class _PaymentPageState extends State<PaymentPage> {
     final appState = MyApp.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
         child: Stack(
           children: [
             Column(
               children: [
-                const SizedBox(height: 20),
                 Header(
                   currentLocale: currentLocale,
                   onLanguageSwitch: () => appState?.toggleLocale(),
                   onBackPressed: () => Navigator.of(context).pop(),
                 ),
-                Expanded(
-                  child: _buildBody(l10n),
-                ),
+                Expanded(child: _buildBody(l10n)),
               ],
             ),
             if (_isLoading)
               Container(
-                color: Colors.black54,
+                // ignore: deprecated_member_use
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.textOnPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -134,26 +124,24 @@ class _PaymentPageState extends State<PaymentPage> {
           child: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1000),
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     l10n.paymentSubtitle,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                    style: AppText.headingMediumR(context).copyWith(
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   isWide
                       ? IntrinsicHeight(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Expanded(child: _buildLeftPanel()),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: AppSpacing.xl),
                               Expanded(child: _buildRightPanel()),
                             ],
                           ),
@@ -161,11 +149,11 @@ class _PaymentPageState extends State<PaymentPage> {
                       : Column(
                           children: [
                             _buildLeftPanel(),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: AppSpacing.xl),
                             _buildRightPanel(),
                             SizedBox(
-                              height:
-                                  MediaQuery.of(context).padding.bottom + 20,
+                              height: MediaQuery.of(context).padding.bottom +
+                                  AppSpacing.xl,
                             ),
                           ],
                         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
+import 'package:untitled/widgets/buttons/primary_button.dart';
 import 'booking_promotion.dart';
 
 class ChoseTimeRightPanel extends StatelessWidget {
@@ -42,9 +44,8 @@ class ChoseTimeRightPanel extends StatelessWidget {
     final unitLabel = bookingType == 'day' ? l10n.day : l10n.hour;
 
     // Find best eligible promo for label display in price summary
-    final eligiblePromos = mockPromotions
-        .where((p) => p.isEligible(bookingType, quantity))
-        .toList();
+    final eligiblePromos =
+        mockPromotions.where((p) => p.isEligible(bookingType, quantity)).toList();
     final bestPromo = eligiblePromos.isEmpty
         ? null
         : eligiblePromos.reduce((a, b) =>
@@ -52,20 +53,18 @@ class ChoseTimeRightPanel extends StatelessWidget {
 
     return Container(
       decoration: _cardDecoration(),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: [
           Text(
             l10n.priceDetails,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            style: AppText.titleLargeR(context).copyWith(
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           _PriceSummary(
             typeLabel: typeLabel,
             unitLabel: unitLabel,
@@ -79,26 +78,25 @@ class ChoseTimeRightPanel extends StatelessWidget {
             promoMessage: promoMessage,
             appliedCode: promoController.text.trim().toUpperCase(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           const Divider(height: 1),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           _PromotionsSection(
             bookingType: bookingType,
             quantity: quantity,
             subtotal: subtotal,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           const Divider(height: 1),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           Text(
             l10n.promoCode,
-            style: const TextStyle(
-              fontSize: 14,
+            style: AppText.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           _PromoInput(
             controller: promoController,
             promoError: promoError,
@@ -107,9 +105,14 @@ class ChoseTimeRightPanel extends StatelessWidget {
             onApply: onApplyPromo,
             onChanged: onPromoChanged,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           const Spacer(),
-          _ConfirmButton(onConfirm: onConfirm),
+          PrimaryButton(
+            label: l10n.proceedBooking,
+            expand: true,
+            icon: Icons.arrow_forward,
+            onPressed: onConfirm,
+          ),
         ],
       ),
     );
@@ -117,11 +120,12 @@ class ChoseTimeRightPanel extends StatelessWidget {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      color: AppColors.surface,
+      borderRadius: AppRadius.lgRadius,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
+          // ignore: deprecated_member_use
+          color: AppColors.shadow.withOpacity(0.08),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -164,41 +168,47 @@ class _PriceSummary extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFF),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        // ignore: deprecated_member_use
+        color: AppColors.primary.withOpacity(0.05),
+        borderRadius: AppRadius.mdRadius,
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.price,
-                  style:
-                      TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+              Text(
+                l10n.price,
+                style: AppText.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
               Text(
                 '$typeLabel ($quantity $unitLabel)',
-                style:
-                    TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                style: AppText.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.xs),
           Align(
             alignment: Alignment.centerRight,
             child: Text(
               '$subtotal ${l10n.baht}',
               style: const TextStyle(
+                fontFamily: AppText.family,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
           if (autoPromoDiscount > 0) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             _DiscountRow(
               label: autoPromoLabel,
               discount: autoPromoDiscount,
@@ -207,7 +217,7 @@ class _PriceSummary extends StatelessWidget {
             ),
           ],
           if (isPromoApplied) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             _DiscountRow(
               label: '${l10n.discountCode} "$appliedCode"',
               discount: promoDiscount,
@@ -215,26 +225,28 @@ class _PriceSummary extends StatelessWidget {
               icon: Icons.discount_outlined,
             ),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           const Divider(height: 1),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 l10n.totalAmount,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontFamily: AppText.family,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 '$total ${l10n.baht}',
                 style: const TextStyle(
+                  fontFamily: AppText.family,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4A90D9),
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -261,24 +273,29 @@ class _DiscountRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.circular(8),
+        // ignore: deprecated_member_use
+        color: AppColors.success.withOpacity(0.12),
+        borderRadius: AppRadius.smRadius,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              Icon(icon, color: Colors.green, size: 14),
-              const SizedBox(width: 6),
+              Icon(icon, color: AppColors.success, size: 14),
+              const SizedBox(width: AppSpacing.xs),
               Text(
                 label,
                 style: const TextStyle(
+                  fontFamily: AppText.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.green,
+                  color: AppColors.success,
                 ),
               ),
             ],
@@ -286,9 +303,10 @@ class _DiscountRow extends StatelessWidget {
           Text(
             '-$discount $bahtLabel',
             style: const TextStyle(
+              fontFamily: AppText.family,
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: Colors.green,
+              color: AppColors.success,
             ),
           ),
         ],
@@ -325,13 +343,12 @@ class _PromotionsSection extends StatelessWidget {
       children: [
         Text(
           l10n.availablePromotions,
-          style: const TextStyle(
-            fontSize: 14,
+          style: AppText.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpacing.sm),
         ...relevantPromos.map((promo) {
           final isEligible = promo.isEligible(bookingType, quantity);
           final discount = promo.computeDiscount(subtotal);
@@ -368,31 +385,39 @@ class _PromotionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     final bgColor = isEligible
-        ? const Color(0xFFE8F5E9)
-        : const Color(0xFFF5F5F5);
+        // ignore: deprecated_member_use
+        ? AppColors.success.withOpacity(0.10)
+        : AppColors.surfaceMuted;
     final borderColor = isEligible
-        ? const Color(0xFF81C784)
-        : Colors.grey.shade300;
-    final textColor = isEligible ? Colors.green.shade700 : Colors.grey.shade500;
-    final discountColor = isEligible ? Colors.green : Colors.grey.shade400;
+        // ignore: deprecated_member_use
+        ? AppColors.success.withOpacity(0.55)
+        : AppColors.border;
+    final textColor =
+        isEligible ? AppColors.success : AppColors.textDisabled;
+    final discountColor =
+        isEligible ? AppColors.success : AppColors.textDisabled;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.smRadius,
         border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
           Icon(
             isEligible ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isEligible ? Colors.green : Colors.grey.shade400,
+            color: isEligible ? AppColors.success : AppColors.textDisabled,
             size: 18,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,6 +425,7 @@ class _PromotionCard extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
+                    fontFamily: AppText.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: textColor,
@@ -407,7 +433,8 @@ class _PromotionCard extends StatelessWidget {
                 ),
                 Text(
                   conditionText,
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                  style: AppText.caption
+                      .copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -415,6 +442,7 @@ class _PromotionCard extends StatelessWidget {
           Text(
             discountText,
             style: TextStyle(
+              fontFamily: AppText.family,
               fontSize: 13,
               fontWeight: FontWeight.bold,
               color: discountColor,
@@ -453,108 +481,103 @@ class _PromoInput extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: TextField(
-                controller: controller,
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                  hintText: l10n.enterPromoCode,
-                  prefixIcon: const Icon(Icons.discount_outlined,
-                      color: Color(0xFF4A90D9)),
-                  filled: true,
-                  fillColor: const Color(0xFFF8FAFF),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+              child: Semantics(
+                textField: true,
+                label: l10n.enterPromoCode,
+                child: TextField(
+                  controller: controller,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: l10n.enterPromoCode,
+                    prefixIcon: const Icon(
+                      Icons.discount_outlined,
+                      color: AppColors.primary,
+                    ),
+                    filled: true,
+                    // ignore: deprecated_member_use
+                    fillColor: AppColors.primary.withOpacity(0.05),
+                    border: OutlineInputBorder(
+                      borderRadius: AppRadius.smRadius,
+                      borderSide:
+                          const BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.smRadius,
+                      borderSide:
+                          const BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.smRadius,
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.md,
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                        color: Color(0xFF4A90D9), width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 13),
+                  onChanged: (_) => onChanged(),
                 ),
-                onChanged: (_) => onChanged(),
               ),
             ),
-            const SizedBox(width: 8),
-            ElevatedButton(
+            const SizedBox(width: AppSpacing.sm),
+            PrimaryButton(
+              label: l10n.applyCode,
               onPressed: onApply,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4A90D9),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 15),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                elevation: 0,
-              ),
-              child: Text(l10n.applyCode,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
         if (promoError.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 14),
-              const SizedBox(width: 4),
-              Text(promoError,
-                  style:
-                      const TextStyle(color: Colors.red, fontSize: 12)),
-            ],
+          const SizedBox(height: AppSpacing.xs),
+          Semantics(
+            liveRegion: true,
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColors.error,
+                  size: 14,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  promoError,
+                  style: const TextStyle(
+                    fontFamily: AppText.family,
+                    color: AppColors.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
         if (isPromoApplied) ...[
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 14),
-              const SizedBox(width: 4),
-              Text(
-                '${l10n.promoApplied} -$promoDiscount ${l10n.baht}',
-                style:
-                    const TextStyle(color: Colors.green, fontSize: 12),
-              ),
-            ],
+          const SizedBox(height: AppSpacing.xs),
+          Semantics(
+            liveRegion: true,
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.check_circle,
+                  color: AppColors.success,
+                  size: 14,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  '${l10n.promoApplied} -$promoDiscount ${l10n.baht}',
+                  style: const TextStyle(
+                    fontFamily: AppText.family,
+                    color: AppColors.success,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ],
-    );
-  }
-}
-
-class _ConfirmButton extends StatelessWidget {
-  final VoidCallback onConfirm;
-
-  const _ConfirmButton({required this.onConfirm});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: onConfirm,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4A90D9),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-          elevation: 3,
-        ),
-        child: Text(
-          l10n.proceedBooking,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-      ),
     );
   }
 }

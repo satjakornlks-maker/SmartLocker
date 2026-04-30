@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,16 +10,19 @@ import 'package:untitled/screens/home_page/my_home_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
 import 'package:untitled/screens/locker_page/locker_selection_page.dart';
 import 'package:untitled/screens/otp_page/otp_page.dart';
-import 'package:untitled/screens/payment_page/payment_page.dart';
 import 'package:untitled/screens/settings_page/settings_page.dart';
 import 'package:untitled/screens/user_type_page/user_type_page.dart';
 import 'package:untitled/services/api_service.dart';
 import 'package:untitled/services/app_settings.dart';
-import 'package:untitled/services/board_watcher/board_watcher.dart';
+import 'package:untitled/services/board_watcher/hf_connection.dart';
+import 'package:untitled/services/board_watcher/locker_api_client.dart';
 import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/services/device_heartbeat_service.dart';
+import 'package:untitled/services/locker_command_service.dart';
 import 'package:untitled/services/offline_status_queue.dart';
 import 'package:untitled/services/pin_cache_service.dart';
+import 'package:untitled/services/inactivity_service.dart';
+import 'package:untitled/theme/theme.dart';
 import 'utils/config_file_reader.dart';
 import 'utils/platform_check.dart';
 
@@ -33,6 +35,15 @@ void main() async {
   // --- Device config init ---
   // APP_KEY is baked in at build time via --dart-define
   const appKey = String.fromEnvironment('APP_KEY', defaultValue: '');
+  if (appKey.isEmpty) {
+    if (kReleaseMode || kProfileMode) {
+      throw StateError(
+        'Missing APP_KEY. Build with --dart-define=APP_KEY=<your_key>',
+      );
+    } else {
+      debugPrint('[main] WARNING: APP_KEY is empty — running without auth (debug only)');
+    }
+  }
   const envBootstrapUrl = String.fromEnvironment(
     'BOOTSTRAP_URL',
     defaultValue: 'http://192.168.22.50:5183',
@@ -61,7 +72,7 @@ void main() async {
     final prevAssignedLocker = DeviceConfigService.assignedLocker;
     final prevLockerIds = List<int>.from(DeviceConfigService.lockerIds);
 
-    ApiService()
+    ApiService.instance
         .syncDeviceConfig(DeviceConfigService.deviceId)
         .then((result) async {
           print('[syncDeviceConfig] result: $result');
@@ -104,14 +115,31 @@ void main() async {
           print('[syncDeviceConfig] failed: $e');
         });
 
-    ApiService().syncPinCache().ignore();
-    ApiService().getLocker().ignore();
-    ApiService().flushOfflineQueue().ignore();
+    ApiService.instance.syncPinCache().ignore();
+    ApiService.instance.getLocker().ignore();
+    ApiService.instance.flushOfflineQueue().ignore();
   }
   // --- End device config init ---
 
   if (!kIsWeb && isDesktop) {
-    await windowManager.ensureInitialized();
+    // Register the fallback FIRST — before any awaitable call — so the timer
+    // is in the Dart event queue even if ensureInitialized() hangs forever.
+    // (Dart suspends the current function on await but keeps the event loop
+    // running, so this timer fires regardless.)
+    Future.delayed(const Duration(seconds: 3), () async {
+      try {
+        await windowManager.show();
+        await windowManager.setFullScreen(true);
+        await windowManager.focus();
+      } catch (_) {}
+    });
+
+    // Timeout ensureInitialized so a hanging native call never blocks runApp.
+    try {
+      await windowManager
+          .ensureInitialized()
+          .timeout(const Duration(seconds: 3), onTimeout: () {});
+    } catch (_) {}
 
     const windowOptions = WindowOptions(
       backgroundColor: Colors.transparent,
@@ -119,20 +147,23 @@ void main() async {
       titleBarStyle: TitleBarStyle.hidden,
     );
 
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.setFullScreen(true);
+    // Primary path: fires when the window system signals ready.
+    // show() is called first so the window is visible before setFullScreen,
+    // which avoids the hang seen on low-end Intel UHD hardware.
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
+      await windowManager.setFullScreen(true);
       await windowManager.focus();
     });
   }
 
   // Start heartbeat + board watcher on Windows (desktop) and Android only.
-  if (!kIsWeb && (isDesktop || Platform.isAndroid)) {
+  if (!kIsWeb && (isDesktop || isAndroid)) {
     Future.delayed(const Duration(seconds: 5), () {
       // Flush queued offline status updates every 60 s while app is running.
       Timer.periodic(const Duration(seconds: 60), (_) {
         if (OfflineStatusQueue.pendingCount > 0) {
-          ApiService().flushOfflineQueue().ignore();
+          ApiService.instance.flushOfflineQueue().ignore();
         }
       });
 
@@ -142,42 +173,69 @@ void main() async {
         DeviceConfigService.deviceId,
       ).ignore();
 
-      // registerOnly() resolves HF connections + locker data so that offline
-      // unlock works, but does NOT start polling loops.
-      BoardWatcher(
-        apiBaseUrl: DeviceConfigService.baseUrl,
-        apiKey: DeviceConfigService.appKey,
-        assignedLocker: DeviceConfigService.assignedLocker,
-        pollSec: AppSettings.instance.pollSec,
-        sockTimeout: AppSettings.instance.sockTimeout,
-        restartHour: AppSettings.instance.restartHour,
-        hfConnectionsOverride: AppSettings.instance.hfConnections.isNotEmpty
+      // Fetch HF config + locker data once at startup so offline unlock works
+      // without the backend (direct TCP to HF converter).
+      _registerOfflineUnlock(
+        DeviceConfigService.baseUrl,
+        DeviceConfigService.appKey,
+        DeviceConfigService.assignedLocker,
+        AppSettings.instance.hfConnections.isNotEmpty
             ? AppSettings.instance.hfConnections
             : ((fileConfig['HF_CONNECTIONS'] as String?) ?? ''),
-      ).registerOnly().ignore();
+      ).ignore();
     });
   }
 
   runApp(const MyApp());
 }
 
-/// Graceful shutdown: stops the board watcher, notifies the backend, then
-/// destroys the window. Used both by onWindowClose and the daily restart timer.
-Future<void> _handleShutdown() async {
+/// Fetches HF connection config and locker data from the API once at startup,
+/// then registers the results in [LockerCommandService] so direct TCP unlock
+/// commands can be sent when the backend is offline.
+Future<void> _registerOfflineUnlock(
+  String baseUrl,
+  String apiKey,
+  int assignedLocker,
+  String hfConnectionsOverride,
+) async {
   try {
-    final result = await ApiService().setDeviceOffline(
-      DeviceConfigService.deviceId,
+    final api = LockerApiClient(
+      apiBaseUrl: baseUrl,
+      assignedLocker: assignedLocker,
+      hfConnectionsOverride: hfConnectionsOverride,
+      headers: {
+        'x-app-token': apiKey,
+        'Content-Type': 'application/json',
+      },
     );
-    print('[shutdown] setDeviceOffline: $result');
+    final hfConnections = await api.resolveHfConnections();
+    final allCuAddresses =
+        hfConnections.expand((c) => c.cuAddresses).toList();
+    final apiData = await api.fetchLockerData();
+    final allLockerMaps = apiData != null
+        ? LockerApiClient.buildLockerMapForAllCus(apiData, allCuAddresses)
+        : <int, Map<int, Map<String, dynamic>>>{};
+    if (apiData == null) {
+      debugPrint('[offlineUnlock] Could not fetch locker data — offline unlock map will be empty');
+    }
+    LockerCommandService.register(hfConnections, allLockerMaps);
   } catch (e) {
-    print('[shutdown] setDeviceOffline error: $e');
+    debugPrint('[offlineUnlock] Registration failed: $e');
   }
+}
 
-  await DeviceHeartbeatService.disconnect();
+/// Graceful shutdown: notifies the backend then immediately terminates the process.
+/// exit(0) destroys all windows implicitly — no need to call windowManager.destroy()
+/// (which can hang on slow/low-end display drivers and prevent exit(0) from running).
+Future<void> _handleShutdown() async {
+  // Fire offline ping without waiting — exit(0) below kills the process.
+  // Give it 500 ms so the request can land if the backend is reachable.
+  ApiService.instance.setDeviceOffline(DeviceConfigService.deviceId).ignore();
+  await Future.delayed(const Duration(milliseconds: 500));
 
-  if (!kIsWeb && isDesktop) {
-    await windowManager.destroy();
-  }
+  DeviceHeartbeatService.disconnect();
+
+  exitApp(0);
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -279,16 +337,6 @@ class _MyAppState extends State<MyApp>
             const LockerSelectionPage(mode: LockerSelectionMode.unlock),
         '/user-type-page': (context) => const UserTypePage(),
         '/otp-unlock-page': (context) => const OTPPage(from: FromPage.unlock),
-        '/test-page': (context) => const PaymentPage(
-          lockerId: "",
-          lockerName: "",
-          telOrEmail: "",
-          otp: "",
-          userId: 1,
-          bookingType: "bookingType",
-          quantity: 1,
-          total: 1,
-        ),
         '/settings': (context) => const SettingsPage(),
       },
     );

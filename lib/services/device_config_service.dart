@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,7 +11,7 @@ class DeviceConfigService {
 
   static String _deviceId      = '';
   static String _baseUrl       = '';
-  static String _appKey        = '';
+  static String _appKey        = 'flutter-secret-2026';
   static List<int> _lockerIds  = [];
   static int _assignedLocker   = 0;
   static String _systemMode    = 'B2C'; // default until synced from server
@@ -110,7 +111,7 @@ class DeviceConfigService {
       await prefs.setString(_keyLockerIds, lockerIds.join(','));
       _lockerIds = lockerIds;
       if (prev.toString() != lockerIds.toString()) {
-        print('[DeviceConfig] locker_ids changed: $prev → $lockerIds');
+        debugPrint('[DeviceConfig] locker_ids changed: $prev → $lockerIds');
       }
     }
 
@@ -119,7 +120,7 @@ class DeviceConfigService {
       await prefs.setInt(_keyAssignedLocker, assignedLocker);
       _assignedLocker = assignedLocker;
       if (prev != assignedLocker) {
-        print('[DeviceConfig] assigned_locker changed: $prev → $assignedLocker');
+        debugPrint('[DeviceConfig] assigned_locker changed: $prev → $assignedLocker');
       }
     }
 
@@ -128,10 +129,32 @@ class DeviceConfigService {
       await prefs.setString(_keySystemMode, systemMode);
       _systemMode = systemMode;
       if (prev != systemMode) {
-        print('[DeviceConfig] system_mode changed: $prev → $systemMode');
+        debugPrint('[DeviceConfig] system_mode changed: $prev → $systemMode');
       }
     }
   }
+
+  /// Call when the user changes the server URL in Settings.
+  /// Updates the in-memory URL immediately and clears all stale auth tokens
+  /// and cached config so the next API call re-authenticates against the new server.
+  // static Future<void> updateBaseUrl(String newUrl) async {
+  //   newUrl = newUrl.trim();
+  //   if (newUrl.isEmpty || newUrl == _baseUrl) return;
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('auth_access_token');
+  //   await prefs.remove('auth_access_expiry');
+  //   await prefs.remove('auth_refresh_token');
+  //   await prefs.remove('auth_refresh_expiry');
+  //   await prefs.remove(_keyLockerIds);
+  //   await prefs.remove(_keyAssignedLocker);
+  //   await prefs.remove(_keySystemMode);
+  //   await prefs.setString(_keyLastConfigUrl, newUrl);
+  //   _baseUrl = newUrl;
+  //   _lockerIds = [];
+  //   _assignedLocker = 0;
+  //   _systemMode = 'B2C';
+  //   debugPrint('[DeviceConfig] baseUrl updated to $newUrl');
+  // }
 
   static String _generateUuid() {
     final random = Random.secure();

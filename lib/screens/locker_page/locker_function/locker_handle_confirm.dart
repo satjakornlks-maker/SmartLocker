@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/widgets/snackbar/snackbar.dart';
 
 import '../../input_type_page/input_type_page/input_type_page.dart';
+import '../../input_type_page/phone_input_page/phone_input_page.dart';
 import '../../otp_page/otp_page.dart';
 import '../../register_page/register_page.dart';
 import '../locker_selection_page.dart';
@@ -24,10 +27,14 @@ class LockerNavigationService {
     // Navigate based on mode
     switch (mode) {
       case LockerSelectionMode.booking:
+        if (selectedLockerName == null) {
+          _showValidationError(context, onError);
+          return;
+        }
         _navigateToBooking(
           context,
           selectedLocker,
-          selectedLockerName!,
+          selectedLockerName,
           lockerData,
         );
         break;
@@ -57,7 +64,7 @@ class LockerNavigationService {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => InputTypePage(
+        builder: (context) => PhoneInputPage(
           from: FromPage.normal,
           selectedLocker: lockerId,
           lockerName: lockerName,
@@ -104,13 +111,9 @@ class LockerNavigationService {
       BuildContext context,
       VoidCallback? onError,
       ) {
+    final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('โปรดเลือกตู้ล็อคเกอร์'),
-        backgroundColor: Colors.orange,
-      ),
-    );
+    context.showWarningSnackBar(l.selectLocker);
     onError?.call();
   }
 }

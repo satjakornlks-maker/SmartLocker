@@ -4,6 +4,8 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/services/device_config_service.dart';
 import 'package:untitled/screens/confirmation_page/confirmation_page.dart';
 import 'package:untitled/screens/input_type_page/input_type_page/input_type_page.dart';
+import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_page.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/header/header.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../services/api_service.dart';
@@ -42,7 +44,7 @@ class OTPPage extends StatefulWidget {
 }
 
 class _OTPPageState extends State<OTPPage> {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService.instance;
 
   late int resetPass;
   bool _isLoading = false;
@@ -117,8 +119,10 @@ class _OTPPageState extends State<OTPPage> {
                   : Colors.cyan.withOpacity(0.10),
             ),
             SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(14),
+              child: Builder(builder: (context) {
+              final compact = MediaQuery.of(context).size.height <= 800;
+              return Padding(
+                padding: EdgeInsets.all(compact ? 6 : 14),
                 child: _GlassShell(
                   isDark: isDark,
                   child: Stack(
@@ -126,7 +130,12 @@ class _OTPPageState extends State<OTPPage> {
                       Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                            padding: EdgeInsets.fromLTRB(
+                              20,
+                              compact ? 6 : 14,
+                              20,
+                              compact ? 4 : 8,
+                            ),
                             child: Header(
                               currentLocale: currentLocale,
                               onLanguageSwitch: () {
@@ -138,7 +147,7 @@ class _OTPPageState extends State<OTPPage> {
                           Expanded(
                             child: SingleChildScrollView(
                               physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.fromLTRB(20, 6, 20, 20),
+                              padding: EdgeInsets.fromLTRB(20, 6, 20, compact ? 8 : 20),
                               child: _buildBody(isDark),
                             ),
                           ),
@@ -157,7 +166,8 @@ class _OTPPageState extends State<OTPPage> {
                     ],
                   ),
                 ),
-              ),
+              );
+            }),
             ),
           ],
         ),
@@ -239,9 +249,13 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildOtpContent(bool isDark) {
+    final compact = MediaQuery.of(context).size.height <= 800;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      padding: EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: compact ? 10 : 20,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         color: isDark
@@ -255,17 +269,17 @@ class _OTPPageState extends State<OTPPage> {
       ),
       child: Column(
         children: [
-          const SizedBox(height: 4),
-          OtpTitle(resetPass: resetPass),
-          const SizedBox(height: 8),
+          SizedBox(height: compact ? 2 : 4),
+          OtpTitle(resetPass: resetPass, from: widget.from),
+          SizedBox(height: compact ? 4 : 8),
           if (widget.from != FromPage.unlock)
             PhoneDisplay(
               telOrEmail: widget.telOrEmail,
               lockerName: widget.lockerName,
             ),
-          const SizedBox(height: 14),
+          SizedBox(height: compact ? 6 : 14),
           OtpInputBox(otpDigits: _otpDigits),
-          const SizedBox(height: 12),
+          SizedBox(height: compact ? 4 : 12),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -285,13 +299,13 @@ class _OTPPageState extends State<OTPPage> {
                 _buildResetPassword(),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: compact ? 8 : 20),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
             child: Column(
               children: [
                 _buildNumericKeypad(),
-                const SizedBox(height: 20),
+                SizedBox(height: compact ? 8 : 20),
                 OtpConfirmButton(
                   otpDigits: _otpDigits,
                   handleSubmitOTP: _handleSubmitOTP,
@@ -305,6 +319,8 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Widget _buildNumericKeypad() {
+    final compact = MediaQuery.of(context).size.height <= 800;
+    final rowGap = compact ? 6.0 : 12.0;
     return Column(
       children: [
         KeypadRow(
@@ -312,19 +328,19 @@ class _OTPPageState extends State<OTPPage> {
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: rowGap),
         KeypadRow(
           keys: ['4', '5', '6'],
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: rowGap),
         KeypadRow(
           keys: ['7', '8', '9'],
           handleDelete: _handleDelete,
           handleNumberTap: _handleNumberTap,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: rowGap),
         KeypadRow(
           keys: ['0', 'delete'],
           handleDelete: _handleDelete,
@@ -355,6 +371,10 @@ class _OTPPageState extends State<OTPPage> {
   Future<void> _handleSendOTP() async {
     if (widget.lockerId == null) {
       context.showErrorSnackBar(AppLocalizations.of(context)!.noLocker);
+      return;
+    }
+    if (widget.telOrEmail == null) {
+      context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
       return;
     }
     setState(() => _isLoading = true);
@@ -437,13 +457,15 @@ class _OTPPageState extends State<OTPPage> {
             widget.lockerId!,
             otpCode,
           );
+          if (!mounted) return;
           setState(() {
             _isLoading = false;
           });
-          if (result['success']) {
+          final extractedUserId = result['data']?['userID'] as int?;
+          if (result['success'] && extractedUserId != null) {
             setState(() {
               resetPass = 2;
-              userId = result['data']['userID'];
+              userId = extractedUserId;
               _otpDigits.fillRange(0, 6, '');
               _currentIndex = 0;
             });
@@ -475,6 +497,12 @@ class _OTPPageState extends State<OTPPage> {
               _otpDigits.fillRange(0, 6, '');
               _currentIndex = 0;
             });
+          } else {
+            setState(() {
+              _otpDigits.fillRange(0, 6, '');
+              _currentIndex = 0;
+            });
+            context.showErrorSnackBar(AppLocalizations.of(context)!.wrongOtp);
           }
         } catch (e) {
           if (!mounted) return;
@@ -485,6 +513,12 @@ class _OTPPageState extends State<OTPPage> {
           );
         }
       } else {
+        if (widget.telOrEmail == null) {
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
+          return;
+        }
         final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
         final result = await _apiService.handleSubmitOTP(
           cleanValue,
@@ -515,6 +549,11 @@ class _OTPPageState extends State<OTPPage> {
   }
 
   Future<void> _bookLocker(int userId, String otp) async {
+    if (widget.telOrEmail == null) {
+      if (!mounted) return;
+      context.showErrorSnackBar(AppLocalizations.of(context)!.errorOccur);
+      return;
+    }
     final now = DateTime.now();
     final cleanValue = widget.telOrEmail!.replaceAll(' ', '');
     try {
@@ -598,7 +637,7 @@ class _OTPPageState extends State<OTPPage> {
       onPressed: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => InputTypePage(
+          builder: (context) => PhoneInputPage(
             from: FromPage.forgetPassword,
             selectedLocker: widget.lockerId,
             lockerName: widget.lockerName,

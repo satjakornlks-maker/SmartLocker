@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/theme/theme.dart';
 
 class OrderSummary extends StatelessWidget {
   final AppLocalizations l10n;
@@ -35,30 +36,47 @@ class OrderSummary extends StatelessWidget {
         Text(
           l10n.totalDuration,
           style: const TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+            fontFamily: AppText.family,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpacing.sm),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.amount,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
-            Text(_durationText,
-                style: const TextStyle(fontSize: 14, color: Colors.black87)),
+            Text(
+              l10n.amount,
+              style: AppText.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            Text(
+              _durationText,
+              style: AppText.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.sm),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.amountDue,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+            Text(
+              l10n.amountDue,
+              style: AppText.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
             Text(
               '$total ${l10n.baht}',
               style: const TextStyle(
-                fontSize: 20,
+                fontFamily: AppText.family,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF4A90D9),
+                color: AppColors.primary,
               ),
             ),
           ],

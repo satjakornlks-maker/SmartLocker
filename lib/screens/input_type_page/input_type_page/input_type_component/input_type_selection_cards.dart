@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/input_type_page/email_input_page/email_input_page.dart';
 import 'package:untitled/screens/input_type_page/phone_input_page/phone_input_page.dart';
+import 'package:untitled/theme/theme.dart';
 import 'package:untitled/widgets/grid/HoverMenuCard.dart';
 import 'package:untitled/widgets/snackbar/snackbar.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -22,14 +23,18 @@ class InputTypeSelectionCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final ready = lockerId != null && lockerName != null;
     return Row(
       children: [
         Expanded(
           child: HoverMenuCard(
-            titleTh: Text(AppLocalizations.of(context)!.phone),
+            titleTh: Text(l.phone),
+            semanticLabel: '${l.phone}. ${l.tapToSignInWithPhone}',
             icon: Icons.phone_android,
-            color: Colors.blue,
-            onPressed: lockerId != null && lockerName != null
+            color: AppColors.primary,
+            aspectRatio: 2.2,
+            onPressed: ready
                 ? () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -41,17 +46,18 @@ class InputTypeSelectionCards extends StatelessWidget {
                         ),
                       ),
                     )
-                : () => context.showWarningSnackBar(
-                    AppLocalizations.of(context)!.loading),
+                : () => context.showWarningSnackBar(l.loading),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: AppSpacing.lg),
         Expanded(
           child: HoverMenuCard(
-            titleTh: Text(AppLocalizations.of(context)!.email),
+            titleTh: Text(l.email),
+            semanticLabel: '${l.email}. ${l.tapToSignInWithEmail}',
             icon: Icons.email,
-            color: Colors.blue,
-            onPressed: lockerId != null && lockerName != null
+            color: AppColors.primary,
+            aspectRatio: 2.2,
+            onPressed: ready
                 ? () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -63,8 +69,7 @@ class InputTypeSelectionCards extends StatelessWidget {
                         ),
                       ),
                     )
-                : () => context.showWarningSnackBar(
-                    AppLocalizations.of(context)!.loading),
+                : () => context.showWarningSnackBar(l.loading),
           ),
         ),
       ],
